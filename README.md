@@ -31,7 +31,7 @@ The ANS Resolution Server provides:
 │ 5. Registry Adapters       │
 │ 6. Trust Verifier          │
 │ 7. Policy Engine           │
-└────────┬───────────┬──────┘
+└────────┬───────────┬───────┘
          │           │
          ▼           ▼
  ┌─────────────┐  ┌──────────────┐
