@@ -1,0 +1,460 @@
+openapi: 3.1.0
+info:
+  title: ANS Resolution Server API
+  description: |
+    The ANS Resolution Server provides high-performance, cryptographically-verified
+    resolution of ANSName identifiers to agent endpoints.
+  version: 1.0.0
+  license:
+    name: Apache 2.0
+    url: https://www.apache.org/licenses/LICENSE-2.0
+  contact:
+    name: GoDaddy
+    url: https://github.com/godaddy/ans-registry
+
+servers:
+  - url: https://resolver.ans.io/v1
+    description: Production
+  - url: http://localhost:8080/v1
+    description: Local development
+
+paths:
+  /resolve:
+    get:
+      operationId: resolveANSName
+      summary: Resolve an ANSName to a verified endpoint
+      description: |
+        Resolves an ANSName identifier to its verified endpoint, performing
+        cryptographic verification of the registry signature and certificate chain.
+      tags:
+        - Resolution
+      parameters:
+        - name: name
+          in: query
+          required: true
+          description: The full ANSName to resolve
+          schema:
+            type: string
+            example: "mcp://sentimentAnalyzer.textAnalysis.PID-1234.v1.0.0.example.com"
+        - name: force
+          in: query
+          required: false
+          description: Bypass cache and force fresh lookup
+          schema:
+            type: boolean
+            default: false
+      responses:
+        '200':
+          description: Verified resolution result
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ResolutionResponse'
+        '400':
+          description: Invalid ANSName format
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '404':
+          description: Agent not found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '421':
+          description: Untrusted agent - signature verification failed
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '422':
+          description: Certificate revoked
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '429':
+          description: Rate limited
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+
+  /resolve/batch:
+    post:
+      operationId: batchResolve
+      summary: Resolve multiple ANSNames in parallel
+      tags:
+        - Resolution
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/BatchResolveRequest'
+      responses:
+        '200':
+          description: Batch resolution results
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/BatchResolveResponse'
+
+  /agent/{ansName}:
+    get:
+      operationId: getAgent
+      summary: Get agent details
+      tags:
+        - Agents
+      parameters:
+        - name: ansName
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Agent details
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ResolutionRecord'
+        '404':
+          description: Agent not found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+
+  /agent/{ansName}/verify:
+    get:
+      operationId: verifyAgent
+      summary: Perform explicit verification of an agent
+      tags:
+        - Agents
+      parameters:
+        - name: ansName
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Verification result
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/VerifyResponse'
+
+  /agent/{ansName}/versions:
+    get:
+      operationId: listAgentVersions
+      summary: List all versions of an agent
+      tags:
+        - Agents
+      parameters:
+        - name: ansName
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: List of agent versions
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  fqdn:
+                    type: string
+                  versions:
+                    type: array
+                    items:
+                      $ref: '#/components/schemas/ResolutionRecord'
+
+  /search:
+    get:
+      operationId: searchAgents
+      summary: Search for agents
+      tags:
+        - Discovery
+      parameters:
+        - name: q
+          in: query
+          description: Free-text search query
+          schema:
+            type: string
+        - name: protocol
+          in: query
+          description: Filter by protocol
+          schema:
+            type: string
+            enum: [a2a, mcp, acp, https]
+        - name: capability
+          in: query
+          description: Filter by capability
+          schema:
+            type: string
+        - name: status
+          in: query
+          description: Filter by status
+          schema:
+            type: string
+            enum: [active, deprecated, revoked]
+        - name: limit
+          in: query
+          schema:
+            type: integer
+            default: 100
+            maximum: 1000
+        - name: offset
+          in: query
+          schema:
+            type: integer
+            default: 0
+      responses:
+        '200':
+          description: Search results
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/SearchResult'
+
+  /stats:
+    get:
+      operationId: getStats
+      summary: Get resolver statistics
+      tags:
+        - Operations
+      responses:
+        '200':
+          description: Resolver statistics
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Stats'
+
+  /health:
+    get:
+      operationId: healthCheck
+      summary: Health check endpoint
+      tags:
+        - Operations
+      responses:
+        '200':
+          description: Healthy
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  status:
+                    type: string
+                    example: healthy
+                  version:
+                    type: string
+
+  /ready:
+    get:
+      operationId: readinessCheck
+      summary: Readiness check endpoint
+      tags:
+        - Operations
+      responses:
+        '200':
+          description: Ready
+        '503':
+          description: Not ready
+
+components:
+  schemas:
+    ResolutionResponse:
+      type: object
+      required:
+        - status
+      properties:
+        status:
+          type: string
+          enum: [verified, invalid, revoked, error]
+          description: Verification status
+        agent:
+          type: string
+          description: The resolved ANSName
+        protocol:
+          type: string
+          description: Agent protocol
+        endpoint:
+          type: string
+          format: uri
+          description: Agent endpoint URL
+        certFingerprint:
+          type: string
+          description: SHA-256 fingerprint of the public certificate
+        expiresAt:
+          type: string
+          format: date-time
+          description: When the resolution expires
+        protocolExtensions:
+          type: object
+          additionalProperties: true
+          description: Protocol-specific metadata
+        cached:
+          type: boolean
+          description: Whether result was served from cache
+        error:
+          type: string
+          description: Error message if status is error
+
+    BatchResolveRequest:
+      type: object
+      required:
+        - names
+      properties:
+        names:
+          type: array
+          items:
+            type: string
+          maxItems: 100
+
+    BatchResolveResponse:
+      type: object
+      properties:
+        results:
+          type: object
+          additionalProperties:
+            $ref: '#/components/schemas/ResolutionResponse'
+
+    ResolutionRecord:
+      type: object
+      properties:
+        ansName:
+          type: string
+        fqdn:
+          type: string
+        protocol:
+          type: string
+        version:
+          type: string
+        status:
+          type: string
+        endpoint:
+          type: string
+          format: uri
+        certFingerprint:
+          type: string
+        certExpiresAt:
+          type: string
+          format: date-time
+        displayName:
+          type: string
+        description:
+          type: string
+        capabilities:
+          type: array
+          items:
+            type: string
+        protocols:
+          type: array
+          items:
+            type: string
+        registrarId:
+          type: string
+        registeredAt:
+          type: string
+          format: date-time
+        updatedAt:
+          type: string
+          format: date-time
+        expiresAt:
+          type: string
+          format: date-time
+        verifiedAt:
+          type: string
+          format: date-time
+
+    VerifyResponse:
+      type: object
+      properties:
+        valid:
+          type: boolean
+        verifiedAt:
+          type: string
+          format: date-time
+        checks:
+          type: object
+          additionalProperties:
+            $ref: '#/components/schemas/CheckResult'
+
+    CheckResult:
+      type: object
+      properties:
+        passed:
+          type: boolean
+        message:
+          type: string
+        details:
+          type: object
+          additionalProperties: true
+
+    SearchResult:
+      type: object
+      properties:
+        records:
+          type: array
+          items:
+            $ref: '#/components/schemas/ResolutionRecord'
+        total:
+          type: integer
+          format: int64
+        limit:
+          type: integer
+        offset:
+          type: integer
+        hasMore:
+          type: boolean
+
+    Stats:
+      type: object
+      properties:
+        cache:
+          type: object
+          properties:
+            hits:
+              type: integer
+            misses:
+              type: integer
+            size:
+              type: integer
+            hitRate:
+              type: number
+        store:
+          type: object
+          properties:
+            count:
+              type: integer
+        version:
+          type: string
+
+    ErrorResponse:
+      type: object
+      properties:
+        error:
+          type: string
+        message:
+          type: string
+        code:
+          type: integer
+
+  securitySchemes:
+    BearerAuth:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT
+    ApiKey:
+      type: apiKey
+      in: header
+      name: X-API-Key
+    mTLS:
+      type: mutualTLS
