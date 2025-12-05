@@ -46,7 +46,7 @@ func main() {
 	}
 
 	// Initialize logging
-	logger := telemetry.NewLogger(cfg.Spec.Telemetry.Logging)
+	logger := telemetry.NewLogger(cfg.Telemetry.Logging)
 	log.Logger = logger
 
 	log.Info().
@@ -60,8 +60,8 @@ func main() {
 	defer cancel()
 
 	// Initialize telemetry
-	if cfg.Spec.Telemetry.Tracing.Enabled {
-		shutdown, err := telemetry.InitTracing(ctx, cfg.Spec.Telemetry.Tracing)
+	if cfg.Telemetry.Tracing.Enabled {
+		shutdown, err := telemetry.InitTracing(ctx, cfg.Telemetry.Tracing)
 		if err != nil {
 			log.Warn().Err(err).Msg("Failed to initialize tracing, continuing without it")
 		} else {
@@ -102,7 +102,7 @@ func main() {
 
 	// Graceful shutdown
 	log.Info().Msg("Initiating graceful shutdown...")
-	shutdownTimeout := cfg.Spec.Server.GracefulShutdownTimeout
+	shutdownTimeout := cfg.Server.GracefulShutdownTimeout
 	if shutdownTimeout == 0 {
 		shutdownTimeout = 30 * time.Second
 	}
