@@ -21,6 +21,9 @@ import (
 	"github.com/route-ans/route-ans/internal/trust"
 	"github.com/route-ans/route-ans/pkg/ansname"
 	"github.com/rs/zerolog/log"
+	httpSwagger "github.com/swaggo/http-swagger/v2"
+
+	_ "github.com/route-ans/route-ans/api/docs" // Swagger docs
 )
 
 // Server represents the HTTP server
@@ -196,6 +199,9 @@ func (s *Server) routes() http.Handler {
 		r.Handle("/metrics", telemetry.Handler())
 	}
 
+	// Swagger UI endpoint
+	r.Get("/swagger/*", httpSwagger.WrapHandler)
+
 	// API v1
 	r.Route("/v1", func(r chi.Router) {
 		// Resolution endpoints
@@ -305,6 +311,13 @@ func (s *Server) loggingMiddleware(next http.Handler) http.Handler {
 
 // Handlers
 
+// handleHealth godoc
+// @Summary Health check
+// @Description Returns the health status of the server
+// @Tags Health
+// @Produce json
+// @Success 200 {object} map[string]interface{}
+// @Router /health [get]
 func (s *Server) handleHealth(w http.ResponseWriter, r *http.Request) {
 	s.jsonResponse(w, http.StatusOK, map[string]interface{}{
 		"status":  "healthy",
@@ -312,6 +325,14 @@ func (s *Server) handleHealth(w http.ResponseWriter, r *http.Request) {
 	})
 }
 
+// handleReady godoc
+// @Summary Readiness check
+// @Description Returns whether the server is ready to accept requests
+// @Tags Health
+// @Produce json
+// @Success 200 {object} map[string]interface{}
+// @Failure 503 {object} map[string]interface{}
+// @Router /ready [get]
 func (s *Server) handleReady(w http.ResponseWriter, r *http.Request) {
 	// Check registry health
 	healthy, err := s.registry.Healthy(r.Context())
@@ -328,6 +349,19 @@ func (s *Server) handleReady(w http.ResponseWriter, r *http.Request) {
 	})
 }
 
+// handleResolve godoc
+// @Summary Resolve an ANSName
+// @Description Resolves an ANSName identifier to its verified endpoint
+// @Tags Resolution
+// @Produce json
+// @Param name query string true "The full ANSName to resolve" example(mcp://agent.example.com)
+// @Param force query boolean false "Bypass cache and force fresh lookup"
+// @Success 200 {object} ResolutionResponse
+// @Failure 400 {object} ErrorResponse
+// @Failure 404 {object} ErrorResponse
+// @Failure 422 {object} ErrorResponse
+// @Failure 500 {object} ErrorResponse
+// @Router /resolve [get]
 func (s *Server) handleResolve(w http.ResponseWriter, r *http.Request) {
 	ctx := r.Context()
 	start := time.Now()
@@ -387,6 +421,16 @@ func (s *Server) handleResolve(w http.ResponseWriter, r *http.Request) {
 	})
 }
 
+// handleResolveBatch godoc
+// @Summary Batch resolve ANSNames
+// @Description Resolves multiple ANSName identifiers in a single request
+// @Tags Resolution
+// @Accept json
+// @Produce json
+// @Param request body BatchResolveRequest true "Batch resolve request"
+// @Success 200 {object} BatchResolveResponse
+// @Failure 400 {object} ErrorResponse
+// @Router /resolve/batch [post]
 func (s *Server) handleResolveBatch(w http.ResponseWriter, r *http.Request) {
 	var req BatchResolveRequest
 	if err := json.NewDecoder(r.Body).Decode(&req); err != nil {
@@ -437,6 +481,16 @@ func (s *Server) handleResolveBatch(w http.ResponseWriter, r *http.Request) {
 	s.jsonResponse(w, http.StatusOK, BatchResolveResponse{Results: results})
 }
 
+// handleGetAgent godoc
+// @Summary Get agent details
+// @Description Returns detailed information about a specific agent
+// @Tags Agents
+// @Produce json
+// @Param ansName path string true "The ANSName of the agent"
+// @Success 200 {object} ResolutionResponse
+// @Failure 404 {object} ErrorResponse
+// @Failure 500 {object} ErrorResponse
+// @Router /agent/{ansName} [get]
 func (s *Server) handleGetAgent(w http.ResponseWriter, r *http.Request) {
 	ansName := chi.URLParam(r, "ansName")
 
@@ -454,6 +508,17 @@ func (s *Server) handleGetAgent(w http.ResponseWriter, r *http.Request) {
 	s.jsonResponse(w, http.StatusOK, record)
 }
 
+// handleVerifyAgent godoc
+// @Summary Verify an agent
+// @Description Performs cryptographic verification of an agent's registration
+// @Tags Agents
+// @Produce json
+// @Param ansName path string true "The ANSName of the agent to verify"
+// @Success 200 {object} VerifyResponse
+// @Failure 400 {object} ErrorResponse
+// @Failure 404 {object} ErrorResponse
+// @Failure 500 {object} ErrorResponse
+// @Router /agent/{ansName}/verify [get]
 func (s *Server) handleVerifyAgent(w http.ResponseWriter, r *http.Request) {
 	ansName := chi.URLParam(r, "ansName")
 
@@ -482,6 +547,16 @@ func (s *Server) handleVerifyAgent(w http.ResponseWriter, r *http.Request) {
 	})
 }
 
+// handleListVersions godoc
+// @Summary List agent versions
+// @Description Returns all registered versions of an agent
+// @Tags Agents
+// @Produce json
+// @Param ansName path string true "The ANSName of the agent"
+// @Success 200 {object} map[string]interface{}
+// @Failure 400 {object} ErrorResponse
+// @Failure 500 {object} ErrorResponse
+// @Router /agent/{ansName}/versions [get]
 func (s *Server) handleListVersions(w http.ResponseWriter, r *http.Request) {
 	ansName := chi.URLParam(r, "ansName")
 
@@ -504,6 +579,18 @@ func (s *Server) handleListVersions(w http.ResponseWriter, r *http.Request) {
 	})
 }
 
+// handleSearch godoc
+// @Summary Search for agents
+// @Description Search for agents by text, protocol, capability, or status
+// @Tags Discovery
+// @Produce json
+// @Param q query string false "Text search query"
+// @Param protocol query string false "Filter by protocol (a2a, mcp, acp, https)"
+// @Param capability query string false "Filter by capability"
+// @Param status query string false "Filter by status (active, revoked)"
+// @Success 200 {object} map[string]interface{}
+// @Failure 500 {object} ErrorResponse
+// @Router /search [get]
 func (s *Server) handleSearch(w http.ResponseWriter, r *http.Request) {
 	query := &resolver.SearchQuery{
 		Text:       r.URL.Query().Get("q"),
@@ -522,11 +609,31 @@ func (s *Server) handleSearch(w http.ResponseWriter, r *http.Request) {
 	s.jsonResponse(w, http.StatusOK, result)
 }
 
+// handleDiscover godoc
+// @Summary Discover agents by capability
+// @Description Discover agents based on their capabilities
+// @Tags Discovery
+// @Produce json
+// @Param q query string false "Text search query"
+// @Param protocol query string false "Filter by protocol"
+// @Param capability query string false "Filter by capability"
+// @Param status query string false "Filter by status"
+// @Success 200 {object} map[string]interface{}
+// @Failure 500 {object} ErrorResponse
+// @Router /discover [get]
 func (s *Server) handleDiscover(w http.ResponseWriter, r *http.Request) {
 	// Discover is similar to search but focused on capabilities
 	s.handleSearch(w, r)
 }
 
+// handleStats godoc
+// @Summary Get resolver statistics
+// @Description Returns statistics about the resolver's operation
+// @Tags Stats
+// @Produce json
+// @Success 200 {object} map[string]interface{}
+// @Failure 500 {object} ErrorResponse
+// @Router /stats [get]
 func (s *Server) handleStats(w http.ResponseWriter, r *http.Request) {
 	stats, err := s.resolver.Stats(r.Context())
 	if err != nil {

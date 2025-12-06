@@ -204,8 +204,8 @@ type CheckResult struct {
 	// Details contains additional check-specific details
 	Details map[string]interface{} `json:"details,omitempty"`
 
-	// Duration is how long the check took
-	Duration time.Duration `json:"duration,omitempty"`
+	// Duration is how long the check took (in nanoseconds)
+	Duration time.Duration `json:"duration,omitempty" swaggertype:"integer"`
 }
 
 // Stats contains resolver statistics
