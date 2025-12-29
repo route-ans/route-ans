@@ -42,23 +42,83 @@ The ANS Resolution Server provides:
 
 ## Quick Start
 
+### Prerequisites
+
+- Go 1.25+
+- GoDaddy API credentials (for production) or use mock registry (for testing)
+- Optional: Redis for distributed caching
+
 ### Running Locally
 
 ```bash
 # Clone the repository
-git clone https://github.com/godaddy/ans-registry.git
-cd ans-registry/ans-resolution-server
+git clone https://github.com/route-ans/route-ans.git
+cd route-ans
 
 # Install dependencies
 go mod download
 
-# Run with default config (in-memory providers)
+# Run with default config (mock registry)
 make run
 
 # Or build and run
 make build
-./bin/ans-resolver --config configs/resolver.yaml
+./bin/ans-resolver --config configs/resolver-minimal.yaml
 ```
+
+### Using GoDaddy Registry
+
+1. **Get API Credentials**: Sign up at [GoDaddy Developer Portal](https://developer.godaddy.com/keys)
+
+2. **Set Environment Variables**:
+```bash
+export GODADDY_API_KEY="your_api_key"
+export GODADDY_API_SECRET="your_api_secret"
+```
+
+3. **Start the Resolver**:
+```bash
+./bin/ans-resolver --config configs/resolver-godaddy.yaml
+```
+
+4. **Test Resolution**:
+```bash
+# Resolve an agent registered in GoDaddy
+curl "http://localhost:8080/v1/resolve?name=a2a://greeting.greet.PID-1234.v1.0.0.neelanjan.dev"
+```
+
+### Registering Your Agent
+
+Generate certificates and register with GoDaddy:
+
+```bash
+# Generate CSRs for your agent
+openssl req -new -newkey rsa:2048 -nodes \
+  -keyout agent-server.key -out agent-server.csr \
+  -subj "/CN=myagent.example.com/O=MyCompany/C=US"
+
+openssl req -new -newkey rsa:2048 -nodes \
+  -keyout agent-identity.key -out agent-identity.csr \
+  -subj "/CN=a2a:\/\/myagent.capability.PID-XXX.v1.0.0.example.com/O=MyCompany/C=US"
+
+# Register with GoDaddy
+curl -X POST "https://api.godaddy.com/v1/agents/register" \
+  -H "Authorization: sso-key YOUR_API_KEY:YOUR_API_SECRET" \
+  -H "Content-Type: application/json" \
+  -d '{
+    "protocol": "a2a",
+    "agentName": "myagent",
+    "agentCapability": "capability",
+    "provider": "PID-XXX",
+    "version": "1.0.0",
+    "extension": "example.com",
+    "serverCsrPEM": "BASE64_ENCODED_CSR",
+    "identityCsrPEM": "BASE64_ENCODED_CSR",
+    "agentCategory": "AI/ML"
+  }'
+```
+
+See [AGENT_REGISTRATION.md](AGENT_REGISTRATION.md) for detailed registration instructions.
 
 ### Using Docker
 
@@ -81,25 +141,38 @@ kubectl apply -k deployments/kubernetes/
 
 ### Resolve an ANSName
 
+Resolve an agent's ANSName to its verified endpoint:
+
 ```bash
-GET /v1/resolve?name=mcp://sentimentAnalyzer.textAnalysis.PID-1234.v1.0.0.example.com
+GET /v1/resolve?name=a2a://greeting.greet.PID-1234.v1.0.0.neelanjan.dev
 ```
 
 **Response:**
 ```json
 {
   "status": "verified",
-  "agent": "mcp://sentimentAnalyzer.textAnalysis.PID-1234.v1.0.0.example.com",
-  "protocol": "mcp",
-  "endpoint": "https://sentimentAnalyzer.example.com:8443",
-  "certFingerprint": "sha256:abcd1234...",
+  "agent": "a2a://greeting.greet.PID-1234.v1.0.0.neelanjan.dev",
+  "protocol": "a2a",
+  "endpoint": "https://greeting.neelanjan.dev",
   "expiresAt": "2026-03-05T10:45:00Z",
   "protocolExtensions": {
-    "mcp": {
-      "capabilities": ["sentiment-analysis", "text-classification"]
+    "a2a": {
+      "url": "https://greeting.neelanjan.dev/agent"
     }
   }
 }
+```
+
+### Swagger UI
+
+Interactive API documentation available at:
+```
+http://localhost:8080/swagger/
+```
+
+Or generate updated docs:
+```bash
+make docs
 ```
 
 ### HTTP Status Codes
@@ -206,11 +279,23 @@ See `configs/resolver.yaml` for the complete configuration reference.
 
 ### Registry Adapters
 
-| Adapter | Description |
-|---------|-------------|
-| `ans-registry` | GoDaddy ANS Registry |
-| `mock` | Mock adapter for testing |
-| `veritrust` | DID/Verifiable Credentials (planned) |
+| Adapter | Description | Status |
+|---------|-------------|--------|
+| `godaddy` | GoDaddy ANS Registry | ✅ Implemented |
+| `mock` | Mock adapter for testing | ✅ Implemented |
+| `veritrust` | DID/Verifiable Credentials | 🔜 Planned |
+
+**Using GoDaddy Registry:**
+```yaml
+registries:
+  - name: godaddy
+    type: godaddy
+    enabled: true
+    config:
+      baseURL: "https://api.godaddy.com/v1"
+      apiKey: "${GODADDY_API_KEY}"
+      apiSecret: "${GODADDY_API_SECRET}"
+```
 
 ### Trust Providers
 
