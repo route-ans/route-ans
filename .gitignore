@@ -5,3 +5,7 @@ certs/
 *.csr
 *.crt
 *.pem
+
+agents/
+
+ans-resolver
