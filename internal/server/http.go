@@ -14,6 +14,7 @@ import (
 	"github.com/go-chi/httprate"
 	"github.com/route-ans/route-ans/internal/cache"
 	"github.com/route-ans/route-ans/internal/config"
+	"github.com/route-ans/route-ans/internal/queue"
 	"github.com/route-ans/route-ans/internal/registry"
 	"github.com/route-ans/route-ans/internal/resolver"
 	"github.com/route-ans/route-ans/internal/store"
@@ -39,6 +40,7 @@ type Server struct {
 	// Keep references for health checks and direct access if needed
 	cache    cache.Provider
 	store    store.Provider
+	queue    queue.Provider
 	registry registry.Adapter
 }
 
@@ -109,6 +111,35 @@ func (s *Server) initProviders() error {
 		return fmt.Errorf("failed to create store: %w", err)
 	}
 	log.Info().Str("provider", s.cfg.Store.Provider).Msg("Store initialized")
+
+	// Initialize queue
+	if s.cfg.Queue.Enabled {
+		queueOpts := queue.Options{
+			BufferSize:    s.cfg.Queue.BufferSize,
+			ConsumerGroup: s.cfg.Queue.RedisStreams.ConsumerGroup,
+			ConsumerName:  s.cfg.Queue.RedisStreams.Consumer,
+			BlockTimeout:  s.cfg.Queue.RedisStreams.BlockTimeout,
+			BatchSize:     s.cfg.Queue.RedisStreams.BatchSize,
+		}
+		if queueOpts.BufferSize == 0 {
+			queueOpts = queue.DefaultOptions()
+		}
+
+		queueConfig := map[string]interface{}{
+			"address":  s.cfg.Queue.RedisStreams.Address,
+			"password": s.cfg.Queue.RedisStreams.Password,
+			"stream":   s.cfg.Queue.RedisStreams.Stream,
+		}
+
+		s.queue, err = queue.New(s.cfg.Queue.Provider, queueOpts, queueConfig)
+		if err != nil {
+			return fmt.Errorf("failed to create queue: %w", err)
+		}
+		log.Info().
+			Str("provider", s.cfg.Queue.Provider).
+			Int("bufferSize", s.cfg.Queue.BufferSize).
+			Msg("Queue initialized")
+	}
 
 	// Initialize registry adapter (use first enabled one)
 	for _, regCfg := range s.cfg.Registries {
@@ -250,6 +281,11 @@ func (s *Server) Start(ctx context.Context) error {
 		go s.startMetricsServer()
 	}
 
+	// Start queue event processor if enabled
+	if s.queue != nil {
+		go s.processQueueEvents(ctx)
+	}
+
 	if err := s.httpServer.ListenAndServe(); err != nil && !errors.Is(err, http.ErrServerClosed) {
 		return err
 	}
@@ -284,11 +320,111 @@ func (s *Server) Shutdown(ctx context.Context) error {
 	if s.store != nil {
 		s.store.Close()
 	}
+	if s.queue != nil {
+		s.queue.Close()
+	}
 	if s.registry != nil {
 		s.registry.Close()
 	}
 
 	return s.httpServer.Shutdown(ctx)
+}
+
+// processQueueEvents consumes and processes events from the queue
+func (s *Server) processQueueEvents(ctx context.Context) {
+	log.Info().Msg("Starting queue event processor")
+
+	// Subscribe to queue events
+	err := s.queue.Subscribe(ctx, func(ctx context.Context, event *queue.Event) error {
+		start := time.Now()
+
+		log.Debug().
+			Str("eventID", event.ID).
+			Str("type", event.Type).
+			Str("ansName", event.ANSName).
+			Time("timestamp", event.Timestamp).
+			Msg("Processing queue event")
+
+		// Process the event based on type
+		if err := s.handleQueueEvent(ctx, event); err != nil {
+			log.Error().
+				Err(err).
+				Str("eventID", event.ID).
+				Str("type", event.Type).
+				Str("ansName", event.ANSName).
+				Msg("Failed to process queue event")
+
+			// Reject the event for retry
+			s.queue.Reject(ctx, event.ID, true)
+			return err
+		}
+
+		// Acknowledge successful processing
+		s.queue.Acknowledge(ctx, event.ID)
+
+		log.Debug().
+			Str("eventID", event.ID).
+			Dur("duration", time.Since(start)).
+			Msg("Queue event processed successfully")
+
+		return nil
+	})
+
+	if err != nil {
+		log.Error().Err(err).Msg("Queue subscription ended with error")
+	} else {
+		log.Info().Msg("Queue event processor stopped")
+	}
+}
+
+// handleQueueEvent processes a single queue event
+func (s *Server) handleQueueEvent(ctx context.Context, event *queue.Event) error {
+	switch event.Type {
+	case "registered", "renewed":
+		// Cache the new/updated registration
+		log.Info().
+			Str("ansName", event.ANSName).
+			Str("type", event.Type).
+			Msg("Agent registration event received")
+
+		// If we have endpoint info, we could proactively cache it
+		// For now, just invalidate to force fresh lookup
+		s.cache.Delete(ctx, event.ANSName)
+
+		// Update metrics
+		s.metrics.RecordQueueEvent(event.Type, true)
+
+	case "revoked", "deprecated":
+		// Invalidate cache for revoked/deprecated agents
+		log.Info().
+			Str("ansName", event.ANSName).
+			Str("type", event.Type).
+			Msg("Agent revocation/deprecation event received")
+
+		// Remove from cache
+		s.cache.Delete(ctx, event.ANSName)
+
+		// Update metrics
+		s.metrics.RecordQueueEvent(event.Type, true)
+
+	case "expired":
+		// Handle expiration
+		log.Info().
+			Str("ansName", event.ANSName).
+			Msg("Agent expiration event received")
+
+		s.cache.Delete(ctx, event.ANSName)
+		s.metrics.RecordQueueEvent(event.Type, true)
+
+	default:
+		log.Warn().
+			Str("eventID", event.ID).
+			Str("type", event.Type).
+			Msg("Unknown event type, ignoring")
+		s.metrics.RecordQueueEvent("unknown", false)
+	}
+
+	return nil
 }
 
 // Middleware

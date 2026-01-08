@@ -108,3 +108,18 @@ help:
 	@grep -E '^##' Makefile | sed 's/## /  /'
 	@echo ""
 	@echo "Usage: make [target]"
+
+# Serve configuration docs
+.PHONY: docs-serve
+docs-serve:
+	mkdocs serve
+
+# Build configuration docs
+.PHONY: docs-build
+docs-build:
+	mkdocs build
+
+# Install doc dependencies
+.PHONY: docs-install
+docs-install:
+	pip install -r requirements.txt

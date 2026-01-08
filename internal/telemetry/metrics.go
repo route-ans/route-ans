@@ -233,3 +233,12 @@ func (m *Metrics) RecordHTTPRequest(method, path string, status int, duration ti
 	m.HTTPRequestSize.WithLabelValues(method, path).Observe(float64(requestSize))
 	m.HTTPResponseSize.WithLabelValues(method, path).Observe(float64(responseSize))
 }
+
+// RecordQueueEvent records a queue event processing result
+func (m *Metrics) RecordQueueEvent(eventType string, success bool) {
+	if success {
+		m.QueueProcessed.Inc()
+	} else {
+		m.QueueFailed.Inc()
+	}
+}

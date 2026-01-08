@@ -119,6 +119,7 @@ type MemcachedConfig struct {
 
 // QueueConfig contains message queue settings
 type QueueConfig struct {
+	Enabled      bool               `yaml:"enabled"`
 	Provider     string             `yaml:"provider"`
 	BufferSize   int                `yaml:"bufferSize"`
 	RedisStreams RedisStreamsConfig `yaml:"redis-streams"`
@@ -482,6 +483,8 @@ func setDefaults(cfg *Config) {
 	if cfg.Queue.BufferSize == 0 {
 		cfg.Queue.BufferSize = 1000
 	}
+	// Queue is disabled by default as it's not implemented yet
+	// Set queue.enabled: true when queue processing is ready
 
 	// Store defaults
 	if cfg.Store.Provider == "" {
@@ -545,10 +548,12 @@ func validate(cfg *Config) error {
 		errors = append(errors, fmt.Sprintf("invalid cache provider: %s", cfg.Cache.Provider))
 	}
 
-	// Validate queue provider
-	validQueueProviders := map[string]bool{"memory": true, "redis-streams": true, "kafka": true, "nats": true}
-	if !validQueueProviders[cfg.Queue.Provider] {
-		errors = append(errors, fmt.Sprintf("invalid queue provider: %s", cfg.Queue.Provider))
+	// Validate queue provider (only if queue is enabled)
+	if cfg.Queue.Enabled {
+		validQueueProviders := map[string]bool{"memory": true, "redis-streams": true, "kafka": true, "nats": true}
+		if !validQueueProviders[cfg.Queue.Provider] {
+			errors = append(errors, fmt.Sprintf("invalid queue provider: %s", cfg.Queue.Provider))
+		}
 	}
 
 	// Validate store provider

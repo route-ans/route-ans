@@ -224,9 +224,10 @@ spec:
     redis:
       address: ${REDIS_ADDRESS:localhost:6379}
 
-  # Pluggable queue provider
+  # Pluggable queue provider (disabled by default)
   queue:
-    provider: ${QUEUE_PROVIDER:memory}  # memory | redis-streams | kafka | nats
+    enabled: ${QUEUE_ENABLED:false}  # Enable for event processing
+    provider: ${QUEUE_PROVIDER:memory}  # memory | redis-streams
 
   # Pluggable store provider
   store:
@@ -262,12 +263,12 @@ See `configs/resolver.yaml` for the complete configuration reference.
 
 ### Queue Providers
 
-| Provider | Description | Config Key |
-|----------|-------------|------------|
-| `memory` | In-memory channel | Default |
-| `redis-streams` | Redis Streams | `queue.redis-streams.*` |
-| `kafka` | Apache Kafka | `queue.kafka.*` |
-| `nats` | NATS JetStream | `queue.nats.*` |
+**Note:** Queue is disabled by default. Enable it to process registry events for cache invalidation and distributed coordination.
+
+| Provider | Description | Config Key | Status |
+|----------|-------------|------------|--------|
+| `memory` | In-memory channel | Default | ✅ Implemented |
+| `redis-streams` | Redis Streams | `queue.redis-streams.*` | ⚙️ Config only |
 
 ### Store Providers
 
@@ -304,6 +305,33 @@ registries:
 | `file` | File-based trust store |
 | `vault` | HashiCorp Vault |
 | `k8s-secret` | Kubernetes Secret |
+
+## Event Processing
+
+The resolver includes an optional queue system for processing registry events:
+
+**What it does:**
+- Listens for registry events (registered, renewed, revoked, deprecated)
+- Automatically invalidates cache when agents are updated
+- Tracks event processing metrics
+- Supports distributed coordination via Redis Streams
+
+**Enable queue processing:**
+```yaml
+queue:
+  enabled: true
+  provider: memory  # or redis-streams for distributed setups
+  bufferSize: 100
+```
+
+**Supported event types:**
+- `registered` - New agent registered
+- `renewed` - Agent certificate renewed
+- `revoked` - Agent revoked
+- `deprecated` - Agent marked deprecated
+- `expired` - Agent expired
+
+When disabled (default), the resolver operates in pure request-response mode with cache-based optimization.
 
 ## Observability
 
