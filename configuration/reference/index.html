@@ -1,0 +1,2050 @@
+
+<!doctype html>
+<html lang="en" class="no-js">
+  <head>
+    
+      <meta charset="utf-8">
+      <meta name="viewport" content="width=device-width,initial-scale=1">
+      
+        <meta name="description" content="Complete API reference for ANS Resolution Server YAML configuration">
+      
+      
+        <meta name="author" content="Route ANS Team">
+      
+      
+      
+      
+      
+        
+      
+      
+      <link rel="icon" href="../../assets/images/favicon.png">
+      <meta name="generator" content="mkdocs-1.5.3, mkdocs-material-9.7.1">
+    
+    
+      
+        <title>Configuration Reference - ANS Resolution Server</title>
+      
+    
+    
+      <link rel="stylesheet" href="../../assets/stylesheets/main.484c7ddc.min.css">
+      
+        
+        <link rel="stylesheet" href="../../assets/stylesheets/palette.ab4e12ef.min.css">
+      
+      
+
+
+    
+    
+      
+    
+    
+      
+        
+        
+        <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+        <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Roboto:300,300i,400,400i,700,700i%7CRoboto+Mono:400,400i,700,700i&display=fallback">
+        <style>:root{--md-text-font:"Roboto";--md-code-font:"Roboto Mono"}</style>
+      
+    
+    
+    <script>__md_scope=new URL("../..",location),__md_hash=e=>[...e].reduce(((e,_)=>(e<<5)-e+_.charCodeAt(0)),0),__md_get=(e,_=localStorage,t=__md_scope)=>JSON.parse(_.getItem(t.pathname+"."+e)),__md_set=(e,_,t=localStorage,a=__md_scope)=>{try{t.setItem(a.pathname+"."+e,JSON.stringify(_))}catch(e){}}</script>
+    
+      
+
+    
+    
+  </head>
+  
+  
+    
+    
+      
+    
+    
+    
+    
+    <body dir="ltr" data-md-color-scheme="default" data-md-color-primary="blue-grey" data-md-color-accent="blue-grey">
+  
+    
+    <input class="md-toggle" data-md-toggle="drawer" type="checkbox" id="__drawer" autocomplete="off">
+    <input class="md-toggle" data-md-toggle="search" type="checkbox" id="__search" autocomplete="off">
+    <label class="md-overlay" for="__drawer"></label>
+    <div data-md-component="skip">
+      
+        
+        <a href="#configuration-reference" class="md-skip">
+          Skip to content
+        </a>
+      
+    </div>
+    <div data-md-component="announce">
+      
+    </div>
+    
+    
+      
+
+  
+
+<header class="md-header md-header--shadow" data-md-component="header">
+  <nav class="md-header__inner md-grid" aria-label="Header">
+    <a href="../.." title="ANS Resolution Server" class="md-header__button md-logo" aria-label="ANS Resolution Server" data-md-component="logo">
+      
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3 3 3 0 0 0 3 3m0 3.54C9.64 9.35 6.5 8 3 8v11c3.5 0 6.64 1.35 9 3.54 2.36-2.19 5.5-3.54 9-3.54V8c-3.5 0-6.64 1.35-9 3.54"/></svg>
+
+    </a>
+    <label class="md-header__button md-icon" for="__drawer">
+      
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M3 6h18v2H3zm0 5h18v2H3zm0 5h18v2H3z"/></svg>
+    </label>
+    <div class="md-header__title" data-md-component="header-title">
+      <div class="md-header__ellipsis">
+        <div class="md-header__topic">
+          <span class="md-ellipsis">
+            ANS Resolution Server
+          </span>
+        </div>
+        <div class="md-header__topic" data-md-component="header-topic">
+          <span class="md-ellipsis">
+            
+              Configuration Reference
+            
+          </span>
+        </div>
+      </div>
+    </div>
+    
+      
+        <form class="md-header__option" data-md-component="palette">
+  
+    
+    
+    
+    <input class="md-option" data-md-color-media="" data-md-color-scheme="default" data-md-color-primary="blue-grey" data-md-color-accent="blue-grey"  aria-label="Switch to dark mode"  type="radio" name="__palette" id="__palette_0">
+    
+      <label class="md-header__button md-icon" title="Switch to dark mode" for="__palette_1" hidden>
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a4 4 0 0 0-4 4 4 4 0 0 0 4 4 4 4 0 0 0 4-4 4 4 0 0 0-4-4m0 10a6 6 0 0 1-6-6 6 6 0 0 1 6-6 6 6 0 0 1 6 6 6 6 0 0 1-6 6m8-9.31V4h-4.69L12 .69 8.69 4H4v4.69L.69 12 4 15.31V20h4.69L12 23.31 15.31 20H20v-4.69L23.31 12z"/></svg>
+      </label>
+    
+  
+    
+    
+    
+    <input class="md-option" data-md-color-media="" data-md-color-scheme="slate" data-md-color-primary="blue-grey" data-md-color-accent="blue-grey"  aria-label="Switch to light mode"  type="radio" name="__palette" id="__palette_1">
+    
+      <label class="md-header__button md-icon" title="Switch to light mode" for="__palette_0" hidden>
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 18c-.89 0-1.74-.2-2.5-.55C11.56 16.5 13 14.42 13 12s-1.44-4.5-3.5-5.45C10.26 6.2 11.11 6 12 6a6 6 0 0 1 6 6 6 6 0 0 1-6 6m8-9.31V4h-4.69L12 .69 8.69 4H4v4.69L.69 12 4 15.31V20h4.69L12 23.31 15.31 20H20v-4.69L23.31 12z"/></svg>
+      </label>
+    
+  
+</form>
+      
+    
+    
+      <script>var palette=__md_get("__palette");if(palette&&palette.color){if("(prefers-color-scheme)"===palette.color.media){var media=matchMedia("(prefers-color-scheme: light)"),input=document.querySelector(media.matches?"[data-md-color-media='(prefers-color-scheme: light)']":"[data-md-color-media='(prefers-color-scheme: dark)']");palette.color.media=input.getAttribute("data-md-color-media"),palette.color.scheme=input.getAttribute("data-md-color-scheme"),palette.color.primary=input.getAttribute("data-md-color-primary"),palette.color.accent=input.getAttribute("data-md-color-accent")}for(var[key,value]of Object.entries(palette.color))document.body.setAttribute("data-md-color-"+key,value)}</script>
+    
+    
+    
+      
+      
+        <label class="md-header__button md-icon" for="__search">
+          
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.52 6.52 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5"/></svg>
+        </label>
+        <div class="md-search" data-md-component="search" role="dialog">
+  <label class="md-search__overlay" for="__search"></label>
+  <div class="md-search__inner" role="search">
+    <form class="md-search__form" name="search">
+      <input type="text" class="md-search__input" name="query" aria-label="Search" placeholder="Search" autocapitalize="off" autocorrect="off" autocomplete="off" spellcheck="false" data-md-component="search-query" required>
+      <label class="md-search__icon md-icon" for="__search">
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.52 6.52 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5"/></svg>
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M20 11v2H8l5.5 5.5-1.42 1.42L4.16 12l7.92-7.92L13.5 5.5 8 11z"/></svg>
+      </label>
+      <nav class="md-search__options" aria-label="Search">
+        
+        <button type="reset" class="md-search__icon md-icon" title="Clear" aria-label="Clear" tabindex="-1">
+          
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M19 6.41 17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z"/></svg>
+        </button>
+      </nav>
+      
+        <div class="md-search__suggest" data-md-component="search-suggest"></div>
+      
+    </form>
+    <div class="md-search__output">
+      <div class="md-search__scrollwrap" tabindex="0" data-md-scrollfix>
+        <div class="md-search-result" data-md-component="search-result">
+          <div class="md-search-result__meta">
+            Initializing search
+          </div>
+          <ol class="md-search-result__list" role="presentation"></ol>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+      
+    
+    
+      <div class="md-header__source">
+        <a href="https://github.com/route-ans/route-ans" title="Go to repository" class="md-source" data-md-component="source">
+  <div class="md-source__icon md-icon">
+    
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512"><!--! Font Awesome Free 7.1.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2025 Fonticons, Inc.--><path d="M439.6 236.1 244 40.5c-5.4-5.5-12.8-8.5-20.4-8.5s-15 3-20.4 8.4L162.5 81l51.5 51.5c27.1-9.1 52.7 16.8 43.4 43.7l49.7 49.7c34.2-11.8 61.2 31 35.5 56.7-26.5 26.5-70.2-2.9-56-37.3L240.3 199v121.9c25.3 12.5 22.3 41.8 9.1 55-6.4 6.4-15.2 10.1-24.3 10.1s-17.8-3.6-24.3-10.1c-17.6-17.6-11.1-46.9 11.2-56v-123c-20.8-8.5-24.6-30.7-18.6-45L142.6 101 8.5 235.1C3 240.6 0 247.9 0 255.5s3 15 8.5 20.4l195.6 195.7c5.4 5.4 12.7 8.4 20.4 8.4s15-3 20.4-8.4l194.7-194.7c5.4-5.4 8.4-12.8 8.4-20.4s-3-15-8.4-20.4"/></svg>
+  </div>
+  <div class="md-source__repository">
+    GitHub
+  </div>
+</a>
+      </div>
+    
+  </nav>
+  
+</header>
+    
+    <div class="md-container" data-md-component="container">
+      
+      
+        
+          
+        
+      
+      <main class="md-main" data-md-component="main">
+        <div class="md-main__inner md-grid">
+          
+            
+              
+              <div class="md-sidebar md-sidebar--primary" data-md-component="sidebar" data-md-type="navigation" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+
+
+<nav class="md-nav md-nav--primary" aria-label="Navigation" data-md-level="0">
+  <label class="md-nav__title" for="__drawer">
+    <a href="../.." title="ANS Resolution Server" class="md-nav__button md-logo" aria-label="ANS Resolution Server" data-md-component="logo">
+      
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3 3 3 0 0 0 3 3m0 3.54C9.64 9.35 6.5 8 3 8v11c3.5 0 6.64 1.35 9 3.54 2.36-2.19 5.5-3.54 9-3.54V8c-3.5 0-6.64 1.35-9 3.54"/></svg>
+
+    </a>
+    ANS Resolution Server
+  </label>
+  
+    <div class="md-nav__source">
+      <a href="https://github.com/route-ans/route-ans" title="Go to repository" class="md-source" data-md-component="source">
+  <div class="md-source__icon md-icon">
+    
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512"><!--! Font Awesome Free 7.1.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2025 Fonticons, Inc.--><path d="M439.6 236.1 244 40.5c-5.4-5.5-12.8-8.5-20.4-8.5s-15 3-20.4 8.4L162.5 81l51.5 51.5c27.1-9.1 52.7 16.8 43.4 43.7l49.7 49.7c34.2-11.8 61.2 31 35.5 56.7-26.5 26.5-70.2-2.9-56-37.3L240.3 199v121.9c25.3 12.5 22.3 41.8 9.1 55-6.4 6.4-15.2 10.1-24.3 10.1s-17.8-3.6-24.3-10.1c-17.6-17.6-11.1-46.9 11.2-56v-123c-20.8-8.5-24.6-30.7-18.6-45L142.6 101 8.5 235.1C3 240.6 0 247.9 0 255.5s3 15 8.5 20.4l195.6 195.7c5.4 5.4 12.7 8.4 20.4 8.4s15-3 20.4-8.4l194.7-194.7c5.4-5.4 8.4-12.8 8.4-20.4s-3-15-8.4-20.4"/></svg>
+  </div>
+  <div class="md-source__repository">
+    GitHub
+  </div>
+</a>
+    </div>
+  
+  <ul class="md-nav__list" data-md-scrollfix>
+    
+      
+      
+  
+  
+    
+  
+  
+  
+    <li class="md-nav__item md-nav__item--active">
+      
+      <input class="md-nav__toggle md-toggle" type="checkbox" id="__toc">
+      
+      
+        
+      
+      
+        <label class="md-nav__link md-nav__link--active" for="__toc">
+          
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Configuration Reference
+  
+
+    
+  </span>
+  
+  
+
+          <span class="md-nav__icon md-icon"></span>
+        </label>
+      
+      <a href="./" class="md-nav__link md-nav__link--active">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Configuration Reference
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+      
+        
+
+<nav class="md-nav md-nav--secondary" aria-label="Table of contents">
+  
+  
+  
+    
+  
+  
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      Table of contents
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#overview" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Overview
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#configuration-structure" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Configuration Structure
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#complete-configuration-reference" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Complete Configuration Reference
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Complete Configuration Reference">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#server-server-configuration" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        server - Server Configuration
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#serverhttp-http-server-settings" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        server.http - HTTP Server Settings
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#cache-cache-configuration" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        cache - Cache Configuration
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#cachettl-cache-ttl-settings" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        cache.ttl - Cache TTL Settings
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#cacheredis-redis-cache-configuration" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        cache.redis - Redis Cache Configuration
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#queue-queue-configuration" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        queue - Queue Configuration
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#store-data-store-configuration" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        store - Data Store Configuration
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#registries-registry-adapters" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        registries - Registry Adapters
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#registriesconfig-godaddy-registry" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        registries[].config - GoDaddy Registry
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#trust-trust-and-verification" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        trust - Trust and Verification
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#trustverification-verification-settings" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        trust.verification - Verification Settings
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#ratelimit-rate-limiting" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        rateLimit - Rate Limiting
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#telemetry-telemetry-configuration" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        telemetry - Telemetry Configuration
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#telemetrylogging-logging-configuration" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        telemetry.logging - Logging Configuration
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#telemetrymetrics-metrics-configuration" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        telemetry.metrics - Metrics Configuration
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#environment-variables" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Environment Variables
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#complete-example-configurations" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Complete Example Configurations
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#validation" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Validation
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#duration-format" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Duration Format
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#need-help" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Need Help?
+      
+    </span>
+  </a>
+  
+</li>
+      
+    </ul>
+  
+</nav>
+      
+    </li>
+  
+
+    
+  </ul>
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+            
+              
+              <div class="md-sidebar md-sidebar--secondary" data-md-component="sidebar" data-md-type="toc" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+<nav class="md-nav md-nav--secondary" aria-label="Table of contents">
+  
+  
+  
+    
+  
+  
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      Table of contents
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#overview" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Overview
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#configuration-structure" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Configuration Structure
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#complete-configuration-reference" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Complete Configuration Reference
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Complete Configuration Reference">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#server-server-configuration" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        server - Server Configuration
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#serverhttp-http-server-settings" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        server.http - HTTP Server Settings
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#cache-cache-configuration" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        cache - Cache Configuration
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#cachettl-cache-ttl-settings" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        cache.ttl - Cache TTL Settings
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#cacheredis-redis-cache-configuration" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        cache.redis - Redis Cache Configuration
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#queue-queue-configuration" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        queue - Queue Configuration
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#store-data-store-configuration" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        store - Data Store Configuration
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#registries-registry-adapters" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        registries - Registry Adapters
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#registriesconfig-godaddy-registry" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        registries[].config - GoDaddy Registry
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#trust-trust-and-verification" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        trust - Trust and Verification
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#trustverification-verification-settings" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        trust.verification - Verification Settings
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#ratelimit-rate-limiting" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        rateLimit - Rate Limiting
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#telemetry-telemetry-configuration" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        telemetry - Telemetry Configuration
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#telemetrylogging-logging-configuration" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        telemetry.logging - Logging Configuration
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#telemetrymetrics-metrics-configuration" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        telemetry.metrics - Metrics Configuration
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#environment-variables" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Environment Variables
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#complete-example-configurations" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Complete Example Configurations
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#validation" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Validation
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#duration-format" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Duration Format
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#need-help" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Need Help?
+      
+    </span>
+  </a>
+  
+</li>
+      
+    </ul>
+  
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+          
+          
+            <div class="md-content" data-md-component="content">
+              
+              <article class="md-content__inner md-typeset">
+                
+                  
+
+
+  
+  
+
+
+<h1 id="configuration-reference">Configuration Reference<a class="headerlink" href="#configuration-reference" title="Permanent link">&para;</a></h1>
+<p>Complete API reference for all ANS Resolution Server configuration options.</p>
+<div class="admonition info">
+<p class="admonition-title">Implementation Status</p>
+<p>Some configuration options are designed for future features. These are marked with badges:</p>
+<ul>
+<li>🟢 <strong>Implemented</strong> - Fully functional</li>
+<li>🟡 <strong>Partial</strong> - Basic implementation, limited functionality</li>
+<li>🔴 <strong>Future</strong> - Not yet implemented, reserved for future use</li>
+<li>⚠️ <strong>Optional</strong> - Can be disabled/omitted</li>
+</ul>
+</div>
+<h2 id="overview">Overview<a class="headerlink" href="#overview" title="Permanent link">&para;</a></h2>
+<p>The resolver uses YAML configuration with environment variable substitution.</p>
+<p><strong>Format:</strong> <code>${VAR_NAME:default_value}</code></p>
+<p><strong>Example:</strong></p>
+<div class="highlight"><pre><span></span><code><span class="nt">apiKey</span><span class="p">:</span><span class="w"> </span><span class="s">&quot;${GODADDY_API_KEY:your-key-here}&quot;</span>
+</code></pre></div>
+<h2 id="configuration-structure">Configuration Structure<a class="headerlink" href="#configuration-structure" title="Permanent link">&para;</a></h2>
+<div class="highlight"><pre><span></span><code><span class="nt">server</span><span class="p">:</span><span class="w">         </span><span class="l l-Scalar l-Scalar-Plain">🟢 HTTP/gRPC server settings</span>
+<span class="nt">cache</span><span class="p">:</span><span class="w">          </span><span class="l l-Scalar l-Scalar-Plain">🟢 Cache provider configuration</span>
+<span class="nt">queue</span><span class="p">:</span><span class="w">          </span><span class="l l-Scalar l-Scalar-Plain">🔴 Message queue (not used, can disable)</span>
+<span class="nt">store</span><span class="p">:</span><span class="w">          </span><span class="l l-Scalar l-Scalar-Plain">🟡 Data store (basic search only)</span>
+<span class="nt">registries</span><span class="p">:</span><span class="w">     </span><span class="l l-Scalar l-Scalar-Plain">🟢 Registry adapters (GoDaddy, mock)</span>
+<span class="nt">trust</span><span class="p">:</span><span class="w">          </span><span class="l l-Scalar l-Scalar-Plain">🟢 Trust and verification (can disable)</span>
+<span class="nt">rateLimit</span><span class="p">:</span><span class="w">      </span><span class="l l-Scalar l-Scalar-Plain">🟢 Rate limiting</span>
+<span class="nt">telemetry</span><span class="p">:</span><span class="w">      </span><span class="l l-Scalar l-Scalar-Plain">🟢 Logging, metrics, tracing</span>
+</code></pre></div>
+<hr />
+<h2 id="complete-configuration-reference">Complete Configuration Reference<a class="headerlink" href="#complete-configuration-reference" title="Permanent link">&para;</a></h2>
+<h3 id="server-server-configuration"><code>server</code> - Server Configuration<a class="headerlink" href="#server-server-configuration" title="Permanent link">&para;</a></h3>
+<p>🟢 <strong>Status:</strong> Fully Implemented<br />
+<strong>Type:</strong> Object<br />
+<strong>Required:</strong> Yes</p>
+<p>Configures the HTTP and optional gRPC servers that handle incoming resolution requests.</p>
+<table>
+<thead>
+<tr>
+<th>Field</th>
+<th>Type</th>
+<th>Default</th>
+<th>Description</th>
+<th>Status</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>http</code></td>
+<td>HTTPConfig</td>
+<td>-</td>
+<td>HTTP server configuration</td>
+<td>🟢 Required</td>
+</tr>
+<tr>
+<td><code>grpc</code></td>
+<td>GRPCConfig</td>
+<td>-</td>
+<td>gRPC server (optional, for future use)</td>
+<td>🔴 Future</td>
+</tr>
+<tr>
+<td><code>tls</code></td>
+<td>TLSConfig</td>
+<td>-</td>
+<td>TLS configuration (HTTPS)</td>
+<td>⚠️ Optional</td>
+</tr>
+<tr>
+<td><code>gracefulShutdownTimeout</code></td>
+<td>duration</td>
+<td>30s</td>
+<td>Time to wait for connections to close during shutdown</td>
+<td>🟢</td>
+</tr>
+</tbody>
+</table>
+<p><strong>Implementation Notes:</strong></p>
+<ul>
+<li>HTTP server is the primary interface</li>
+<li>gRPC support is planned but not implemented</li>
+<li>TLS can be configured but typically handled by reverse proxy</li>
+</ul>
+<p><strong>Example:</strong>
+<div class="highlight"><pre><span></span><code><span class="nt">server</span><span class="p">:</span>
+<span class="w">  </span><span class="nt">http</span><span class="p">:</span>
+<span class="w">    </span><span class="nt">host</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">0.0.0.0</span>
+<span class="w">    </span><span class="nt">port</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">8080</span>
+<span class="w">    </span><span class="nt">readTimeout</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">30s</span>
+<span class="w">    </span><span class="nt">writeTimeout</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">30s</span>
+<span class="w">    </span><span class="nt">idleTimeout</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">120s</span>
+<span class="w">  </span><span class="nt">gracefulShutdownTimeout</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">30s</span>
+</code></pre></div></p>
+<hr />
+<h3 id="serverhttp-http-server-settings"><code>server.http</code> - HTTP Server Settings<a class="headerlink" href="#serverhttp-http-server-settings" title="Permanent link">&para;</a></h3>
+<p>🟢 <strong>Status:</strong> Fully Implemented<br />
+<strong>Type:</strong> Object<br />
+<strong>Required:</strong> Yes</p>
+<p>Controls the HTTP server that exposes the REST API and Swagger UI.</p>
+<table>
+<thead>
+<tr>
+<th>Field</th>
+<th>Type</th>
+<th>Default</th>
+<th>Description</th>
+<th>Status</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>host</code></td>
+<td>string</td>
+<td>0.0.0.0</td>
+<td>Network interface to bind to (0.0.0.0 = all interfaces)</td>
+<td>🟢</td>
+</tr>
+<tr>
+<td><code>port</code></td>
+<td>int</td>
+<td>8080</td>
+<td>TCP port to listen on</td>
+<td>🟢</td>
+</tr>
+<tr>
+<td><code>readTimeout</code></td>
+<td>duration</td>
+<td>30s</td>
+<td>Maximum time to read the entire request</td>
+<td>🟢</td>
+</tr>
+<tr>
+<td><code>writeTimeout</code></td>
+<td>duration</td>
+<td>30s</td>
+<td>Maximum time to write the response</td>
+<td>🟢</td>
+</tr>
+<tr>
+<td><code>idleTimeout</code></td>
+<td>duration</td>
+<td>120s</td>
+<td>Maximum time to wait for next request when keep-alive is enabled</td>
+<td>🟢</td>
+</tr>
+<tr>
+<td><code>maxHeaderBytes</code></td>
+<td>int</td>
+<td>1048576</td>
+<td>Maximum size of request headers (1MB)</td>
+<td>🟢</td>
+</tr>
+</tbody>
+</table>
+<p><strong>Performance Tips:</strong></p>
+<ul>
+<li>Increase <code>readTimeout</code>/<code>writeTimeout</code> if resolution takes &gt;30s (e.g., slow DNS)</li>
+<li>Decrease <code>idleTimeout</code> to free connections faster under high load</li>
+<li>Increase <code>maxHeaderBytes</code> only if you need larger headers (rarely needed)</li>
+</ul>
+<hr />
+<h3 id="cache-cache-configuration"><code>cache</code> - Cache Configuration<a class="headerlink" href="#cache-cache-configuration" title="Permanent link">&para;</a></h3>
+<p>🟢 <strong>Status:</strong> Fully Implemented<br />
+<strong>Type:</strong> Object<br />
+<strong>Required:</strong> Yes</p>
+<p>Configures caching to speed up repeated resolution requests. Critical for performance.</p>
+<table>
+<thead>
+<tr>
+<th>Field</th>
+<th>Type</th>
+<th>Default</th>
+<th>Description</th>
+<th>Status</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>provider</code></td>
+<td>string</td>
+<td>memory</td>
+<td>Cache backend: <code>memory</code> (in-process) or <code>redis</code> (distributed)</td>
+<td>🟢</td>
+</tr>
+<tr>
+<td><code>ttl</code></td>
+<td>TTLConfig</td>
+<td>-</td>
+<td>Time-to-live settings for different record types</td>
+<td>🟢</td>
+</tr>
+<tr>
+<td><code>memory</code></td>
+<td>MemoryCacheConfig</td>
+<td>-</td>
+<td>In-memory cache settings (used when provider=memory)</td>
+<td>🟢</td>
+</tr>
+<tr>
+<td><code>redis</code></td>
+<td>RedisCacheConfig</td>
+<td>-</td>
+<td>Redis cache settings (used when provider=redis)</td>
+<td>🟢</td>
+</tr>
+</tbody>
+</table>
+<p><strong>Cache Strategy:</strong></p>
+<ul>
+<li><strong>Cache hit</strong>: Sub-millisecond response time</li>
+<li><strong>Cache miss</strong>: 100-500ms (registry lookup + verification)</li>
+<li><strong>Recommended</strong>: Start with <code>memory</code>, upgrade to <code>redis</code> for multi-instance deployments</li>
+</ul>
+<p><strong>Example:</strong>
+<div class="highlight"><pre><span></span><code><span class="nt">cache</span><span class="p">:</span>
+<span class="w">  </span><span class="nt">provider</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">memory</span>
+<span class="w">  </span><span class="nt">ttl</span><span class="p">:</span>
+<span class="w">    </span><span class="nt">default</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">300s</span><span class="w">      </span><span class="c1"># 5 minutes - general TTL</span>
+<span class="w">    </span><span class="nt">verified</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">600s</span><span class="w">     </span><span class="c1"># 10 minutes - verified agents cached longer</span>
+<span class="w">    </span><span class="nt">revoked</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">3600s</span><span class="w">     </span><span class="c1"># 1 hour - revoked agents cached to prevent repeated checks</span>
+<span class="w">    </span><span class="nt">notFound</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">60s</span><span class="w">      </span><span class="c1"># 1 minute - not-found results cached briefly</span>
+<span class="w">  </span><span class="nt">memory</span><span class="p">:</span>
+<span class="w">    </span><span class="nt">maxSize</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">10000</span>
+<span class="w">    </span><span class="nt">cleanupInterval</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">60s</span>
+</code></pre></div></p>
+<p><strong>When to use Redis:</strong></p>
+<ul>
+<li>Running multiple resolver instances</li>
+<li>Need cache sharing across instances</li>
+<li>Handling &gt;1000 requests/second</li>
+<li>Want persistent cache across restarts</li>
+</ul>
+<hr />
+<h3 id="cachettl-cache-ttl-settings"><code>cache.ttl</code> - Cache TTL Settings<a class="headerlink" href="#cachettl-cache-ttl-settings" title="Permanent link">&para;</a></h3>
+<p>🟢 <strong>Status:</strong> Fully Implemented<br />
+<strong>Type:</strong> Object</p>
+<p>Controls how long different types of records are cached before being re-fetched from the registry.</p>
+<table>
+<thead>
+<tr>
+<th>Field</th>
+<th>Type</th>
+<th>Default</th>
+<th>Description</th>
+<th>Status</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>default</code></td>
+<td>duration</td>
+<td>300s</td>
+<td>Default TTL for records without specific status</td>
+<td>🟢</td>
+</tr>
+<tr>
+<td><code>verified</code></td>
+<td>duration</td>
+<td>600s</td>
+<td>TTL for successfully verified agent records</td>
+<td>🟢</td>
+</tr>
+<tr>
+<td><code>revoked</code></td>
+<td>duration</td>
+<td>3600s</td>
+<td>TTL for revoked agents (cached longer to avoid repeated lookups)</td>
+<td>🟢</td>
+</tr>
+<tr>
+<td><code>notFound</code></td>
+<td>duration</td>
+<td>60s</td>
+<td>TTL for "agent not found" results (short to catch new registrations)</td>
+<td>🟢</td>
+</tr>
+</tbody>
+</table>
+<p><strong>TTL Strategy:</strong></p>
+<ul>
+<li><strong>Longer TTL</strong> = Better performance, less registry load, potentially stale data</li>
+<li><strong>Shorter TTL</strong> = More up-to-date, higher registry load, slower responses</li>
+<li><strong>Revoked agents</strong> cached longest - revocation rarely changes</li>
+<li><strong>Not-found</strong> cached shortest - agents might get registered</li>
+</ul>
+<hr />
+<h3 id="cacheredis-redis-cache-configuration"><code>cache.redis</code> - Redis Cache Configuration<a class="headerlink" href="#cacheredis-redis-cache-configuration" title="Permanent link">&para;</a></h3>
+<p>🟢 <strong>Status:</strong> Fully Implemented<br />
+<strong>Type:</strong> Object<br />
+<strong>Used when:</strong> <code>cache.provider: redis</code></p>
+<p>Redis configuration for distributed caching across multiple resolver instances.</p>
+<table>
+<thead>
+<tr>
+<th>Field</th>
+<th>Type</th>
+<th>Default</th>
+<th>Description</th>
+<th>Status</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>address</code></td>
+<td>string</td>
+<td>localhost:6379</td>
+<td>Redis server address (host:port)</td>
+<td>🟢</td>
+</tr>
+<tr>
+<td><code>password</code></td>
+<td>string</td>
+<td>""</td>
+<td>Redis authentication password</td>
+<td>🟢</td>
+</tr>
+<tr>
+<td><code>db</code></td>
+<td>int</td>
+<td>0</td>
+<td>Redis database number (0-15)</td>
+<td>🟢</td>
+</tr>
+<tr>
+<td><code>maxRetries</code></td>
+<td>int</td>
+<td>3</td>
+<td>Max retry attempts for failed operations</td>
+<td>🟢</td>
+</tr>
+<tr>
+<td><code>poolSize</code></td>
+<td>int</td>
+<td>10</td>
+<td>Max connections in pool</td>
+<td>🟢</td>
+</tr>
+<tr>
+<td><code>minIdleConns</code></td>
+<td>int</td>
+<td>5</td>
+<td>Min idle connections kept open</td>
+<td>🟢</td>
+</tr>
+<tr>
+<td><code>dialTimeout</code></td>
+<td>duration</td>
+<td>5s</td>
+<td>Timeout for establishing connection</td>
+<td>🟢</td>
+</tr>
+<tr>
+<td><code>readTimeout</code></td>
+<td>duration</td>
+<td>3s</td>
+<td>Timeout for read operations</td>
+<td>🟢</td>
+</tr>
+<tr>
+<td><code>writeTimeout</code></td>
+<td>duration</td>
+<td>3s</td>
+<td>Timeout for write operations</td>
+<td>🟢</td>
+</tr>
+<tr>
+<td><code>poolTimeout</code></td>
+<td>duration</td>
+<td>4s</td>
+<td>Timeout waiting for connection from pool</td>
+<td>🟢</td>
+</tr>
+<tr>
+<td><code>idleTimeout</code></td>
+<td>duration</td>
+<td>5m</td>
+<td>Timeout before closing idle connections</td>
+<td>🟢</td>
+</tr>
+<tr>
+<td><code>keyPrefix</code></td>
+<td>string</td>
+<td>ans:cache:</td>
+<td>Prefix for all cache keys (prevents collisions)</td>
+<td>🟢</td>
+</tr>
+</tbody>
+</table>
+<p><strong>Example:</strong>
+<div class="highlight"><pre><span></span><code><span class="nt">cache</span><span class="p">:</span>
+<span class="w">  </span><span class="nt">provider</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">redis</span>
+<span class="w">  </span><span class="nt">redis</span><span class="p">:</span>
+<span class="w">    </span><span class="nt">address</span><span class="p">:</span><span class="w"> </span><span class="s">&quot;${REDIS_ADDRESS:localhost:6379}&quot;</span>
+<span class="w">    </span><span class="nt">password</span><span class="p">:</span><span class="w"> </span><span class="s">&quot;${REDIS_PASSWORD:}&quot;</span>
+<span class="w">    </span><span class="nt">db</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">0</span>
+<span class="w">    </span><span class="nt">poolSize</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">20</span><span class="w">        </span><span class="c1"># Increase for high-traffic deployments</span>
+<span class="w">    </span><span class="nt">keyPrefix: ans:cache</span><span class="p">:</span>
+</code></pre></div></p>
+<p><strong>Performance Tuning:</strong></p>
+<ul>
+<li>Increase <code>poolSize</code> for higher concurrency</li>
+<li>Adjust timeouts based on network latency to Redis</li>
+<li>Use separate Redis instance from application data</li>
+<li>Monitor connection pool usage</li>
+</ul>
+<hr />
+<h3 id="queue-queue-configuration"><code>queue</code> - Queue Configuration<a class="headerlink" href="#queue-queue-configuration" title="Permanent link">&para;</a></h3>
+<p>🔴 <strong>Status:</strong> Future Use Only - Not Currently Used<br />
+<strong>Type:</strong> Object<br />
+<strong>Required:</strong> Yes (but can disable)</p>
+<div class="admonition warning">
+<p class="admonition-title">Not Implemented</p>
+<p>The queue system is fully configured but <strong>not currently used</strong> by the resolver. No code publishes or subscribes to events. This is reserved for future features like registry event streaming and distributed coordination.</p>
+</div>
+<p>Message queue configuration for handling asynchronous events (future use).</p>
+<table>
+<thead>
+<tr>
+<th>Field</th>
+<th>Type</th>
+<th>Default</th>
+<th>Description</th>
+<th>Status</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>enabled</code></td>
+<td>bool</td>
+<td>true</td>
+<td>Enable/disable queue entirely</td>
+<td>🔴 <strong>Set to false</strong></td>
+</tr>
+<tr>
+<td><code>provider</code></td>
+<td>string</td>
+<td>memory</td>
+<td>Queue provider: <code>memory</code>, <code>redis</code>, <code>kafka</code>, <code>nats</code></td>
+<td>🔴 Future</td>
+</tr>
+<tr>
+<td><code>bufferSize</code></td>
+<td>int</td>
+<td>1000</td>
+<td>Buffer size for in-memory queue</td>
+<td>🔴 Future</td>
+</tr>
+<tr>
+<td><code>redis</code></td>
+<td>RedisStreamsConfig</td>
+<td>-</td>
+<td>Redis Streams settings</td>
+<td>🔴 Future</td>
+</tr>
+</tbody>
+</table>
+<p><strong>Planned Use Cases (Future):</strong></p>
+<ol>
+<li><strong>Registry event streaming</strong> - Real-time updates when agents are registered/revoked</li>
+<li><strong>Distributed coordination</strong> - Sync cache invalidation across multiple instances</li>
+<li><strong>Async background tasks</strong> - Certificate monitoring, DNS checks</li>
+<li><strong>Webhook processing</strong> - Handle registry callbacks</li>
+</ol>
+<p><strong>Current Recommendation:</strong>
+<div class="highlight"><pre><span></span><code><span class="nt">queue</span><span class="p">:</span>
+<span class="w">  </span><span class="nt">enabled</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">false</span><span class="w">      </span><span class="c1"># Disable to avoid unnecessary initialization</span>
+<span class="w">  </span><span class="nt">provider</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">memory</span>
+</code></pre></div></p>
+<p><strong>When it will be useful:</strong></p>
+<ul>
+<li>GoDaddy adds webhook/SSE support for real-time events</li>
+<li>Running multiple resolver instances that need coordination</li>
+<li>Implementing proactive certificate expiration monitoring</li>
+</ul>
+<hr />
+<h3 id="store-data-store-configuration"><code>store</code> - Data Store Configuration<a class="headerlink" href="#store-data-store-configuration" title="Permanent link">&para;</a></h3>
+<p>🟡 <strong>Status:</strong> Partial Implementation - Basic Functionality Only<br />
+<strong>Type:</strong> Object<br />
+<strong>Required:</strong> Yes</p>
+<div class="admonition info">
+<p class="admonition-title">Limited Functionality</p>
+<p>The store is used for <code>/search</code> and <code>/discover</code> endpoints. With the in-memory provider, it only contains agents that were previously resolved, making search results incomplete. Full-text search requires PostgreSQL (not implemented).</p>
+</div>
+<p>Data store for agent records, used by search/discovery endpoints.</p>
+<table>
+<thead>
+<tr>
+<th>Field</th>
+<th>Type</th>
+<th>Default</th>
+<th>Description</th>
+<th>Status</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>provider</code></td>
+<td>string</td>
+<td>memory</td>
+<td>Store provider: <code>memory</code> (working), <code>postgres</code>/<code>sqlite</code> (future)</td>
+<td>🟡</td>
+</tr>
+<tr>
+<td><code>memory</code></td>
+<td>MemoryStoreConfig</td>
+<td>-</td>
+<td>In-memory store settings</td>
+<td>🟡</td>
+</tr>
+<tr>
+<td><code>postgres</code></td>
+<td>PostgresConfig</td>
+<td>-</td>
+<td>PostgreSQL settings (full-text search)</td>
+<td>🔴 Future</td>
+</tr>
+</tbody>
+</table>
+<p><strong>How it works:</strong></p>
+<ol>
+<li>When an agent is resolved, it's asynchronously saved to the store (goroutine)</li>
+<li>Search endpoints query the store</li>
+<li>With memory provider: Only previously resolved agents are searchable</li>
+<li>With postgres provider: Could support full agent catalog (not implemented)</li>
+</ol>
+<p><strong>Current Limitations:</strong></p>
+<ul>
+<li>No full-text indexing</li>
+<li>Limited to ~10k agents in memory</li>
+<li>Search only works for cached/resolved agents</li>
+<li>Results inconsistent across multiple instances</li>
+</ul>
+<p><strong>Example:</strong>
+<div class="highlight"><pre><span></span><code><span class="nt">store</span><span class="p">:</span>
+<span class="w">  </span><span class="nt">provider</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">memory</span>
+<span class="w">  </span><span class="nt">memory</span><span class="p">:</span>
+<span class="w">    </span><span class="nt">maxSize</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">100000</span><span class="w">    </span><span class="c1"># Max agents to keep in memory</span>
+</code></pre></div></p>
+<p><strong>Future Enhancement:</strong></p>
+<ul>
+<li>PostgreSQL backend for persistent storage</li>
+<li>Full-text search across all registered agents</li>
+<li>Advanced filtering (tags, capabilities, protocols)</li>
+<li>Distributed search across multiple registries</li>
+</ul>
+<hr />
+<h3 id="registries-registry-adapters"><code>registries</code> - Registry Adapters<a class="headerlink" href="#registries-registry-adapters" title="Permanent link">&para;</a></h3>
+<p>🟢 <strong>Status:</strong> Fully Implemented (GoDaddy, Mock)<br />
+<strong>Type:</strong> Array of RegistryConfig<br />
+<strong>Required:</strong> Yes (at least one)</p>
+<div class="admonition success">
+<p class="admonition-title">Working Registries</p>
+<ul>
+<li>✅ <strong>GoDaddy</strong> - Fully functional, production-ready</li>
+<li>✅ <strong>Mock</strong> - For testing/development</li>
+</ul>
+</div>
+<p>Configures connections to ANS registries where agents are registered.</p>
+<table>
+<thead>
+<tr>
+<th>Field</th>
+<th>Type</th>
+<th>Default</th>
+<th>Description</th>
+<th>Status</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>name</code></td>
+<td>string</td>
+<td>-</td>
+<td>Human-readable registry identifier</td>
+<td>🟢</td>
+</tr>
+<tr>
+<td><code>type</code></td>
+<td>string</td>
+<td>-</td>
+<td>Registry type: <code>godaddy</code> (working), <code>mock</code> (working)</td>
+<td>🟢</td>
+</tr>
+<tr>
+<td><code>enabled</code></td>
+<td>bool</td>
+<td>true</td>
+<td>Enable/disable this registry</td>
+<td>🟢</td>
+</tr>
+<tr>
+<td><code>priority</code></td>
+<td>int</td>
+<td>1</td>
+<td>Priority when multiple registries configured (lower = higher)</td>
+<td>🟢</td>
+</tr>
+<tr>
+<td><code>timeout</code></td>
+<td>duration</td>
+<td>10s</td>
+<td>Max time for registry API calls</td>
+<td>🟢</td>
+</tr>
+<tr>
+<td><code>retries</code></td>
+<td>int</td>
+<td>3</td>
+<td>Max retry attempts on transient failures</td>
+<td>🟢</td>
+</tr>
+<tr>
+<td><code>retryBackoff</code></td>
+<td>duration</td>
+<td>1s</td>
+<td>Initial backoff duration (exponential backoff used)</td>
+<td>🟢</td>
+</tr>
+<tr>
+<td><code>config</code></td>
+<td>map</td>
+<td>-</td>
+<td>Registry-specific configuration (see below)</td>
+<td>🟢</td>
+</tr>
+</tbody>
+</table>
+<p><strong>Multi-Registry Support:</strong>
+You can configure multiple registries with different priorities. The resolver will try them in priority order until one succeeds.</p>
+<p><strong>Example:</strong>
+<div class="highlight"><pre><span></span><code><span class="nt">registries</span><span class="p">:</span>
+<span class="w">  </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">name</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">godaddy-primary</span>
+<span class="w">    </span><span class="nt">type</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">godaddy</span>
+<span class="w">    </span><span class="nt">enabled</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">true</span>
+<span class="w">    </span><span class="nt">priority</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">1</span>
+<span class="w">    </span><span class="nt">timeout</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">10s</span>
+<span class="w">    </span><span class="nt">retries</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">3</span>
+<span class="w">    </span><span class="nt">retryBackoff</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">1s</span>
+<span class="w">    </span><span class="nt">config</span><span class="p">:</span>
+<span class="w">      </span><span class="nt">baseURL</span><span class="p">:</span><span class="w"> </span><span class="s">&quot;https://api.godaddy.com/v1&quot;</span>
+<span class="w">      </span><span class="nt">apiKey</span><span class="p">:</span><span class="w"> </span><span class="s">&quot;${GODADDY_API_KEY}&quot;</span>
+<span class="w">      </span><span class="nt">apiSecret</span><span class="p">:</span><span class="w"> </span><span class="s">&quot;${GODADDY_API_SECRET}&quot;</span>
+</code></pre></div></p>
+<h3 id="registriesconfig-godaddy-registry"><code>registries[].config</code> - GoDaddy Registry<a class="headerlink" href="#registriesconfig-godaddy-registry" title="Permanent link">&para;</a></h3>
+<p><strong>Type:</strong> Object<br />
+<strong>When:</strong> <code>type: godaddy</code></p>
+<table>
+<thead>
+<tr>
+<th>Field</th>
+<th>Type</th>
+<th>Required</th>
+<th>Description</th>
+<th>Status</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>baseURL</code></td>
+<td>string</td>
+<td>Yes</td>
+<td>GoDaddy API base URL</td>
+<td>🟢</td>
+</tr>
+<tr>
+<td><code>apiKey</code></td>
+<td>string</td>
+<td>Yes</td>
+<td>API key from developer portal</td>
+<td>🟢</td>
+</tr>
+<tr>
+<td><code>apiSecret</code></td>
+<td>string</td>
+<td>Yes</td>
+<td>API secret</td>
+<td>🟢</td>
+</tr>
+</tbody>
+</table>
+<p><strong>URLs:</strong></p>
+<ul>
+<li>Production: <code>https://api.godaddy.com/v1</code></li>
+<li>OTE (test): <code>https://api.ote-godaddy.com/v1</code></li>
+</ul>
+<p><strong>Get credentials:</strong> https://developer.godaddy.com/keys</p>
+<hr />
+<h3 id="trust-trust-and-verification"><code>trust</code> - Trust and Verification<a class="headerlink" href="#trust-trust-and-verification" title="Permanent link">&para;</a></h3>
+<p><strong>Type:</strong> Object<br />
+<strong>Required:</strong> Yes</p>
+<table>
+<thead>
+<tr>
+<th>Field</th>
+<th>Type</th>
+<th>Default</th>
+<th>Description</th>
+<th>Status</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>provider</code></td>
+<td>string</td>
+<td>file</td>
+<td>Trust provider: <code>file</code>, <code>vault</code>, <code>k8s-secret</code></td>
+<td>🟢</td>
+</tr>
+<tr>
+<td><code>verification</code></td>
+<td>VerificationConfig</td>
+<td>-</td>
+<td>Verification settings</td>
+<td>🟢</td>
+</tr>
+<tr>
+<td><code>file</code></td>
+<td>FileTrustConfig</td>
+<td>-</td>
+<td>File-based trust settings</td>
+<td>🟢</td>
+</tr>
+</tbody>
+</table>
+<p><strong>Example:</strong>
+<div class="highlight"><pre><span></span><code><span class="nt">trust</span><span class="p">:</span>
+<span class="w">  </span><span class="nt">provider</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">file</span>
+<span class="w">  </span><span class="nt">verification</span><span class="p">:</span>
+<span class="w">    </span><span class="nt">enabled</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">true</span>
+<span class="w">    </span><span class="nt">mode</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">permissive</span>
+<span class="w">    </span><span class="nt">requireSignature</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">true</span>
+<span class="w">    </span><span class="nt">requireMerkleProof</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">false</span>
+<span class="w">    </span><span class="nt">checkRevocation</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">true</span>
+</code></pre></div></p>
+<hr />
+<h3 id="trustverification-verification-settings"><code>trust.verification</code> - Verification Settings<a class="headerlink" href="#trustverification-verification-settings" title="Permanent link">&para;</a></h3>
+<p><strong>Type:</strong> Object</p>
+<table>
+<thead>
+<tr>
+<th>Field</th>
+<th>Type</th>
+<th>Default</th>
+<th>Description</th>
+<th>Status</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>enabled</code></td>
+<td>bool</td>
+<td>true</td>
+<td>Enable trust verification</td>
+<td>🟢</td>
+</tr>
+<tr>
+<td><code>mode</code></td>
+<td>string</td>
+<td>permissive</td>
+<td>Mode: <code>strict</code>, <code>permissive</code>, <code>disabled</code></td>
+<td>🟢</td>
+</tr>
+<tr>
+<td><code>requireSignature</code></td>
+<td>bool</td>
+<td>true</td>
+<td>Require registry signature</td>
+<td>🟢</td>
+</tr>
+<tr>
+<td><code>requireMerkleProof</code></td>
+<td>bool</td>
+<td>false</td>
+<td>Require Merkle inclusion proof</td>
+<td>🔴 Future</td>
+</tr>
+<tr>
+<td><code>checkRevocation</code></td>
+<td>bool</td>
+<td>true</td>
+<td>Check certificate revocation</td>
+<td>🟢</td>
+</tr>
+<tr>
+<td><code>allowExpiredGracePeriod</code></td>
+<td>duration</td>
+<td>24h</td>
+<td>Grace period for expired certs</td>
+<td>🟢</td>
+</tr>
+<tr>
+<td><code>ocsp</code></td>
+<td>OCSPConfig</td>
+<td>-</td>
+<td>OCSP settings</td>
+<td>🟢</td>
+</tr>
+<tr>
+<td><code>crl</code></td>
+<td>CRLConfig</td>
+<td>-</td>
+<td>CRL settings</td>
+<td>🟢</td>
+</tr>
+</tbody>
+</table>
+<p><strong>Modes:</strong></p>
+<ul>
+<li><code>strict</code> - All checks must pass, fail on error</li>
+<li><code>permissive</code> - Log failures but continue</li>
+<li><code>disabled</code> - Skip all verification (NOT ANS compliant)</li>
+</ul>
+<p><strong>⚠️ Security Warning:</strong> Only use <code>enabled: false</code> or <code>mode: disabled</code> for development/testing!</p>
+<hr />
+<h3 id="ratelimit-rate-limiting"><code>rateLimit</code> - Rate Limiting<a class="headerlink" href="#ratelimit-rate-limiting" title="Permanent link">&para;</a></h3>
+<p><strong>Type:</strong> Object</p>
+<table>
+<thead>
+<tr>
+<th>Field</th>
+<th>Type</th>
+<th>Default</th>
+<th>Description</th>
+<th>Status</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>enabled</code></td>
+<td>bool</td>
+<td>true</td>
+<td>Enable rate limiting</td>
+<td>🟢</td>
+</tr>
+<tr>
+<td><code>limits</code></td>
+<td>map</td>
+<td>-</td>
+<td>Limit profiles</td>
+<td>🟢</td>
+</tr>
+</tbody>
+</table>
+<p><strong>Example:</strong>
+<div class="highlight"><pre><span></span><code><span class="nt">rateLimit</span><span class="p">:</span>
+<span class="w">  </span><span class="nt">enabled</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">true</span>
+<span class="w">  </span><span class="nt">limits</span><span class="p">:</span>
+<span class="w">    </span><span class="nt">anonymous</span><span class="p">:</span>
+<span class="w">      </span><span class="nt">requests</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">100</span>
+<span class="w">      </span><span class="nt">window</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">1m</span>
+<span class="w">    </span><span class="nt">authenticated</span><span class="p">:</span>
+<span class="w">      </span><span class="nt">requests</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">1000</span>
+<span class="w">      </span><span class="nt">window</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">1m</span>
+</code></pre></div></p>
+<hr />
+<h3 id="telemetry-telemetry-configuration"><code>telemetry</code> - Telemetry Configuration<a class="headerlink" href="#telemetry-telemetry-configuration" title="Permanent link">&para;</a></h3>
+<p><strong>Type:</strong> Object</p>
+<table>
+<thead>
+<tr>
+<th>Field</th>
+<th>Type</th>
+<th>Description</th>
+<th>Status</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>logging</code></td>
+<td>LoggingConfig</td>
+<td>Logging settings</td>
+<td>🟢</td>
+</tr>
+<tr>
+<td><code>metrics</code></td>
+<td>MetricsConfig</td>
+<td>Prometheus metrics</td>
+<td>🟢</td>
+</tr>
+<tr>
+<td><code>tracing</code></td>
+<td>TracingConfig</td>
+<td>Distributed tracing</td>
+<td>🔴 Future</td>
+</tr>
+</tbody>
+</table>
+<p><strong>Example:</strong>
+<div class="highlight"><pre><span></span><code><span class="nt">telemetry</span><span class="p">:</span>
+<span class="w">  </span><span class="nt">logging</span><span class="p">:</span>
+<span class="w">    </span><span class="nt">level</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">info</span>
+<span class="w">    </span><span class="nt">format</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">json</span>
+<span class="w">    </span><span class="nt">output</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">stdout</span>
+<span class="w">  </span><span class="nt">metrics</span><span class="p">:</span>
+<span class="w">    </span><span class="nt">enabled</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">true</span>
+<span class="w">    </span><span class="nt">port</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">9091</span>
+<span class="w">  </span><span class="nt">tracing</span><span class="p">:</span>
+<span class="w">    </span><span class="nt">enabled</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">false</span>
+</code></pre></div></p>
+<hr />
+<h3 id="telemetrylogging-logging-configuration"><code>telemetry.logging</code> - Logging Configuration<a class="headerlink" href="#telemetrylogging-logging-configuration" title="Permanent link">&para;</a></h3>
+<p><strong>Type:</strong> Object</p>
+<table>
+<thead>
+<tr>
+<th>Field</th>
+<th>Type</th>
+<th>Default</th>
+<th>Description</th>
+<th>Status</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>level</code></td>
+<td>string</td>
+<td>info</td>
+<td>Log level: <code>debug</code>, <code>info</code>, <code>warn</code>, <code>error</code></td>
+<td>🟢</td>
+</tr>
+<tr>
+<td><code>format</code></td>
+<td>string</td>
+<td>json</td>
+<td>Format: <code>json</code>, <code>text</code></td>
+<td>🟢</td>
+</tr>
+<tr>
+<td><code>output</code></td>
+<td>string</td>
+<td>stdout</td>
+<td>Output: <code>stdout</code>, <code>stderr</code>, <code>file</code></td>
+<td>🟢</td>
+</tr>
+</tbody>
+</table>
+<hr />
+<h3 id="telemetrymetrics-metrics-configuration"><code>telemetry.metrics</code> - Metrics Configuration<a class="headerlink" href="#telemetrymetrics-metrics-configuration" title="Permanent link">&para;</a></h3>
+<p><strong>Type:</strong> Object</p>
+<table>
+<thead>
+<tr>
+<th>Field</th>
+<th>Type</th>
+<th>Default</th>
+<th>Description</th>
+<th>Status</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>enabled</code></td>
+<td>bool</td>
+<td>true</td>
+<td>Enable Prometheus metrics</td>
+<td>🟢</td>
+</tr>
+<tr>
+<td><code>namespace</code></td>
+<td>string</td>
+<td>ans</td>
+<td>Metric namespace</td>
+<td>🟢</td>
+</tr>
+<tr>
+<td><code>subsystem</code></td>
+<td>string</td>
+<td>resolver</td>
+<td>Metric subsystem</td>
+<td>🟢</td>
+</tr>
+<tr>
+<td><code>path</code></td>
+<td>string</td>
+<td>/metrics</td>
+<td>Metrics endpoint path</td>
+<td>🟢</td>
+</tr>
+<tr>
+<td><code>port</code></td>
+<td>int</td>
+<td>9091</td>
+<td>Metrics server port</td>
+<td>🟢</td>
+</tr>
+<tr>
+<td><code>host</code></td>
+<td>string</td>
+<td>0.0.0.0</td>
+<td>Metrics server host</td>
+<td>🟢</td>
+</tr>
+</tbody>
+</table>
+<hr />
+<h2 id="environment-variables">Environment Variables<a class="headerlink" href="#environment-variables" title="Permanent link">&para;</a></h2>
+<p>All string values support environment variable substitution:</p>
+<p><strong>Syntax:</strong> <code>${VAR_NAME:default_value}</code></p>
+<p><strong>Examples:</strong>
+<div class="highlight"><pre><span></span><code><span class="c1"># Required variable (no default)</span>
+<span class="nt">apiKey</span><span class="p">:</span><span class="w"> </span><span class="s">&quot;${GODADDY_API_KEY}&quot;</span>
+
+<span class="c1"># With default value</span>
+<span class="nt">port</span><span class="p">:</span><span class="w"> </span><span class="s">&quot;${HTTP_PORT:8080}&quot;</span>
+<span class="nt">host</span><span class="p">:</span><span class="w"> </span><span class="s">&quot;${HTTP_HOST:0.0.0.0}&quot;</span>
+
+<span class="c1"># Redis connection</span>
+<span class="nt">address</span><span class="p">:</span><span class="w"> </span><span class="s">&quot;${REDIS_ADDRESS:localhost:6379}&quot;</span>
+<span class="nt">password</span><span class="p">:</span><span class="w"> </span><span class="s">&quot;${REDIS_PASSWORD:}&quot;</span>
+</code></pre></div></p>
+<p><strong>Commonly used variables:</strong></p>
+<ul>
+<li><code>GODADDY_API_KEY</code> - GoDaddy API key</li>
+<li><code>GODADDY_API_SECRET</code> - GoDaddy API secret</li>
+<li><code>REDIS_ADDRESS</code> - Redis server address</li>
+<li><code>REDIS_PASSWORD</code> - Redis password</li>
+<li><code>HTTP_PORT</code> - HTTP server port</li>
+<li><code>LOG_LEVEL</code> - Logging level</li>
+</ul>
+<hr />
+<h2 id="complete-example-configurations">Complete Example Configurations<a class="headerlink" href="#complete-example-configurations" title="Permanent link">&para;</a></h2>
+<p>See example configurations in <code>configs/</code>:</p>
+<table>
+<thead>
+<tr>
+<th>File</th>
+<th>Description</th>
+<th>Status</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>resolver-minimal-godaddy.yaml</code></td>
+<td>Minimal config with only essentials</td>
+<td>🟢 Recommended</td>
+</tr>
+<tr>
+<td><code>resolver-godaddy.yaml</code></td>
+<td>Standard GoDaddy config with in-memory cache</td>
+<td>🟢 Production-ready</td>
+</tr>
+<tr>
+<td><code>resolver-godaddy-redis.yaml</code></td>
+<td>GoDaddy with Redis cache and queue</td>
+<td>🟡 Queue unused</td>
+</tr>
+<tr>
+<td><code>resolver-minimal.yaml</code></td>
+<td>Mock registry for testing</td>
+<td>🟢 Development</td>
+</tr>
+</tbody>
+</table>
+<hr />
+<h2 id="validation">Validation<a class="headerlink" href="#validation" title="Permanent link">&para;</a></h2>
+<p><strong>Validate your config:</strong>
+<div class="highlight"><pre><span></span><code><span class="c1"># Check if config loads without errors</span>
+./bin/ans-resolver<span class="w"> </span>-config<span class="w"> </span>configs/your-config.yaml<span class="w"> </span>-validate
+
+<span class="c1"># Dry-run (load config but don&#39;t start server)</span>
+./bin/ans-resolver<span class="w"> </span>-config<span class="w"> </span>configs/your-config.yaml<span class="w"> </span>-dry-run
+</code></pre></div></p>
+<p><strong>IDE Validation:</strong></p>
+<p>VS Code users can get autocomplete and validation by adding to <code>.vscode/settings.json</code>:
+<div class="highlight"><pre><span></span><code><span class="p">{</span>
+<span class="w">  </span><span class="nt">&quot;yaml.schemas&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">{</span>
+<span class="w">    </span><span class="nt">&quot;./docs/config-schema.json&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;configs/*.yaml&quot;</span>
+<span class="w">  </span><span class="p">}</span>
+<span class="p">}</span>
+</code></pre></div></p>
+<hr />
+<h2 id="duration-format">Duration Format<a class="headerlink" href="#duration-format" title="Permanent link">&para;</a></h2>
+<p>All duration fields use Go duration format:</p>
+<p><strong>Units:</strong></p>
+<ul>
+<li><code>ns</code> - nanoseconds</li>
+<li><code>us</code> - microseconds</li>
+<li><code>ms</code> - milliseconds</li>
+<li><code>s</code> - seconds</li>
+<li><code>m</code> - minutes</li>
+<li><code>h</code> - hours</li>
+</ul>
+<p><strong>Examples:</strong></p>
+<ul>
+<li><code>30s</code> - 30 seconds</li>
+<li><code>5m</code> - 5 minutes</li>
+<li><code>1h30m</code> - 1.5 hours</li>
+<li><code>100ms</code> - 100 milliseconds</li>
+</ul>
+<hr />
+<h2 id="need-help">Need Help?<a class="headerlink" href="#need-help" title="Permanent link">&para;</a></h2>
+<ul>
+<li><strong>Configuration issues:</strong> Check logs for validation errors</li>
+<li><strong>GoDaddy setup:</strong> See <code>docs/AGENT_REGISTRATION.md</code></li>
+<li><strong>Feature flags:</strong> See <code>docs/FEATURE_FLAGS.md</code></li>
+<li><strong>API documentation:</strong> https://route-ans.github.io/route-ans</li>
+</ul>
+
+
+
+
+
+
+
+
+
+
+
+
+                
+              </article>
+            </div>
+          
+          
+<script>var target=document.getElementById(location.hash.slice(1));target&&target.name&&(target.checked=target.name.startsWith("__tabbed_"))</script>
+        </div>
+        
+          <button type="button" class="md-top md-icon" data-md-component="top" hidden>
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M13 20h-2V8l-5.5 5.5-1.42-1.42L12 4.16l7.92 7.92-1.42 1.42L13 8z"/></svg>
+  Back to top
+</button>
+        
+      </main>
+      
+        <footer class="md-footer">
+  
+  <div class="md-footer-meta md-typeset">
+    <div class="md-footer-meta__inner md-grid">
+      <div class="md-copyright">
+  
+  
+    Made with
+    <a href="https://squidfunk.github.io/mkdocs-material/" target="_blank" rel="noopener">
+      Material for MkDocs
+    </a>
+  
+</div>
+      
+    </div>
+  </div>
+</footer>
+      
+    </div>
+    <div class="md-dialog" data-md-component="dialog">
+      <div class="md-dialog__inner md-typeset"></div>
+    </div>
+    
+    
+    
+      
+      
+      <script id="__config" type="application/json">{"annotate": null, "base": "../..", "features": ["navigation.top", "search.suggest", "search.highlight", "content.code.copy", "toc.follow"], "search": "../../assets/javascripts/workers/search.2c215733.min.js", "tags": null, "translations": {"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing", "select.version": "Select version"}, "version": null}</script>
+    
+    
+      <script src="../../assets/javascripts/bundle.79ae519e.min.js"></script>
+      
+    
+  </body>
+</html>
