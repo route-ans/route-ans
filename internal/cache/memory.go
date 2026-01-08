@@ -229,7 +229,7 @@ func (c *memoryCache) Name() string {
 }
 
 func init() {
-	Register("memory", func(opts Options) (Provider, error) {
+	Register("memory", func(opts Options, config map[string]interface{}) (Provider, error) {
 		return NewMemoryCache(opts)
 	})
 }

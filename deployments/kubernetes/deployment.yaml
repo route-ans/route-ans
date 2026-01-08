@@ -2,7 +2,7 @@ apiVersion: apps/v1
 kind: Deployment
 metadata:
   name: ans-resolver
-  namespace: ans-system
+  namespace: route-ans
   labels:
     app: ans-resolver
     app.kubernetes.io/name: ans-resolver

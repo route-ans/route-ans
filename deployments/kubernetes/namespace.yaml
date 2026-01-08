@@ -1,6 +1,6 @@
 apiVersion: v1
 kind: Namespace
 metadata:
-  name: ans-system
+  name: route-ans
   labels:
     app.kubernetes.io/part-of: ans

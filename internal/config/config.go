@@ -97,6 +97,10 @@ type RedisCacheConfig struct {
 	DialTimeout  time.Duration  `yaml:"dialTimeout"`
 	ReadTimeout  time.Duration  `yaml:"readTimeout"`
 	WriteTimeout time.Duration  `yaml:"writeTimeout"`
+	PoolTimeout  time.Duration  `yaml:"poolTimeout"`
+	IdleTimeout  time.Duration  `yaml:"idleTimeout"`
+	KeyPrefix    string         `yaml:"keyPrefix"`
+	MaxRetries   int            `yaml:"maxRetries"`
 	TLS          RedisTLSConfig `yaml:"tls"`
 }
 

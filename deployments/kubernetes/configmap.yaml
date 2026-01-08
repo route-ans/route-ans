@@ -2,7 +2,7 @@ apiVersion: v1
 kind: ConfigMap
 metadata:
   name: ans-resolver-config
-  namespace: ans-system
+  namespace: route-ans
   labels:
     app: ans-resolver
 data:

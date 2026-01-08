@@ -79,8 +79,22 @@ func (s *Server) initProviders() error {
 		DefaultTTL:      s.cfg.Cache.TTL.Default,
 		MaxSize:         s.cfg.Cache.Memory.MaxSize,
 		CleanupInterval: s.cfg.Cache.Memory.CleanupInterval,
+		Namespace:       s.cfg.Cache.Redis.KeyPrefix,
 	}
-	s.cache, err = cache.New(s.cfg.Cache.Provider, cacheOpts)
+
+	// Build provider-specific config map
+	cacheConfig := map[string]interface{}{
+		"address":      s.cfg.Cache.Redis.Address,
+		"password":     s.cfg.Cache.Redis.Password,
+		"db":           s.cfg.Cache.Redis.DB,
+		"poolSize":     s.cfg.Cache.Redis.PoolSize,
+		"minIdleConns": s.cfg.Cache.Redis.MinIdleConns,
+		"dialTimeout":  s.cfg.Cache.Redis.DialTimeout,
+		"readTimeout":  s.cfg.Cache.Redis.ReadTimeout,
+		"writeTimeout": s.cfg.Cache.Redis.WriteTimeout,
+	}
+
+	s.cache, err = cache.New(s.cfg.Cache.Provider, cacheOpts, cacheConfig)
 	if err != nil {
 		return fmt.Errorf("failed to create cache: %w", err)
 	}

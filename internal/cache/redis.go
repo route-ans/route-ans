@@ -199,10 +199,39 @@ func (c *redisCache) Name() string {
 }
 
 func init() {
-	Register("redis", func(opts Options) (Provider, error) {
+	Register("redis", func(opts Options, config map[string]interface{}) (Provider, error) {
 		redisOpts := DefaultRedisOptions()
 		redisOpts.DefaultTTL = opts.DefaultTTL
 		redisOpts.Namespace = opts.Namespace
+
+		// Read Redis-specific config from the config map
+		if config != nil {
+			if v, ok := config["address"].(string); ok {
+				redisOpts.Address = v
+			}
+			if v, ok := config["password"].(string); ok {
+				redisOpts.Password = v
+			}
+			if v, ok := config["db"].(int); ok {
+				redisOpts.DB = v
+			}
+			if v, ok := config["poolSize"].(int); ok {
+				redisOpts.PoolSize = v
+			}
+			if v, ok := config["minIdleConns"].(int); ok {
+				redisOpts.MinIdleConns = v
+			}
+			if v, ok := config["dialTimeout"].(time.Duration); ok {
+				redisOpts.DialTimeout = v
+			}
+			if v, ok := config["readTimeout"].(time.Duration); ok {
+				redisOpts.ReadTimeout = v
+			}
+			if v, ok := config["writeTimeout"].(time.Duration); ok {
+				redisOpts.WriteTimeout = v
+			}
+		}
+
 		return NewRedisCache(redisOpts)
 	})
 }

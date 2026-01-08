@@ -89,7 +89,7 @@ func DefaultOptions() Options {
 }
 
 // Factory is a function that creates a new cache provider
-type Factory func(opts Options) (Provider, error)
+type Factory func(opts Options, config map[string]interface{}) (Provider, error)
 
 // registry holds registered cache provider factories
 var registry = make(map[string]Factory)
@@ -99,13 +99,13 @@ func Register(name string, factory Factory) {
 	registry[name] = factory
 }
 
-// New creates a new cache provider by name
-func New(name string, opts Options) (Provider, error) {
+// New creates a new cache provider by name with optional provider-specific config
+func New(name string, opts Options, config map[string]interface{}) (Provider, error) {
 	factory, ok := registry[name]
 	if !ok {
 		return nil, &ErrUnknownProvider{Name: name}
 	}
-	return factory(opts)
+	return factory(opts, config)
 }
 
 // Available returns the names of all registered cache providers
