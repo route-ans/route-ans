@@ -27,7 +27,7 @@ apiKey: "${GODADDY_API_KEY:your-key-here}"
 ```yaml
 server:         🟢 HTTP/gRPC server settings
 cache:          🟢 Cache provider configuration
-queue:          🟢 Message queue (disabled by default)
+queue:          🟡 Event processing (no event sources yet)
 store:          🟡 Data store (basic search only)
 registries:     🟢 Registry adapters (GoDaddy, mock)
 trust:          🟢 Trust and verification (can disable)
@@ -212,20 +212,20 @@ cache:
 
 ### `queue` - Queue Configuration
 
-🟢 **Status:** Implemented - Disabled by Default  
+🟡 **Status:** Partial - Event Processor Ready, No Event Sources  
 **Type:** Object  
 **Required:** Yes
 
-!!! info "Optional Feature"
-    The queue system is **fully implemented** and processes registry events for cache invalidation and metrics tracking. It's disabled by default since most deployments don't need it. Enable it when you have registry event sources (webhooks, Redis streams) or need distributed cache coordination.
+!!! warning "Limited Functionality"
+    The queue event processor can handle registry events for cache invalidation. However, **GoDaddy registry doesn't emit events**, so there's nothing to consume. Useful for testing or future registries that support webhooks/event streams. Disabled by default.
 
 Message queue configuration for handling asynchronous registry events.
 
 | Field | Type | Default | Description | Status |
 |-------|------|---------|-------------|--------|
-| `enabled` | bool | **false** | Enable/disable queue event processing | 🟢 ⚠️ Disabled by default |
-| `provider` | string | memory | Queue provider: `memory` (🟢), `redis-streams` (🟡 config only) | 🟢 |
-| `bufferSize` | int | 1000 | Buffer size for in-memory queue | 🟢 |
+| `enabled` | bool | **false** | Enable/disable queue event processing | 🟡 ⚠️ Disabled by default |
+| `provider` | string | memory | Queue provider: `memory` (works), `redis-streams` (config only) | 🟡 |
+| `bufferSize` | int | 1000 | Buffer size for in-memory queue | 🟡 |
 | `redis-streams` | RedisStreamsConfig | - | Redis Streams settings | 🟡 Config only |
 
 **What it does when enabled:**
@@ -234,6 +234,11 @@ Message queue configuration for handling asynchronous registry events.
 2. **Event processing** - Handles registered, renewed, revoked, deprecated, expired events
 3. **Metrics tracking** - Records queue statistics (processed, failed, pending)
 4. **Background processing** - Async event handling without blocking resolution
+
+⚠️ **Important:** GoDaddy registry doesn't currently emit events. The queue will run but have nothing to process until you:
+- Implement a custom event source
+- Use a different registry that supports webhooks/event streams
+- Manually publish test events to the queue
 
 **Event Types Processed:**
 
