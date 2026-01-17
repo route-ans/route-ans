@@ -1,9 +1,10 @@
 server:
-  http:
-    host: "0.0.0.0"
-    port: 8080
-    readTimeout: 30s
-    writeTimeout: 30s
+  host: "0.0.0.0"
+  port: 8080
+  readTimeout: 30s
+  writeTimeout: 30s
+  idleTimeout: 120s
+  maxHeaderBytes: 1048576
   gracefulShutdownTimeout: 30s
 
 cache:
@@ -17,13 +18,9 @@ cache:
     cleanupInterval: 60s
 
 queue:
+  enabled: false  # Queue not implemented yet
   provider: memory
   bufferSize: 1000
-
-store:
-  provider: memory
-  memory:
-    maxSize: 100000
 
 registries:
   - name: primary

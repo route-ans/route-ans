@@ -5,24 +5,12 @@
 
 # Server configuration
 server:
-  http:
-    host: ${HTTP_HOST:0.0.0.0}
-    port: ${HTTP_PORT:8080}
-    readTimeout: ${HTTP_READ_TIMEOUT:30s}
-    writeTimeout: ${HTTP_WRITE_TIMEOUT:30s}
-    idleTimeout: ${HTTP_IDLE_TIMEOUT:120s}
-    maxHeaderBytes: 1048576  # 1MB
-  grpc:
-    host: ${GRPC_HOST:0.0.0.0}
-    port: ${GRPC_PORT:9090}
-    enabled: ${GRPC_ENABLED:false}
-  tls:
-    enabled: ${TLS_ENABLED:false}
-    certFile: ${TLS_CERT_FILE:/etc/ans/tls/tls.crt}
-    keyFile: ${TLS_KEY_FILE:/etc/ans/tls/tls.key}
-    mtls:
-      enabled: ${MTLS_ENABLED:false}
-      clientCAFile: ${MTLS_CA_FILE:/etc/ans/tls/ca.crt}
+  host: ${HTTP_HOST:0.0.0.0}
+  port: ${HTTP_PORT:8080}
+  readTimeout: ${HTTP_READ_TIMEOUT:30s}
+  writeTimeout: ${HTTP_WRITE_TIMEOUT:30s}
+  idleTimeout: ${HTTP_IDLE_TIMEOUT:120s}
+  maxHeaderBytes: 1048576  # 1MB
   gracefulShutdownTimeout: ${SHUTDOWN_TIMEOUT:30s}
 
 # Pluggable cache provider
@@ -59,6 +47,7 @@ cache:
 
 # Pluggable message queue for registry events
 queue:
+  enabled: ${QUEUE_ENABLED:false}  # Queue not implemented yet
   provider: ${QUEUE_PROVIDER:memory}  # memory | redis-streams | kafka | nats
   bufferSize: ${QUEUE_BUFFER_SIZE:1000}
   # Redis Streams settings
@@ -93,27 +82,6 @@ queue:
     durableName: ${NATS_DURABLE:resolver-durable}
     tls:
       enabled: ${NATS_TLS_ENABLED:false}
-
-# Pluggable persistent store (optional, for search/index)
-store:
-  provider: ${STORE_PROVIDER:memory}  # memory | postgres | sqlite | none
-  # PostgreSQL settings
-  postgres:
-    dsn: ${DATABASE_URL:postgres://ans:ans@localhost:5432/ans_resolver?sslmode=disable}
-    maxOpenConns: ${DB_MAX_OPEN_CONNS:25}
-    maxIdleConns: ${DB_MAX_IDLE_CONNS:5}
-    connMaxLifetime: ${DB_CONN_MAX_LIFETIME:5m}
-    connMaxIdleTime: ${DB_CONN_MAX_IDLE_TIME:5m}
-    migrations:
-      enabled: ${DB_MIGRATIONS_ENABLED:true}
-      path: ${DB_MIGRATIONS_PATH:/etc/ans/migrations}
-  # SQLite settings
-  sqlite:
-    path: ${SQLITE_PATH:/data/ans-resolver.db}
-    journalMode: ${SQLITE_JOURNAL_MODE:WAL}
-  # Memory store settings
-  memory:
-    maxSize: ${STORE_MEMORY_MAX_SIZE:100000}
 
 # Registry adapters (multiple registries supported)
 registries:
