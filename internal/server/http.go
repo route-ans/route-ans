@@ -23,7 +23,7 @@ import (
 	"github.com/rs/zerolog/log"
 	httpSwagger "github.com/swaggo/http-swagger/v2"
 
-	_ "github.com/route-ans/route-ans/api/docs" // Swagger docs
+	_ "github.com/route-ans/route-ans/docs/swagger" // Swagger docs
 )
 
 // Server represents the HTTP server

@@ -85,10 +85,10 @@ docker-run:
 	docker run -p 8080:8080 -p 9091:9091 $(DOCKER_IMAGE):$(DOCKER_TAG)
 
 ## Generate API docs
-docs:
+api-docs:
 	@echo "Generating API documentation..."
 	@which swag > /dev/null || go install github.com/swaggo/swag/cmd/swag@latest
-	swag init -g cmd/resolver/main.go -o api/docs
+	swag init -g cmd/resolver/main.go -o docs/swagger
 
 ## Generate mocks for testing
 mocks:

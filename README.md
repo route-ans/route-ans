@@ -163,6 +163,68 @@ GET /v1/resolve?name=a2a://greeting.greet.PID-1234.v1.0.0.neelanjan.dev
 }
 ```
 
+### Version Negotiation
+
+The resolver supports semantic version ranges for flexible version resolution. This implements **ANS Spec Step 4: Version Negotiation**.
+
+#### Supported Version Range Formats
+
+| Format | Example | Description |
+|--------|---------|-------------|
+| **Exact** | `1.0.0` | Exact version match |
+| **Greater than** | `>1.0.0` | Any version higher than 1.0.0 |
+| **Greater or equal** | `>=1.0.0` | Version 1.0.0 or higher |
+| **Less than** | `<2.0.0` | Any version below 2.0.0 |
+| **Less or equal** | `<=2.0.0` | Version 2.0.0 or lower |
+| **Caret** | `^1.2.3` | Compatible changes (>=1.2.3 <2.0.0) |
+| **Tilde** | `~1.2.3` | Patch-level changes (>=1.2.3 <1.3.0) |
+| **Major wildcard** | `1.x` | Any minor/patch in version 1 |
+| **Minor wildcard** | `1.2.x` | Any patch in version 1.2 |
+| **Any version** | `*` | Latest available version |
+
+#### Usage Examples
+
+**Request latest version:**
+```bash
+GET /v1/resolve?name=a2a://greeting.greet.PID-1234.v1.0.0.neelanjan.dev&version=*
+```
+
+**Request compatible version (caret):**
+```bash
+# Allows 1.2.3, 1.2.4, 1.5.0 but not 2.0.0
+GET /v1/resolve?name=a2a://greeting.greet.PID-1234.v1.0.0.neelanjan.dev&version=^1.2.3
+```
+
+**Request patch updates only (tilde):**
+```bash
+# Allows 1.2.3, 1.2.4 but not 1.3.0
+GET /v1/resolve?name=a2a://greeting.greet.PID-1234.v1.0.0.neelanjan.dev&version=~1.2.3
+```
+
+**Request any 1.x version:**
+```bash
+GET /v1/resolve?name=a2a://greeting.greet.PID-1234.v1.0.0.neelanjan.dev&version=1.x
+```
+
+**Request version range:**
+```bash
+# Get highest version between 1.0.0 and 2.0.0
+GET /v1/resolve?name=a2a://greeting.greet.PID-1234.v1.0.0.neelanjan.dev&version=>=1.0.0&version=<2.0.0
+```
+
+#### Version Negotiation Strategy
+
+When multiple versions match the range:
+1. **Filter** - Only versions matching the range are considered
+2. **Sort** - Candidates are sorted by semantic version
+3. **Select** - The **highest matching version** is returned
+4. **Cache** - Result is cached with standard TTL
+
+**Example:**
+- Available: v1.0.0, v1.1.0, v1.2.0, v2.0.0
+- Range: `^1.0.0`
+- Result: `v1.2.0` (highest compatible with 1.x)
+
 ### Swagger UI
 
 Interactive API documentation available at:
