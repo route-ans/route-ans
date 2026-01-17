@@ -1,0 +1,2466 @@
+
+<!doctype html>
+<html lang="en" class="no-js">
+  <head>
+    
+      <meta charset="utf-8">
+      <meta name="viewport" content="width=device-width,initial-scale=1">
+      
+        <meta name="description" content="Complete API reference for Route ANS, an Agent Name System (ANS) resolution server.">
+      
+      
+        <meta name="author" content="Route ANS Team">
+      
+      
+      
+        <link rel="prev" href="../../troubleshooting/">
+      
+      
+        <link rel="next" href="../components/">
+      
+      
+        
+      
+      
+      <link rel="icon" href="../../assets/images/favicon.png">
+      <meta name="generator" content="mkdocs-1.5.3, mkdocs-material-9.7.1">
+    
+    
+      
+        <title>Overview - Route ANS</title>
+      
+    
+    
+      <link rel="stylesheet" href="../../assets/stylesheets/main.484c7ddc.min.css">
+      
+        
+        <link rel="stylesheet" href="../../assets/stylesheets/palette.ab4e12ef.min.css">
+      
+      
+
+
+    
+    
+      
+    
+    
+      
+        
+        
+        <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+        <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Roboto:300,300i,400,400i,700,700i%7CRoboto+Mono:400,400i,700,700i&display=fallback">
+        <style>:root{--md-text-font:"Roboto";--md-code-font:"Roboto Mono"}</style>
+      
+    
+    
+      <link rel="stylesheet" href="../../stylesheets/extra.css">
+    
+    <script>__md_scope=new URL("../..",location),__md_hash=e=>[...e].reduce(((e,_)=>(e<<5)-e+_.charCodeAt(0)),0),__md_get=(e,_=localStorage,t=__md_scope)=>JSON.parse(_.getItem(t.pathname+"."+e)),__md_set=(e,_,t=localStorage,a=__md_scope)=>{try{t.setItem(a.pathname+"."+e,JSON.stringify(_))}catch(e){}}</script>
+    
+      
+
+    
+    
+  </head>
+  
+  
+    
+    
+      
+    
+    
+    
+    
+    <body dir="ltr" data-md-color-scheme="default" data-md-color-primary="blue-grey" data-md-color-accent="blue-grey">
+  
+    
+    <input class="md-toggle" data-md-toggle="drawer" type="checkbox" id="__drawer" autocomplete="off">
+    <input class="md-toggle" data-md-toggle="search" type="checkbox" id="__search" autocomplete="off">
+    <label class="md-overlay" for="__drawer"></label>
+    <div data-md-component="skip">
+      
+        
+        <a href="#architecture-overview" class="md-skip">
+          Skip to content
+        </a>
+      
+    </div>
+    <div data-md-component="announce">
+      
+    </div>
+    
+    
+      
+
+  
+
+<header class="md-header md-header--shadow" data-md-component="header">
+  <nav class="md-header__inner md-grid" aria-label="Header">
+    <a href="../.." title="Route ANS" class="md-header__button md-logo" aria-label="Route ANS" data-md-component="logo">
+      
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3 3 3 0 0 0 3 3m0 3.54C9.64 9.35 6.5 8 3 8v11c3.5 0 6.64 1.35 9 3.54 2.36-2.19 5.5-3.54 9-3.54V8c-3.5 0-6.64 1.35-9 3.54"/></svg>
+
+    </a>
+    <label class="md-header__button md-icon" for="__drawer">
+      
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M3 6h18v2H3zm0 5h18v2H3zm0 5h18v2H3z"/></svg>
+    </label>
+    <div class="md-header__title" data-md-component="header-title">
+      <div class="md-header__ellipsis">
+        <div class="md-header__topic">
+          <span class="md-ellipsis">
+            Route ANS
+          </span>
+        </div>
+        <div class="md-header__topic" data-md-component="header-topic">
+          <span class="md-ellipsis">
+            
+              Overview
+            
+          </span>
+        </div>
+      </div>
+    </div>
+    
+      
+        <form class="md-header__option" data-md-component="palette">
+  
+    
+    
+    
+    <input class="md-option" data-md-color-media="" data-md-color-scheme="default" data-md-color-primary="blue-grey" data-md-color-accent="blue-grey"  aria-label="Switch to dark mode"  type="radio" name="__palette" id="__palette_0">
+    
+      <label class="md-header__button md-icon" title="Switch to dark mode" for="__palette_1" hidden>
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a4 4 0 0 0-4 4 4 4 0 0 0 4 4 4 4 0 0 0 4-4 4 4 0 0 0-4-4m0 10a6 6 0 0 1-6-6 6 6 0 0 1 6-6 6 6 0 0 1 6 6 6 6 0 0 1-6 6m8-9.31V4h-4.69L12 .69 8.69 4H4v4.69L.69 12 4 15.31V20h4.69L12 23.31 15.31 20H20v-4.69L23.31 12z"/></svg>
+      </label>
+    
+  
+    
+    
+    
+    <input class="md-option" data-md-color-media="" data-md-color-scheme="slate" data-md-color-primary="blue-grey" data-md-color-accent="blue-grey"  aria-label="Switch to light mode"  type="radio" name="__palette" id="__palette_1">
+    
+      <label class="md-header__button md-icon" title="Switch to light mode" for="__palette_0" hidden>
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 18c-.89 0-1.74-.2-2.5-.55C11.56 16.5 13 14.42 13 12s-1.44-4.5-3.5-5.45C10.26 6.2 11.11 6 12 6a6 6 0 0 1 6 6 6 6 0 0 1-6 6m8-9.31V4h-4.69L12 .69 8.69 4H4v4.69L.69 12 4 15.31V20h4.69L12 23.31 15.31 20H20v-4.69L23.31 12z"/></svg>
+      </label>
+    
+  
+</form>
+      
+    
+    
+      <script>var palette=__md_get("__palette");if(palette&&palette.color){if("(prefers-color-scheme)"===palette.color.media){var media=matchMedia("(prefers-color-scheme: light)"),input=document.querySelector(media.matches?"[data-md-color-media='(prefers-color-scheme: light)']":"[data-md-color-media='(prefers-color-scheme: dark)']");palette.color.media=input.getAttribute("data-md-color-media"),palette.color.scheme=input.getAttribute("data-md-color-scheme"),palette.color.primary=input.getAttribute("data-md-color-primary"),palette.color.accent=input.getAttribute("data-md-color-accent")}for(var[key,value]of Object.entries(palette.color))document.body.setAttribute("data-md-color-"+key,value)}</script>
+    
+    
+    
+      
+      
+        <label class="md-header__button md-icon" for="__search">
+          
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.52 6.52 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5"/></svg>
+        </label>
+        <div class="md-search" data-md-component="search" role="dialog">
+  <label class="md-search__overlay" for="__search"></label>
+  <div class="md-search__inner" role="search">
+    <form class="md-search__form" name="search">
+      <input type="text" class="md-search__input" name="query" aria-label="Search" placeholder="Search" autocapitalize="off" autocorrect="off" autocomplete="off" spellcheck="false" data-md-component="search-query" required>
+      <label class="md-search__icon md-icon" for="__search">
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.52 6.52 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5"/></svg>
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M20 11v2H8l5.5 5.5-1.42 1.42L4.16 12l7.92-7.92L13.5 5.5 8 11z"/></svg>
+      </label>
+      <nav class="md-search__options" aria-label="Search">
+        
+        <button type="reset" class="md-search__icon md-icon" title="Clear" aria-label="Clear" tabindex="-1">
+          
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M19 6.41 17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z"/></svg>
+        </button>
+      </nav>
+      
+        <div class="md-search__suggest" data-md-component="search-suggest"></div>
+      
+    </form>
+    <div class="md-search__output">
+      <div class="md-search__scrollwrap" tabindex="0" data-md-scrollfix>
+        <div class="md-search-result" data-md-component="search-result">
+          <div class="md-search-result__meta">
+            Initializing search
+          </div>
+          <ol class="md-search-result__list" role="presentation"></ol>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+      
+    
+    
+      <div class="md-header__source">
+        <a href="https://github.com/route-ans/route-ans" title="Go to repository" class="md-source" data-md-component="source">
+  <div class="md-source__icon md-icon">
+    
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512"><!--! Font Awesome Free 7.1.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2025 Fonticons, Inc.--><path d="M439.6 236.1 244 40.5c-5.4-5.5-12.8-8.5-20.4-8.5s-15 3-20.4 8.4L162.5 81l51.5 51.5c27.1-9.1 52.7 16.8 43.4 43.7l49.7 49.7c34.2-11.8 61.2 31 35.5 56.7-26.5 26.5-70.2-2.9-56-37.3L240.3 199v121.9c25.3 12.5 22.3 41.8 9.1 55-6.4 6.4-15.2 10.1-24.3 10.1s-17.8-3.6-24.3-10.1c-17.6-17.6-11.1-46.9 11.2-56v-123c-20.8-8.5-24.6-30.7-18.6-45L142.6 101 8.5 235.1C3 240.6 0 247.9 0 255.5s3 15 8.5 20.4l195.6 195.7c5.4 5.4 12.7 8.4 20.4 8.4s15-3 20.4-8.4l194.7-194.7c5.4-5.4 8.4-12.8 8.4-20.4s-3-15-8.4-20.4"/></svg>
+  </div>
+  <div class="md-source__repository">
+    GitHub
+  </div>
+</a>
+      </div>
+    
+  </nav>
+  
+</header>
+    
+    <div class="md-container" data-md-component="container">
+      
+      
+        
+          
+        
+      
+      <main class="md-main" data-md-component="main">
+        <div class="md-main__inner md-grid">
+          
+            
+              
+              <div class="md-sidebar md-sidebar--primary" data-md-component="sidebar" data-md-type="navigation" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+
+
+<nav class="md-nav md-nav--primary" aria-label="Navigation" data-md-level="0">
+  <label class="md-nav__title" for="__drawer">
+    <a href="../.." title="Route ANS" class="md-nav__button md-logo" aria-label="Route ANS" data-md-component="logo">
+      
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3 3 3 0 0 0 3 3m0 3.54C9.64 9.35 6.5 8 3 8v11c3.5 0 6.64 1.35 9 3.54 2.36-2.19 5.5-3.54 9-3.54V8c-3.5 0-6.64 1.35-9 3.54"/></svg>
+
+    </a>
+    Route ANS
+  </label>
+  
+    <div class="md-nav__source">
+      <a href="https://github.com/route-ans/route-ans" title="Go to repository" class="md-source" data-md-component="source">
+  <div class="md-source__icon md-icon">
+    
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512"><!--! Font Awesome Free 7.1.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2025 Fonticons, Inc.--><path d="M439.6 236.1 244 40.5c-5.4-5.5-12.8-8.5-20.4-8.5s-15 3-20.4 8.4L162.5 81l51.5 51.5c27.1-9.1 52.7 16.8 43.4 43.7l49.7 49.7c34.2-11.8 61.2 31 35.5 56.7-26.5 26.5-70.2-2.9-56-37.3L240.3 199v121.9c25.3 12.5 22.3 41.8 9.1 55-6.4 6.4-15.2 10.1-24.3 10.1s-17.8-3.6-24.3-10.1c-17.6-17.6-11.1-46.9 11.2-56v-123c-20.8-8.5-24.6-30.7-18.6-45L142.6 101 8.5 235.1C3 240.6 0 247.9 0 255.5s3 15 8.5 20.4l195.6 195.7c5.4 5.4 12.7 8.4 20.4 8.4s15-3 20.4-8.4l194.7-194.7c5.4-5.4 8.4-12.8 8.4-20.4s-3-15-8.4-20.4"/></svg>
+  </div>
+  <div class="md-source__repository">
+    GitHub
+  </div>
+</a>
+    </div>
+  
+  <ul class="md-nav__list" data-md-scrollfix>
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../.." class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Home
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+    
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_2" >
+        
+          
+          <label class="md-nav__link" for="__nav_2" id="__nav_2_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Getting Started
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_2_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_2">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Getting Started
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../getting-started/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Quick Start
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../installation/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Installation
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../concepts/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Basic Concepts
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../tutorial/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Tutorial
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+    
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_3" >
+        
+          
+          <label class="md-nav__link" for="__nav_3" id="__nav_3_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Usage
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_3_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_3">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Usage
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../examples/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Examples
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../swagger/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Swagger API
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+    
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_4" >
+        
+          
+          <label class="md-nav__link" for="__nav_4" id="__nav_4_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Configuration
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_4_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_4">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Configuration
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../configuration/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Configuration Reference
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+    
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_5" >
+        
+          
+          <label class="md-nav__link" for="__nav_5" id="__nav_5_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Operations
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_5_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_5">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Operations
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../deployment/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Deployment
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../monitoring/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Monitoring
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../security/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Security
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../troubleshooting/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Troubleshooting
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+    
+  
+  
+  
+    
+    
+    
+    
+    
+    <li class="md-nav__item md-nav__item--active md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_6" checked>
+        
+          
+          <label class="md-nav__link" for="__nav_6" id="__nav_6_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Architecture
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_6_label" aria-expanded="true">
+          <label class="md-nav__title" for="__nav_6">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Architecture
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+    
+  
+  
+  
+    <li class="md-nav__item md-nav__item--active">
+      
+      <input class="md-nav__toggle md-toggle" type="checkbox" id="__toc">
+      
+      
+        
+      
+      
+        <label class="md-nav__link md-nav__link--active" for="__toc">
+          
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Overview
+  
+
+    
+  </span>
+  
+  
+
+          <span class="md-nav__icon md-icon"></span>
+        </label>
+      
+      <a href="./" class="md-nav__link md-nav__link--active">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Overview
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+      
+        
+
+<nav class="md-nav md-nav--secondary" aria-label="Table of contents">
+  
+  
+  
+    
+  
+  
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      Table of contents
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#system-architecture" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        System Architecture
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#core-components" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Core Components
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Core Components">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#1-http-api-layer" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        1. HTTP API Layer
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#2-resolver-core" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        2. Resolver Core
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#3-cache-layer" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        3. Cache Layer
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#4-trust-verifier" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        4. Trust Verifier
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#5-registry-adapter" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        5. Registry Adapter
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#design-principles" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Design Principles
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Design Principles">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#1-stateless-operation" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        1. Stateless Operation
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#2-fail-fast" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        2. Fail-Fast
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#3-extensibility" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        3. Extensibility
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#4-observable" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        4. Observable
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#configuration-hierarchy" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Configuration Hierarchy
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#resolution-flow" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Resolution Flow
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#deployment-patterns" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Deployment Patterns
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Deployment Patterns">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#single-instance" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Single Instance
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#distributed" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Distributed
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#edge-deployment" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Edge Deployment
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#api-design" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        API Design
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="API Design">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#http-endpoints" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        HTTP Endpoints
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#versioned-api" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Versioned API
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#error-handling" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Error Handling
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#performance-characteristics" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Performance Characteristics
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#security-model" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Security Model
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#extensibility-points" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Extensibility Points
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Extensibility Points">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#1-custom-registry-backends" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        1. Custom Registry Backends
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#2-custom-cache-providers" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        2. Custom Cache Providers
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#3-custom-trust-verification" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        3. Custom Trust Verification
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#4-custom-middleware" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        4. Custom Middleware
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#next-steps" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Next Steps
+      
+    </span>
+  </a>
+  
+</li>
+      
+    </ul>
+  
+</nav>
+      
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../components/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Components
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../resolution-flow/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Resolution Flow
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../ans-spec/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    ANS Specification
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+    
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_7" >
+        
+          
+          <label class="md-nav__link" for="__nav_7" id="__nav_7_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Development
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_7_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_7">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Development
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../development/extending/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Extending
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../development/testing/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Testing
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+    
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_8" >
+        
+          
+          <label class="md-nav__link" for="__nav_8" id="__nav_8_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Reference
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_8_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_8">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Reference
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../reference/version-negotiation/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Version Negotiation
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../reference/registry-adapters/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Registry Adapters
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../reference/cache-providers/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Cache Providers
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../reference/trust-verification/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Trust Verification
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+  </ul>
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+            
+              
+              <div class="md-sidebar md-sidebar--secondary" data-md-component="sidebar" data-md-type="toc" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+<nav class="md-nav md-nav--secondary" aria-label="Table of contents">
+  
+  
+  
+    
+  
+  
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      Table of contents
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#system-architecture" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        System Architecture
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#core-components" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Core Components
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Core Components">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#1-http-api-layer" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        1. HTTP API Layer
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#2-resolver-core" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        2. Resolver Core
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#3-cache-layer" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        3. Cache Layer
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#4-trust-verifier" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        4. Trust Verifier
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#5-registry-adapter" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        5. Registry Adapter
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#design-principles" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Design Principles
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Design Principles">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#1-stateless-operation" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        1. Stateless Operation
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#2-fail-fast" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        2. Fail-Fast
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#3-extensibility" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        3. Extensibility
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#4-observable" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        4. Observable
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#configuration-hierarchy" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Configuration Hierarchy
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#resolution-flow" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Resolution Flow
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#deployment-patterns" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Deployment Patterns
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Deployment Patterns">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#single-instance" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Single Instance
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#distributed" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Distributed
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#edge-deployment" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Edge Deployment
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#api-design" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        API Design
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="API Design">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#http-endpoints" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        HTTP Endpoints
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#versioned-api" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Versioned API
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#error-handling" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Error Handling
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#performance-characteristics" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Performance Characteristics
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#security-model" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Security Model
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#extensibility-points" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Extensibility Points
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Extensibility Points">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#1-custom-registry-backends" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        1. Custom Registry Backends
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#2-custom-cache-providers" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        2. Custom Cache Providers
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#3-custom-trust-verification" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        3. Custom Trust Verification
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#4-custom-middleware" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        4. Custom Middleware
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#next-steps" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Next Steps
+      
+    </span>
+  </a>
+  
+</li>
+      
+    </ul>
+  
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+          
+          
+            <div class="md-content" data-md-component="content">
+              
+              <article class="md-content__inner md-typeset">
+                
+                  
+
+
+  
+  
+
+
+<h1 id="architecture-overview">Architecture Overview<a class="headerlink" href="#architecture-overview" title="Permanent link">&para;</a></h1>
+<p>Route ANS Resolver system architecture and design principles.</p>
+<h2 id="system-architecture">System Architecture<a class="headerlink" href="#system-architecture" title="Permanent link">&para;</a></h2>
+<pre class="mermaid"><code>flowchart TD
+    A[Clients&lt;br/&gt;A2A, MCP] --&gt;|HTTP/HTTPS| B[ANS Resolver]
+
+    subgraph B[ANS Resolver - Route ANS]
+        C[HTTP API Layer]
+        D[Resolver Core]
+        E[Cache Layer]
+        F[Trust Verifier]
+        G[Registry Adapter]
+
+        C --&gt; D
+        D --&gt; E
+        D --&gt; F
+        F --&gt; G
+    end
+
+    G --&gt; H[External Services]
+
+    subgraph H[External Services]
+        I[GoDaddy API]
+        J[DNS]
+        K[Redis]
+    end</code></pre>
+<h2 id="core-components">Core Components<a class="headerlink" href="#core-components" title="Permanent link">&para;</a></h2>
+<h3 id="1-http-api-layer">1. HTTP API Layer<a class="headerlink" href="#1-http-api-layer" title="Permanent link">&para;</a></h3>
+<p><strong>Location</strong>: <code>internal/server/</code></p>
+<p>Handles HTTP requests and responses:</p>
+<ul>
+<li>REST API endpoints for resolution, batch operations, and health checks</li>
+<li>Request validation and response formatting</li>
+<li>Rate limiting to prevent abuse</li>
+<li>Middleware chain for cross-cutting concerns</li>
+<li>Prometheus metrics exposure</li>
+</ul>
+<p><strong>Design Pattern</strong>: Middleware Chain pattern allows composable request processing (logging, rate limiting, authentication, etc.).</p>
+<h3 id="2-resolver-core">2. Resolver Core<a class="headerlink" href="#2-resolver-core" title="Permanent link">&para;</a></h3>
+<p><strong>Location</strong>: <code>internal/resolver/</code></p>
+<p>Core resolution logic:</p>
+<ul>
+<li>ANSName parsing and validation</li>
+<li>Version negotiation using semantic versioning</li>
+<li>Agent selection from multiple candidates</li>
+<li>Resolution orchestration coordinating cache, registry, and trust verification</li>
+</ul>
+<p><strong>Design Pattern</strong>: Facade pattern that provides a simple interface to the complex subsystem of caching, registry lookup, version negotiation, and trust verification.</p>
+<h3 id="3-cache-layer">3. Cache Layer<a class="headerlink" href="#3-cache-layer" title="Permanent link">&para;</a></h3>
+<p><strong>Location</strong>: <code>internal/cache/</code></p>
+<p>Resolution result caching:</p>
+<ul>
+<li>Memory-based cache for single-instance deployments</li>
+<li>Redis-based cache for distributed deployments</li>
+<li>TTL management with configurable expiration</li>
+<li>Cache invalidation strategies</li>
+</ul>
+<p><strong>Design Pattern</strong>: Strategy pattern allows switching between memory and Redis implementations based on deployment requirements.</p>
+<p><strong>Extensibility</strong>: New cache backends (Memcached, DynamoDB) can be added by implementing the cache interface without modifying core logic.</p>
+<h3 id="4-trust-verifier">4. Trust Verifier<a class="headerlink" href="#4-trust-verifier" title="Permanent link">&para;</a></h3>
+<p><strong>Location</strong>: <code>internal/trust/</code></p>
+<p>Certificate verification:</p>
+<ul>
+<li>Fingerprint validation against published certificates</li>
+<li>Certificate chain validation</li>
+<li>Trust store management for allowed CAs</li>
+<li>Revocation checking (OCSP, CRL)</li>
+</ul>
+<p><strong>Design Pattern</strong>: Chain of Responsibility for multi-stage verification (fingerprint → chain → revocation).</p>
+<p><strong>Design Trade-off</strong>: Strict verification by default prevents MITM attacks but requires proper certificate management. Permissive mode available for development.</p>
+<h3 id="5-registry-adapter">5. Registry Adapter<a class="headerlink" href="#5-registry-adapter" title="Permanent link">&para;</a></h3>
+<p><strong>Location</strong>: <code>internal/registry/</code></p>
+<p>Backend registry integration:</p>
+<ul>
+<li>GoDaddy API client for managed DNS</li>
+<li>DNS TXT record lookup for self-hosted registries</li>
+<li>Mock registry for testing environments</li>
+<li>Extensible adapter interface</li>
+</ul>
+<p><strong>Design Pattern</strong>: Adapter pattern allows multiple registry backends (GoDaddy, DNS, custom APIs) behind a uniform interface.</p>
+<p><strong>Extensibility</strong>: New registries (Namecheap, Cloudflare, Route53) can be added without changing resolver logic.</p>
+<h2 id="design-principles">Design Principles<a class="headerlink" href="#design-principles" title="Permanent link">&para;</a></h2>
+<h3 id="1-stateless-operation">1. Stateless Operation<a class="headerlink" href="#1-stateless-operation" title="Permanent link">&para;</a></h3>
+<p>The resolver maintains no session state, enabling:</p>
+<ul>
+<li>Horizontal scaling with load balancers</li>
+<li>Zero-downtime deployments</li>
+<li>Simple disaster recovery (just restart)</li>
+<li>No complex state synchronization</li>
+</ul>
+<p><strong>Trade-off</strong>: Cache is the only state, managed separately (Redis for distributed, memory for single-instance).</p>
+<h3 id="2-fail-fast">2. Fail-Fast<a class="headerlink" href="#2-fail-fast" title="Permanent link">&para;</a></h3>
+<p>Requests fail quickly rather than hanging:</p>
+<ul>
+<li>Short timeouts on external calls (registry, trust verification)</li>
+<li>Explicit error returns for all failure modes</li>
+<li>Circuit breakers prevent cascading failures</li>
+<li>Health checks detect degraded state</li>
+</ul>
+<p><strong>Benefit</strong>: Clients get quick feedback and can retry or failover immediately.</p>
+<h3 id="3-extensibility">3. Extensibility<a class="headerlink" href="#3-extensibility" title="Permanent link">&para;</a></h3>
+<p>Plugin architecture via interfaces:</p>
+<ul>
+<li><strong>Registry adapters</strong>: Add new registry backends</li>
+<li><strong>Cache providers</strong>: Add new cache implementations</li>
+<li><strong>Trust verifiers</strong>: Add custom verification logic</li>
+<li><strong>Middleware</strong>: Add custom request processing</li>
+</ul>
+<p><strong>Pattern</strong>: Dependency injection allows runtime composition of components.</p>
+<h3 id="4-observable">4. Observable<a class="headerlink" href="#4-observable" title="Permanent link">&para;</a></h3>
+<p>Built-in observability:</p>
+<ul>
+<li><strong>Metrics</strong>: Prometheus metrics for all operations (requests, cache hits, registry latency)</li>
+<li><strong>Logging</strong>: Structured JSON logs with trace IDs</li>
+<li><strong>Tracing</strong>: OpenTelemetry support for distributed tracing</li>
+<li><strong>Health checks</strong>: Liveness and readiness probes</li>
+</ul>
+<p><strong>Design Choice</strong>: Zero-config defaults with optional exporters keeps it simple while enabling production observability.</p>
+<h2 id="configuration-hierarchy">Configuration Hierarchy<a class="headerlink" href="#configuration-hierarchy" title="Permanent link">&para;</a></h2>
+<p>Configuration sources in priority order:</p>
+<ol>
+<li><strong>Command-line flags</strong>: Override everything (e.g., <code>--port=8080</code>)</li>
+<li><strong>Environment variables</strong>: Per-environment config (e.g., <code>SERVER_PORT=8080</code>)</li>
+<li><strong>Configuration file</strong>: Base configuration (YAML)</li>
+<li><strong>Defaults</strong>: Sensible defaults for quick starts</li>
+</ol>
+<p><strong>Design Rationale</strong>: 12-factor app principles for cloud-native deployments.</p>
+<h2 id="resolution-flow">Resolution Flow<a class="headerlink" href="#resolution-flow" title="Permanent link">&para;</a></h2>
+<pre class="mermaid"><code>flowchart TD
+    A[Client Request] --&gt; B[Parse ANSName]
+    B --&gt; C{Cache Hit?}
+    C --&gt;|Yes| D[Return Cached Result]
+    C --&gt;|No| E[Registry Lookup]
+    E --&gt; F[Version Negotiation]
+    F --&gt; G{Trust Verification}
+    G --&gt;|Verified| H[Cache Result]
+    G --&gt;|Failed| I[Return Error]
+    H --&gt; J[Return Result]
+
+    D -.-&gt; Cache[(Cache)]
+    E -.-&gt; Registry[(Registry)]
+    G -.-&gt; Trust[(Trust Verifier)]
+    H -.-&gt; Cache</code></pre>
+<p><strong>Flow Characteristics:</strong></p>
+<ul>
+<li><strong>Optimistic caching</strong>: Cache checked first, misses go to registry</li>
+<li><strong>Version negotiation</strong>: Selects best matching version from available agents</li>
+<li><strong>Trust verification</strong>: Optional but recommended for security</li>
+<li><strong>Cache-aside pattern</strong>: Application manages cache explicitly</li>
+</ul>
+<h2 id="deployment-patterns">Deployment Patterns<a class="headerlink" href="#deployment-patterns" title="Permanent link">&para;</a></h2>
+<h3 id="single-instance">Single Instance<a class="headerlink" href="#single-instance" title="Permanent link">&para;</a></h3>
+<pre class="mermaid"><code>graph LR
+    A[Clients] --&gt; B[ANS Resolver]
+    B --&gt; C[Memory Cache]
+    B --&gt; D[GoDaddy API]</code></pre>
+<ul>
+<li><strong>Use Case</strong>: Development, testing, small-scale production</li>
+<li><strong>Characteristics</strong>: Simple, no dependencies, fast startup</li>
+<li><strong>Limitation</strong>: No horizontal scaling, cache not shared</li>
+</ul>
+<h3 id="distributed">Distributed<a class="headerlink" href="#distributed" title="Permanent link">&para;</a></h3>
+<pre class="mermaid"><code>graph TB
+    A[Load Balancer] --&gt; B1[Resolver 1]
+    A --&gt; B2[Resolver 2]
+    A --&gt; B3[Resolver 3]
+    B1 --&gt; C[Redis Cache]
+    B2 --&gt; C
+    B3 --&gt; C
+    B1 --&gt; D[GoDaddy API]
+    B2 --&gt; D
+    B3 --&gt; D</code></pre>
+<ul>
+<li><strong>Use Case</strong>: High-availability production</li>
+<li><strong>Characteristics</strong>: Horizontal scaling, shared cache, zero-downtime updates</li>
+<li><strong>Requirement</strong>: Redis for shared cache state</li>
+</ul>
+<h3 id="edge-deployment">Edge Deployment<a class="headerlink" href="#edge-deployment" title="Permanent link">&para;</a></h3>
+<pre class="mermaid"><code>graph TB
+    A[Global Load Balancer] --&gt; B1[Region 1 Resolver]
+    A --&gt; B2[Region 2 Resolver]
+    A --&gt; B3[Region 3 Resolver]
+    B1 --&gt; C1[Regional Redis]
+    B2 --&gt; C2[Regional Redis]
+    B3 --&gt; C3[Regional Redis]</code></pre>
+<ul>
+<li><strong>Use Case</strong>: Global, latency-sensitive applications</li>
+<li><strong>Characteristics</strong>: Regional deployments, CDN-like caching, 99.99% availability</li>
+<li><strong>Trade-off</strong>: Regional caches may have different TTLs, eventual consistency</li>
+</ul>
+<h2 id="api-design">API Design<a class="headerlink" href="#api-design" title="Permanent link">&para;</a></h2>
+<h3 id="http-endpoints">HTTP Endpoints<a class="headerlink" href="#http-endpoints" title="Permanent link">&para;</a></h3>
+<table>
+<thead>
+<tr>
+<th>Method</th>
+<th>Path</th>
+<th>Purpose</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>GET</td>
+<td><code>/v1/resolve</code></td>
+<td>Resolve single ANS name</td>
+</tr>
+<tr>
+<td>POST</td>
+<td><code>/v1/resolve/batch</code></td>
+<td>Resolve multiple ANS names in one request</td>
+</tr>
+<tr>
+<td>GET</td>
+<td><code>/v1/agent/{ansName}</code></td>
+<td>Get agent metadata without full resolution</td>
+</tr>
+<tr>
+<td>GET</td>
+<td><code>/v1/agent/{ansName}/verify</code></td>
+<td>Verify agent certificate independently</td>
+</tr>
+<tr>
+<td>GET</td>
+<td><code>/health</code></td>
+<td>Liveness probe (is process running?)</td>
+</tr>
+<tr>
+<td>GET</td>
+<td><code>/ready</code></td>
+<td>Readiness probe (can it serve traffic?)</td>
+</tr>
+<tr>
+<td>GET</td>
+<td><code>/metrics</code></td>
+<td>Prometheus metrics</td>
+</tr>
+</tbody>
+</table>
+<p><strong>Design Choice</strong>: RESTful with clear separation between resolution (GET /resolve) and batch operations (POST /resolve/batch).</p>
+<h3 id="versioned-api">Versioned API<a class="headerlink" href="#versioned-api" title="Permanent link">&para;</a></h3>
+<p>API version in URL path (<code>/v1/...</code>):</p>
+<ul>
+<li><strong>Stability</strong>: v1 API is stable and backward-compatible</li>
+<li><strong>Evolution</strong>: v2 can be added alongside v1 without breaking existing clients</li>
+<li><strong>Deprecation</strong>: Old versions deprecated with long notice period</li>
+</ul>
+<h2 id="error-handling">Error Handling<a class="headerlink" href="#error-handling" title="Permanent link">&para;</a></h2>
+<p>Error response structure:</p>
+<ul>
+<li><strong>HTTP status codes</strong>: Standard semantics (404 = not found, 500 = server error)</li>
+<li><strong>Error details</strong>: Structured error info (code, message, request_id)</li>
+<li><strong>Idempotency</strong>: Safe to retry GET requests</li>
+<li><strong>Partial failure</strong>: Batch operations return partial results with per-item errors</li>
+</ul>
+<p><strong>Failure Modes:</strong></p>
+<ul>
+<li><strong>ANS name not found</strong>: 404 with error code</li>
+<li><strong>Invalid ANS name</strong>: 400 with validation details</li>
+<li><strong>Registry timeout</strong>: 504 with retry-after header</li>
+<li><strong>Trust verification failed</strong>: 403 with certificate details</li>
+<li><strong>Rate limit exceeded</strong>: 429 with retry-after header</li>
+</ul>
+<h2 id="performance-characteristics">Performance Characteristics<a class="headerlink" href="#performance-characteristics" title="Permanent link">&para;</a></h2>
+<p><strong>Latency Targets:</strong></p>
+<ul>
+<li>Cache hit: &lt; 5ms (p99)</li>
+<li>Cache miss: &lt; 100ms (p95) including registry lookup</li>
+<li>Batch operations: &lt; 200ms for 10 names (p95)</li>
+</ul>
+<p><strong>Throughput:</strong></p>
+<ul>
+<li>Single instance: 1000+ req/s with hot cache</li>
+<li>Distributed: Limited by registry backend, not resolver</li>
+</ul>
+<p><strong>Scaling:</strong></p>
+<ul>
+<li><strong>Horizontal</strong>: Add more resolver instances behind load balancer</li>
+<li><strong>Cache</strong>: Redis supports 100k+ ops/s</li>
+<li><strong>Bottleneck</strong>: External registry API rate limits</li>
+</ul>
+<h2 id="security-model">Security Model<a class="headerlink" href="#security-model" title="Permanent link">&para;</a></h2>
+<p>Security boundaries:</p>
+<ol>
+<li><strong>Resolver → Client</strong>: TLS/HTTPS via reverse proxy (nginx, Traefik)</li>
+<li><strong>Resolver → Registry</strong>: HTTPS with API authentication</li>
+<li><strong>Client → Agent</strong>: Agent handles its own TLS and authentication</li>
+</ol>
+<p><strong>Trust Model:</strong></p>
+<ul>
+<li>Resolver validates agent certificates (fingerprints)</li>
+<li>Resolver does NOT authenticate clients (optional via reverse proxy)</li>
+<li>Agent endpoints handle their own authentication</li>
+</ul>
+<p><strong>Rationale</strong>: Resolver is a discovery service (like DNS), security happens at the endpoints being discovered.</p>
+<h2 id="extensibility-points">Extensibility Points<a class="headerlink" href="#extensibility-points" title="Permanent link">&para;</a></h2>
+<h3 id="1-custom-registry-backends">1. Custom Registry Backends<a class="headerlink" href="#1-custom-registry-backends" title="Permanent link">&para;</a></h3>
+<p>Add new registry sources:</p>
+<ul>
+<li>Database-backed registries (PostgreSQL, MongoDB)</li>
+<li>Blockchain-based registries (ENS-style)</li>
+<li>Cloud service directories (AWS Service Discovery, Consul)</li>
+</ul>
+<p><strong>Extension Pattern</strong>: Implement registry adapter interface with lookup methods.</p>
+<h3 id="2-custom-cache-providers">2. Custom Cache Providers<a class="headerlink" href="#2-custom-cache-providers" title="Permanent link">&para;</a></h3>
+<p>Add new cache backends:</p>
+<ul>
+<li>Memcached for specific use cases</li>
+<li>DynamoDB for serverless deployments</li>
+<li>Local disk cache for edge scenarios</li>
+</ul>
+<p><strong>Extension Pattern</strong>: Implement cache interface with get/set/delete methods.</p>
+<h3 id="3-custom-trust-verification">3. Custom Trust Verification<a class="headerlink" href="#3-custom-trust-verification" title="Permanent link">&para;</a></h3>
+<p>Add domain-specific verification:</p>
+<ul>
+<li>Organization-specific CA requirements</li>
+<li>Certificate transparency log checks</li>
+<li>Custom revocation mechanisms</li>
+</ul>
+<p><strong>Extension Pattern</strong>: Implement trust verifier interface with verification logic.</p>
+<h3 id="4-custom-middleware">4. Custom Middleware<a class="headerlink" href="#4-custom-middleware" title="Permanent link">&para;</a></h3>
+<p>Add request processing:</p>
+<ul>
+<li>Custom authentication (OAuth, mTLS)</li>
+<li>Request transformation</li>
+<li>Response filtering</li>
+<li>Custom metrics/logging</li>
+</ul>
+<p><strong>Extension Pattern</strong>: Standard HTTP middleware signature, compose via chain.</p>
+<h2 id="next-steps">Next Steps<a class="headerlink" href="#next-steps" title="Permanent link">&para;</a></h2>
+<ul>
+<li><strong><a href="../components/">Component Details</a></strong> - Deep dive into each component</li>
+<li><strong><a href="../resolution-flow/">Resolution Flow</a></strong> - Detailed resolution process</li>
+<li><strong><a href="../ans-spec/">ANS Specification</a></strong> - ANS name format and protocol</li>
+</ul>
+
+
+
+
+
+
+
+
+
+
+
+
+                
+              </article>
+            </div>
+          
+          
+<script>var target=document.getElementById(location.hash.slice(1));target&&target.name&&(target.checked=target.name.startsWith("__tabbed_"))</script>
+        </div>
+        
+          <button type="button" class="md-top md-icon" data-md-component="top" hidden>
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M13 20h-2V8l-5.5 5.5-1.42-1.42L12 4.16l7.92 7.92-1.42 1.42L13 8z"/></svg>
+  Back to top
+</button>
+        
+      </main>
+      
+        <footer class="md-footer">
+  
+  <div class="md-footer-meta md-typeset">
+    <div class="md-footer-meta__inner md-grid">
+      <div class="md-copyright">
+  
+  
+    Made with
+    <a href="https://squidfunk.github.io/mkdocs-material/" target="_blank" rel="noopener">
+      Material for MkDocs
+    </a>
+  
+</div>
+      
+    </div>
+  </div>
+</footer>
+      
+    </div>
+    <div class="md-dialog" data-md-component="dialog">
+      <div class="md-dialog__inner md-typeset"></div>
+    </div>
+    
+    
+    
+      
+      
+      <script id="__config" type="application/json">{"annotate": null, "base": "../..", "features": ["navigation.top", "search.suggest", "search.highlight", "content.code.copy", "toc.follow"], "search": "../../assets/javascripts/workers/search.2c215733.min.js", "tags": null, "translations": {"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing", "select.version": "Select version"}, "version": null}</script>
+    
+    
+      <script src="../../assets/javascripts/bundle.79ae519e.min.js"></script>
+      
+        <script src="https://unpkg.com/mermaid@10.6.1/dist/mermaid.min.js"></script>
+      
+    
+  </body>
+</html>
