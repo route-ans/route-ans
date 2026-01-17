@@ -17,7 +17,6 @@ type Config struct {
 	Server     ServerConfig     `yaml:"server"`
 	Cache      CacheConfig      `yaml:"cache"`
 	Queue      QueueConfig      `yaml:"queue"`
-	Store      StoreConfig      `yaml:"store"`
 	Registries []RegistryConfig `yaml:"registries"`
 	Trust      TrustConfig      `yaml:"trust"`
 	Policy     PolicyConfig     `yaml:"policy"`
@@ -25,43 +24,15 @@ type Config struct {
 	Telemetry  TelemetryConfig  `yaml:"telemetry"`
 }
 
-// ServerConfig contains HTTP/gRPC server settings
+// ServerConfig contains HTTP server settings
 type ServerConfig struct {
-	HTTP                    HTTPConfig    `yaml:"http"`
-	GRPC                    GRPCConfig    `yaml:"grpc"`
-	TLS                     TLSConfig     `yaml:"tls"`
+	Host                    string        `yaml:"host"`
+	Port                    int           `yaml:"port"`
+	ReadTimeout             time.Duration `yaml:"readTimeout"`
+	WriteTimeout            time.Duration `yaml:"writeTimeout"`
+	IdleTimeout             time.Duration `yaml:"idleTimeout"`
+	MaxHeaderBytes          int           `yaml:"maxHeaderBytes"`
 	GracefulShutdownTimeout time.Duration `yaml:"gracefulShutdownTimeout"`
-}
-
-// HTTPConfig contains HTTP server settings
-type HTTPConfig struct {
-	Host           string        `yaml:"host"`
-	Port           int           `yaml:"port"`
-	ReadTimeout    time.Duration `yaml:"readTimeout"`
-	WriteTimeout   time.Duration `yaml:"writeTimeout"`
-	IdleTimeout    time.Duration `yaml:"idleTimeout"`
-	MaxHeaderBytes int           `yaml:"maxHeaderBytes"`
-}
-
-// GRPCConfig contains gRPC server settings
-type GRPCConfig struct {
-	Host    string `yaml:"host"`
-	Port    int    `yaml:"port"`
-	Enabled bool   `yaml:"enabled"`
-}
-
-// TLSConfig contains TLS settings
-type TLSConfig struct {
-	Enabled  bool       `yaml:"enabled"`
-	CertFile string     `yaml:"certFile"`
-	KeyFile  string     `yaml:"keyFile"`
-	MTLS     MTLSConfig `yaml:"mtls"`
-}
-
-// MTLSConfig contains mutual TLS settings
-type MTLSConfig struct {
-	Enabled      bool   `yaml:"enabled"`
-	ClientCAFile string `yaml:"clientCAFile"`
 }
 
 // CacheConfig contains cache provider settings
@@ -174,41 +145,6 @@ type NATSConfig struct {
 // NATSTLSConfig contains NATS TLS settings
 type NATSTLSConfig struct {
 	Enabled bool `yaml:"enabled"`
-}
-
-// StoreConfig contains persistent store settings
-type StoreConfig struct {
-	Provider string            `yaml:"provider"`
-	Postgres PostgresConfig    `yaml:"postgres"`
-	SQLite   SQLiteConfig      `yaml:"sqlite"`
-	Memory   MemoryStoreConfig `yaml:"memory"`
-}
-
-// PostgresConfig contains PostgreSQL settings
-type PostgresConfig struct {
-	DSN             string           `yaml:"dsn"`
-	MaxOpenConns    int              `yaml:"maxOpenConns"`
-	MaxIdleConns    int              `yaml:"maxIdleConns"`
-	ConnMaxLifetime time.Duration    `yaml:"connMaxLifetime"`
-	ConnMaxIdleTime time.Duration    `yaml:"connMaxIdleTime"`
-	Migrations      MigrationsConfig `yaml:"migrations"`
-}
-
-// MigrationsConfig contains database migration settings
-type MigrationsConfig struct {
-	Enabled bool   `yaml:"enabled"`
-	Path    string `yaml:"path"`
-}
-
-// SQLiteConfig contains SQLite settings
-type SQLiteConfig struct {
-	Path        string `yaml:"path"`
-	JournalMode string `yaml:"journalMode"`
-}
-
-// MemoryStoreConfig contains in-memory store settings
-type MemoryStoreConfig struct {
-	MaxSize int `yaml:"maxSize"`
 }
 
 // RegistryConfig contains registry adapter settings
@@ -434,20 +370,23 @@ func substituteEnvVars(input string) string {
 // setDefaults sets default values for unspecified configuration options
 func setDefaults(cfg *Config) {
 	// Server defaults
-	if cfg.Server.HTTP.Host == "" {
-		cfg.Server.HTTP.Host = "0.0.0.0"
+	if cfg.Server.Host == "" {
+		cfg.Server.Host = "0.0.0.0"
 	}
-	if cfg.Server.HTTP.Port == 0 {
-		cfg.Server.HTTP.Port = 8080
+	if cfg.Server.Port == 0 {
+		cfg.Server.Port = 8080
 	}
-	if cfg.Server.HTTP.ReadTimeout == 0 {
-		cfg.Server.HTTP.ReadTimeout = 30 * time.Second
+	if cfg.Server.ReadTimeout == 0 {
+		cfg.Server.ReadTimeout = 30 * time.Second
 	}
-	if cfg.Server.HTTP.WriteTimeout == 0 {
-		cfg.Server.HTTP.WriteTimeout = 30 * time.Second
+	if cfg.Server.WriteTimeout == 0 {
+		cfg.Server.WriteTimeout = 30 * time.Second
 	}
-	if cfg.Server.HTTP.IdleTimeout == 0 {
-		cfg.Server.HTTP.IdleTimeout = 120 * time.Second
+	if cfg.Server.IdleTimeout == 0 {
+		cfg.Server.IdleTimeout = 120 * time.Second
+	}
+	if cfg.Server.MaxHeaderBytes == 0 {
+		cfg.Server.MaxHeaderBytes = 1 << 20 // 1MB
 	}
 	if cfg.Server.GracefulShutdownTimeout == 0 {
 		cfg.Server.GracefulShutdownTimeout = 30 * time.Second
@@ -485,14 +424,6 @@ func setDefaults(cfg *Config) {
 	}
 	// Queue is disabled by default as it's not implemented yet
 	// Set queue.enabled: true when queue processing is ready
-
-	// Store defaults
-	if cfg.Store.Provider == "" {
-		cfg.Store.Provider = "memory"
-	}
-	if cfg.Store.Memory.MaxSize == 0 {
-		cfg.Store.Memory.MaxSize = 100000
-	}
 
 	// Trust defaults
 	if cfg.Trust.Provider == "" {
@@ -538,8 +469,8 @@ func validate(cfg *Config) error {
 	var errors []string
 
 	// Validate server settings
-	if cfg.Server.HTTP.Port < 1 || cfg.Server.HTTP.Port > 65535 {
-		errors = append(errors, "HTTP port must be between 1 and 65535")
+	if cfg.Server.Port < 1 || cfg.Server.Port > 65535 {
+		errors = append(errors, "server port must be between 1 and 65535")
 	}
 
 	// Validate cache provider
@@ -554,12 +485,6 @@ func validate(cfg *Config) error {
 		if !validQueueProviders[cfg.Queue.Provider] {
 			errors = append(errors, fmt.Sprintf("invalid queue provider: %s", cfg.Queue.Provider))
 		}
-	}
-
-	// Validate store provider
-	validStoreProviders := map[string]bool{"memory": true, "postgres": true, "sqlite": true, "none": true}
-	if !validStoreProviders[cfg.Store.Provider] {
-		errors = append(errors, fmt.Sprintf("invalid store provider: %s", cfg.Store.Provider))
 	}
 
 	// Validate trust provider

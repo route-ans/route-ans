@@ -47,14 +47,13 @@ type Resolver interface {
 	// ResolveRaw resolves an ANSName string to a verified endpoint
 	ResolveRaw(ctx context.Context, nameStr string) (*ResolutionRecord, error)
 
+	// ResolveWithRange resolves an ANSName with version range negotiation.
+	// The version field in the ANSName can be a version range (e.g., ">=1.0.0", "^1.2.3", "~1.0.0")
+	// Returns the best matching version based on the range.
+	ResolveWithRange(ctx context.Context, name *ansname.ANSName, versionRange string) (*ResolutionRecord, error)
+
 	// ResolveBatch resolves multiple ANSNames in parallel
 	ResolveBatch(ctx context.Context, names []*ansname.ANSName) ([]*ResolutionRecord, error)
-
-	// Search searches for agents matching the query
-	Search(ctx context.Context, query *SearchQuery) (*SearchResult, error)
-
-	// ListVersions lists all versions of an agent by base name
-	ListVersions(ctx context.Context, fqdn string) ([]*ResolutionRecord, error)
 
 	// Verify performs explicit verification of an ANSName
 	Verify(ctx context.Context, name *ansname.ANSName) (*VerifyResult, error)

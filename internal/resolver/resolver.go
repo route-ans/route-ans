@@ -11,7 +11,6 @@ import (
 
 	"github.com/route-ans/route-ans/internal/cache"
 	"github.com/route-ans/route-ans/internal/registry"
-	"github.com/route-ans/route-ans/internal/store"
 	"github.com/route-ans/route-ans/internal/trust"
 	"github.com/route-ans/route-ans/pkg/ansname"
 	"github.com/rs/zerolog/log"
@@ -20,7 +19,6 @@ import (
 // DefaultResolver implements the Resolver interface
 type DefaultResolver struct {
 	cache    cache.Provider
-	store    store.Provider
 	registry registry.Adapter
 	verifier trust.Verifier
 
@@ -77,14 +75,12 @@ func DefaultConfig() Config {
 // NewResolver creates a new resolver instance
 func NewResolver(
 	cacheProvider cache.Provider,
-	storeProvider store.Provider,
 	registryAdapter registry.Adapter,
 	verifier trust.Verifier,
 	cfg Config,
 ) *DefaultResolver {
 	return &DefaultResolver{
 		cache:            cacheProvider,
-		store:            storeProvider,
 		registry:         registryAdapter,
 		verifier:         verifier,
 		defaultTTL:       cfg.DefaultTTL,
@@ -192,15 +188,6 @@ func (r *DefaultResolver) Resolve(ctx context.Context, name *ansname.ANSName) (*
 		log.Warn().Err(err).Str("key", cacheKey).Msg("Cache set error")
 	}
 
-	// Step 6: Store for search/discovery (async)
-	go func() {
-		storeCtx, storeCancel := context.WithTimeout(context.Background(), 5*time.Second)
-		defer storeCancel()
-		if err := r.store.Save(storeCtx, resRecord); err != nil {
-			log.Warn().Err(err).Str("ansName", name.String()).Msg("Store save error")
-		}
-	}()
-
 	return resRecord, nil
 }
 
@@ -211,6 +198,77 @@ func (r *DefaultResolver) ResolveRaw(ctx context.Context, nameStr string) (*Reso
 		return nil, fmt.Errorf("invalid ANSName: %w", err)
 	}
 	return r.Resolve(ctx, name)
+}
+
+// ResolveWithRange resolves an ANSName with version range negotiation.
+// This implements ANS Spec Step 4: Version Negotiation.
+// If multiple versions match the range, returns the highest compatible version.
+func (r *DefaultResolver) ResolveWithRange(ctx context.Context, name *ansname.ANSName, versionRange string) (*ResolutionRecord, error) {
+	start := time.Now()
+	atomic.AddInt64(&r.stats.TotalRequests, 1)
+
+	defer func() {
+		atomic.AddInt64(&r.stats.TotalLatencyNs, time.Since(start).Nanoseconds())
+		atomic.AddInt64(&r.stats.RequestCount, 1)
+	}()
+
+	// Step 1: Parse version range
+	if versionRange == "" {
+		versionRange = "*" // Default to any version
+	}
+
+	// Step 2: Lookup all versions by FQDN
+	fqdn := name.FQDN()
+	log.Debug().Str("fqdn", fqdn).Str("range", versionRange).Msg("Looking up versions for negotiation")
+
+	lookupCtx, cancel := context.WithTimeout(ctx, r.lookupTimeout)
+	defer cancel()
+
+	atomic.AddInt64(&r.stats.RegistryLookups, 1)
+	records, err := r.registry.LookupByFQDN(lookupCtx, fqdn)
+	if err != nil {
+		var notFoundErr *registry.ErrNotFound
+		if errors.As(err, &notFoundErr) {
+			log.Debug().Str("fqdn", fqdn).Msg("Agent not found in registry")
+			return nil, &ErrNotFound{ANSName: fqdn}
+		}
+		return nil, fmt.Errorf("registry lookup failed: %w", err)
+	}
+
+	if len(records) == 0 {
+		return nil, &ErrNotFound{ANSName: fqdn}
+	}
+
+	// Step 3: Convert registry records to ANSNames for version negotiation
+	var candidates []*ansname.ANSName
+	for _, record := range records {
+		candidate, err := ansname.Parse(record.ANSName)
+		if err != nil {
+			log.Warn().Err(err).Str("ansName", record.ANSName).Msg("Failed to parse candidate ANSName")
+			continue
+		}
+		candidates = append(candidates, candidate)
+	}
+
+	if len(candidates) == 0 {
+		return nil, fmt.Errorf("no valid candidate versions found")
+	}
+
+	// Step 4: Perform version negotiation
+	selectedVersion, err := ansname.NegotiateVersion(candidates, versionRange)
+	if err != nil {
+		return nil, fmt.Errorf("version negotiation failed: %w", err)
+	}
+
+	log.Info().
+		Str("fqdn", fqdn).
+		Str("range", versionRange).
+		Str("selected", selectedVersion.Version).
+		Int("candidates", len(candidates)).
+		Msg("Version negotiation successful")
+
+	// Step 5: Resolve the selected version (this will handle caching and verification)
+	return r.Resolve(ctx, selectedVersion)
 }
 
 // ResolveBatch resolves multiple ANSNames in parallel
@@ -247,41 +305,6 @@ func (r *DefaultResolver) ResolveBatch(ctx context.Context, names []*ansname.ANS
 	}
 
 	return results, firstErr
-}
-
-// Search searches for agents matching the query
-func (r *DefaultResolver) Search(ctx context.Context, query *SearchQuery) (*SearchResult, error) {
-	storeQuery := &store.SearchQuery{
-		Text:         query.Text,
-		Protocol:     query.Protocol,
-		Capability:   query.Capability,
-		Status:       query.Status,
-		Capabilities: query.Capabilities,
-		Limit:        query.Limit,
-		Offset:       query.Offset,
-	}
-
-	result, err := r.store.Search(ctx, storeQuery)
-	if err != nil {
-		return nil, fmt.Errorf("search failed: %w", err)
-	}
-
-	return &SearchResult{
-		Records: result.Records,
-		Total:   result.Total,
-		Limit:   result.Limit,
-		Offset:  result.Offset,
-		HasMore: result.HasMore,
-	}, nil
-}
-
-// ListVersions lists all versions of an agent by FQDN
-func (r *DefaultResolver) ListVersions(ctx context.Context, fqdn string) ([]*ResolutionRecord, error) {
-	records, err := r.store.GetByFQDN(ctx, fqdn)
-	if err != nil {
-		return nil, fmt.Errorf("failed to list versions: %w", err)
-	}
-	return records, nil
 }
 
 // Verify performs explicit verification of an ANSName

@@ -17,7 +17,6 @@ import (
 	"github.com/route-ans/route-ans/internal/queue"
 	"github.com/route-ans/route-ans/internal/registry"
 	"github.com/route-ans/route-ans/internal/resolver"
-	"github.com/route-ans/route-ans/internal/store"
 	"github.com/route-ans/route-ans/internal/telemetry"
 	"github.com/route-ans/route-ans/internal/trust"
 	"github.com/route-ans/route-ans/pkg/ansname"
@@ -34,12 +33,11 @@ type Server struct {
 	httpServer *http.Server
 	metrics    *telemetry.Metrics
 
-	// Core resolver (encapsulates cache, store, registry, trust)
+	// Core resolver (encapsulates cache, registry, trust)
 	resolver *resolver.DefaultResolver
 
 	// Keep references for health checks and direct access if needed
 	cache    cache.Provider
-	store    store.Provider
 	queue    queue.Provider
 	registry registry.Adapter
 }
@@ -62,12 +60,12 @@ func New(cfg *config.Config, version string) (*Server, error) {
 
 	// Create HTTP server
 	s.httpServer = &http.Server{
-		Addr:           fmt.Sprintf("%s:%d", cfg.Server.HTTP.Host, cfg.Server.HTTP.Port),
+		Addr:           fmt.Sprintf("%s:%d", cfg.Server.Host, cfg.Server.Port),
 		Handler:        s.routes(),
-		ReadTimeout:    cfg.Server.HTTP.ReadTimeout,
-		WriteTimeout:   cfg.Server.HTTP.WriteTimeout,
-		IdleTimeout:    cfg.Server.HTTP.IdleTimeout,
-		MaxHeaderBytes: cfg.Server.HTTP.MaxHeaderBytes,
+		ReadTimeout:    cfg.Server.ReadTimeout,
+		WriteTimeout:   cfg.Server.WriteTimeout,
+		IdleTimeout:    cfg.Server.IdleTimeout,
+		MaxHeaderBytes: cfg.Server.MaxHeaderBytes,
 	}
 
 	return s, nil
@@ -101,16 +99,6 @@ func (s *Server) initProviders() error {
 		return fmt.Errorf("failed to create cache: %w", err)
 	}
 	log.Info().Str("provider", s.cfg.Cache.Provider).Msg("Cache initialized")
-
-	// Initialize store
-	storeOpts := store.Options{
-		MaxSize: s.cfg.Store.Memory.MaxSize,
-	}
-	s.store, err = store.New(s.cfg.Store.Provider, storeOpts, nil)
-	if err != nil {
-		return fmt.Errorf("failed to create store: %w", err)
-	}
-	log.Info().Str("provider", s.cfg.Store.Provider).Msg("Store initialized")
 
 	// Initialize queue
 	if s.cfg.Queue.Enabled {
@@ -211,7 +199,7 @@ func (s *Server) initProviders() error {
 		ParallelLookups:  10,
 		LookupTimeout:    lookupTimeout,
 	}
-	s.resolver = resolver.NewResolver(s.cache, s.store, s.registry, verifier, resolverCfg)
+	s.resolver = resolver.NewResolver(s.cache, s.registry, verifier, resolverCfg)
 	log.Info().Msg("Resolver initialized")
 
 	return nil
@@ -256,11 +244,6 @@ func (s *Server) routes() http.Handler {
 		// Agent info endpoints
 		r.Get("/agent/{ansName}", s.handleGetAgent)
 		r.Get("/agent/{ansName}/verify", s.handleVerifyAgent)
-		r.Get("/agent/{ansName}/versions", s.handleListVersions)
-
-		// Search/discovery
-		r.Get("/search", s.handleSearch)
-		r.Get("/discover", s.handleDiscover)
 
 		// Stats
 		r.Get("/stats", s.handleStats)
@@ -277,7 +260,7 @@ func (s *Server) Start(ctx context.Context) error {
 
 	// Start metrics server if configured on different port
 	if s.cfg.Telemetry.Metrics.Enabled &&
-		s.cfg.Telemetry.Metrics.Port != s.cfg.Server.HTTP.Port {
+		s.cfg.Telemetry.Metrics.Port != s.cfg.Server.Port {
 		go s.startMetricsServer()
 	}
 
@@ -316,9 +299,6 @@ func (s *Server) Shutdown(ctx context.Context) error {
 	// Close providers
 	if s.cache != nil {
 		s.cache.Close()
-	}
-	if s.store != nil {
-		s.store.Close()
 	}
 	if s.queue != nil {
 		s.queue.Close()
@@ -505,6 +485,7 @@ func (s *Server) handleReady(w http.ResponseWriter, r *http.Request) {
 // @Tags Resolution
 // @Produce json
 // @Param name query string true "The full ANSName to resolve" example(mcp://agent.example.com)
+// @Param version query string false "Version range for negotiation (e.g., '>=1.0.0', '^1.2.3', '~1.0.0', '1.x', '*')"
 // @Param force query boolean false "Bypass cache and force fresh lookup"
 // @Success 200 {object} ResolutionResponse
 // @Failure 400 {object} ErrorResponse
@@ -523,6 +504,9 @@ func (s *Server) handleResolve(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
+	// Get optional version range for negotiation
+	versionRange := r.URL.Query().Get("version")
+
 	// Parse ANSName
 	name, err := ansname.Parse(nameStr)
 	if err != nil {
@@ -531,7 +515,14 @@ func (s *Server) handleResolve(w http.ResponseWriter, r *http.Request) {
 	}
 
 	// Use the resolver to resolve the ANSName
-	record, err := s.resolver.Resolve(ctx, name)
+	var record *resolver.ResolutionRecord
+	if versionRange != "" {
+		// Use version negotiation
+		record, err = s.resolver.ResolveWithRange(ctx, name, versionRange)
+	} else {
+		// Standard exact version resolution
+		record, err = s.resolver.Resolve(ctx, name)
+	}
 	if err != nil {
 		var notFoundErr *resolver.ErrNotFound
 		var verifyErr *resolver.ErrVerificationFailed
@@ -695,85 +686,6 @@ func (s *Server) handleVerifyAgent(w http.ResponseWriter, r *http.Request) {
 		VerifiedAt: result.VerifiedAt.Format(time.RFC3339),
 		Checks:     result.Checks,
 	})
-}
-
-// handleListVersions godoc
-// @Summary List agent versions
-// @Description Returns all registered versions of an agent
-// @Tags Agents
-// @Produce json
-// @Param ansName path string true "The ANSName of the agent"
-// @Success 200 {object} map[string]interface{}
-// @Failure 400 {object} ErrorResponse
-// @Failure 500 {object} ErrorResponse
-// @Router /agent/{ansName}/versions [get]
-func (s *Server) handleListVersions(w http.ResponseWriter, r *http.Request) {
-	ansName := chi.URLParam(r, "ansName")
-
-	// Parse to get FQDN
-	name, err := ansname.Parse(ansName)
-	if err != nil {
-		s.errorResponse(w, http.StatusBadRequest, fmt.Sprintf("invalid ANSName: %v", err))
-		return
-	}
-
-	records, err := s.resolver.ListVersions(r.Context(), name.FQDN())
-	if err != nil {
-		s.errorResponse(w, http.StatusInternalServerError, err.Error())
-		return
-	}
-
-	s.jsonResponse(w, http.StatusOK, map[string]interface{}{
-		"fqdn":     name.FQDN(),
-		"versions": records,
-	})
-}
-
-// handleSearch godoc
-// @Summary Search for agents
-// @Description Search for agents by text, protocol, capability, or status
-// @Tags Discovery
-// @Produce json
-// @Param q query string false "Text search query"
-// @Param protocol query string false "Filter by protocol (a2a, mcp, acp, https)"
-// @Param capability query string false "Filter by capability"
-// @Param status query string false "Filter by status (active, revoked)"
-// @Success 200 {object} map[string]interface{}
-// @Failure 500 {object} ErrorResponse
-// @Router /search [get]
-func (s *Server) handleSearch(w http.ResponseWriter, r *http.Request) {
-	query := &resolver.SearchQuery{
-		Text:       r.URL.Query().Get("q"),
-		Protocol:   r.URL.Query().Get("protocol"),
-		Capability: r.URL.Query().Get("capability"),
-		Status:     r.URL.Query().Get("status"),
-		Limit:      100,
-	}
-
-	result, err := s.resolver.Search(r.Context(), query)
-	if err != nil {
-		s.errorResponse(w, http.StatusInternalServerError, err.Error())
-		return
-	}
-
-	s.jsonResponse(w, http.StatusOK, result)
-}
-
-// handleDiscover godoc
-// @Summary Discover agents by capability
-// @Description Discover agents based on their capabilities
-// @Tags Discovery
-// @Produce json
-// @Param q query string false "Text search query"
-// @Param protocol query string false "Filter by protocol"
-// @Param capability query string false "Filter by capability"
-// @Param status query string false "Filter by status"
-// @Success 200 {object} map[string]interface{}
-// @Failure 500 {object} ErrorResponse
-// @Router /discover [get]
-func (s *Server) handleDiscover(w http.ResponseWriter, r *http.Request) {
-	// Discover is similar to search but focused on capabilities
-	s.handleSearch(w, r)
 }
 
 // handleStats godoc
