@@ -8,7 +8,7 @@ ANS provides a decentralized, secure naming system for AI agents, similar to DNS
 
 ## ANSName Format
 
-### Structure
+### Full Format
 
 Hierarchical naming format similar to URLs:
 
@@ -19,6 +19,24 @@ Hierarchical naming format similar to URLs:
 - Fully qualified domain name for registry location
 
 **Design Principle**: Self-describing names that encode protocol, capability, and version information.
+
+### Simplified Format (Registry-Specific)
+
+Some registries (like GoDaddy) use a simplified format:
+
+```
+protocol://version.host.domain
+```
+
+Example: `ans://v1.0.0.greeting.example.com`
+
+- **Protocol**: Communication protocol (ans, a2a, etc.)
+- **Version**: Semantic version (v1.0.0)
+- **Host**: Fully qualified domain name
+
+This format is automatically detected and parsed. Default values are assigned:
+- Capability: `default`
+- Provider ID: `PID-0000`
 
 ### Components
 
@@ -39,12 +57,15 @@ Hierarchical naming format similar to URLs:
     - Enables tracking agent lifecycle
 
 5. **Version**: Semantic version (v1.2.3)
+    - **Required** in all ANSName formats
     - Enables compatibility negotiation
     - Follows semantic versioning spec
+    - Used for FQDN extraction and parsing
 
 6. **FQDN**: Fully Qualified Domain Name
     - Registry location for agent records
     - Leverages DNS infrastructure
+    - Extracted from ANSName components
 
 ## Supported Protocols
 
@@ -78,8 +99,12 @@ Hierarchical naming format similar to URLs:
 
 Per ANS Spec Section 4, resolution maps ANSName to endpoint:
 
-- **Input**: ANSName, Optional Version Range
+- **Input**: 
+    - ANSName (must include valid version component)
+    - Optional Version Range (query parameter overrides ANSName version)
 - **Output**: Verified endpoint with metadata
+
+**Note**: The version in the ANSName is required for parsing and FQDN extraction. When a version query parameter is provided, it overrides the ANSName version for negotiation.
 
 ### Steps
 

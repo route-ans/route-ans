@@ -89,7 +89,7 @@ info:
     name: Apache 2.0
     url: https://www.apache.org/licenses/LICENSE-2.0
   termsOfService: https://github.com/route-ans/route-ans
-  title: ANS Resolution Server API
+  title: Route ANS API
   version: 1.0.0
 paths:
   /agent/{ansName}:

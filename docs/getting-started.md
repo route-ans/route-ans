@@ -70,34 +70,38 @@ You should see:
 In another terminal:
 
 ```bash
-# Resolve an agent (using mock registry)
+# Full format (using mock registry)
 curl "http://localhost:8080/v1/resolve?name=mcp://greeting.greet.PID-1234.v1.0.0.example.com"
+
+# Simplified format (GoDaddy registry)
+curl "http://localhost:8080/v1/resolve?name=ans://v1.0.0.greeting.example.com"
 ```
 
 **Expected Response:**
 
 ```json
 {
-  "status": "verified",
-  "agent": "mcp://greeting.greet.PID-1234.v1.0.0.example.com",
-  "protocol": "mcp",
+  "status": "active",
+  "agent": "ans://v1.0.0.greeting.example.com",
+  "protocol": "A2A",
   "endpoint": "https://greeting.example.com",
-  "certFingerprint": "sha256:abc123...",
-  "expiresAt": "2026-03-15T10:30:00Z",
-  "protocolExtensions": {
-    "mcp": {
-      "url": "https://greeting.example.com/mcp"
-    }
-  }
+  "expiresAt": "2026-04-24T11:43:26+05:30"
 }
 ```
 
 ### 3. Try Version Negotiation
 
-Request the latest 1.x version:
+Request compatible versions using semantic version ranges:
 
 ```bash
-curl "http://localhost:8080/v1/resolve?name=mcp://greeting.greet.PID-1234.v1.0.0.example.com&version=1.x"
+# Request any 1.x compatible version
+curl "http://localhost:8080/v1/resolve?name=ans://v1.0.0.greeting.example.com&version=^1.0.0"
+
+# Request latest version
+curl "http://localhost:8080/v1/resolve?name=ans://v1.0.0.greeting.example.com&version=*"
+
+# Request version >= 1.0.0
+curl "http://localhost:8080/v1/resolve?name=ans://v1.0.0.greeting.example.com&version=>=1.0.0"
 ```
 
 ### 4. Check Health

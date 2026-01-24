@@ -27,13 +27,8 @@ type godaddyAdapter struct {
 
 // GoDaddy API request/response types
 type godaddyResolutionRequest struct {
-	AgentCapability string `json:"agentCapability"`
-	AgentName       string `json:"agentName"`
-	Extension       string `json:"extension"`
-	Protocol        string `json:"protocol"`
-	Provider        string `json:"provider"`
-	RequestType     string `json:"requestType"`
-	Version         string `json:"version"`
+	AgentHost string `json:"agentHost"`
+	Version   string `json:"version"`
 }
 
 type godaddyResolutionResponse struct {
@@ -45,21 +40,42 @@ type godaddyResolutionResponse struct {
 }
 
 type godaddyAgentDetails struct {
-	AgentName             string                 `json:"agentName"`
-	Protocol              string                 `json:"protocol"`
+	AgentID               string                 `json:"agentId"`
+	AgentName             string                 `json:"agentName"` // Deprecated field
+	AgentDisplayName      string                 `json:"agentDisplayName"`
+	AgentHost             string                 `json:"agentHost"`
 	Version               string                 `json:"version"`
-	Extension             string                 `json:"extension"`
+	Protocol              string                 `json:"protocol"`  // Deprecated field
+	Extension             string                 `json:"extension"` // Deprecated field
 	ANSName               string                 `json:"ansName"`
 	AgentStatus           string                 `json:"agentStatus"`
 	AgentCategory         string                 `json:"agentCategory"`
-	AgentCapability       string                 `json:"agentCapability"`
-	Provider              string                 `json:"provider"`
+	AgentCapability       string                 `json:"agentCapability"` // Deprecated field
+	AgentDescription      string                 `json:"agentDescription"`
+	Provider              string                 `json:"provider"` // Deprecated field
 	RegistrationTimestamp string                 `json:"registrationTimestamp"`
-	ProtocolExtensions    map[string]interface{} `json:"protocolExtensions"`
+	LastRenewalTimestamp  string                 `json:"lastRenewalTimestamp"`
+	Endpoints             []godaddyEndpoint      `json:"endpoints"`
+	ProtocolExtensions    map[string]interface{} `json:"protocolExtensions"` // Deprecated field
 	Links                 []struct {
 		Rel  string `json:"rel"`
 		Href string `json:"href"`
 	} `json:"links"`
+}
+
+type godaddyEndpoint struct {
+	AgentURL         string            `json:"agentUrl"`
+	Protocol         string            `json:"protocol"`
+	MetaDataURL      string            `json:"metaDataUrl"`
+	DocumentationURL string            `json:"documentationUrl"`
+	Functions        []godaddyFunction `json:"functions"`
+	Transports       []string          `json:"transports"`
+}
+
+type godaddyFunction struct {
+	ID   string   `json:"id"`
+	Name string   `json:"name"`
+	Tags []string `json:"tags"`
 }
 
 type godaddyCertificate struct {
@@ -69,6 +85,13 @@ type godaddyCertificate struct {
 	IssuedAt         string   `json:"issuedAt"`
 	ExpiresAt        string   `json:"expiresAt"`
 	Issuer           string   `json:"issuer"`
+}
+
+type godaddyError struct {
+	Code    string                 `json:"code"`
+	Message string                 `json:"message"`
+	Status  string                 `json:"status"`
+	Details map[string]interface{} `json:"details"`
 }
 
 // NewGoDaddyAdapter creates a new GoDaddy registry adapter
@@ -100,24 +123,22 @@ func NewGoDaddyAdapter(opts Options, config map[string]interface{}) (Adapter, er
 
 // Lookup queries the GoDaddy registry for an agent by ANSName
 func (g *godaddyAdapter) Lookup(ctx context.Context, name *ansname.ANSName) (*Record, error) {
-	// Parse ANSName components
-	parts, err := g.parseANSName(name)
-	if err != nil {
-		return nil, fmt.Errorf("invalid ANSName format: %w", err)
-	}
+	// Extract agentHost (FQDN) and version from ANSName
+	// ANSName format: protocol://version.host.domain
+	agentHost := name.FQDN()
+	version := name.Version
+
+	// GoDaddy expects version without 'v' prefix (e.g., "1.0.0" not "v1.0.0")
+	version = strings.TrimPrefix(version, "v")
 
 	// Step 1: Resolve to get agent details link
 	resolutionReq := godaddyResolutionRequest{
-		AgentCapability: parts["capability"],
-		AgentName:       parts["name"],
-		Extension:       parts["extension"],
-		Protocol:        parts["protocol"],
-		Provider:        parts["provider"],
-		RequestType:     "resolve",
-		Version:         parts["version"],
+		AgentHost: agentHost,
+		Version:   version,
 	}
 
 	resolutionURL := fmt.Sprintf("%s/agents/resolution", g.baseURL)
+
 	resolutionResp, err := g.makeRequest(ctx, "POST", resolutionURL, resolutionReq)
 	if err != nil {
 		return nil, err
@@ -184,9 +205,73 @@ func (g *godaddyAdapter) Lookup(ctx context.Context, name *ansname.ANSName) (*Re
 
 // LookupByFQDN queries the registry for all versions of an agent by FQDN
 func (g *godaddyAdapter) LookupByFQDN(ctx context.Context, fqdn string) ([]*Record, error) {
-	// GoDaddy doesn't provide a direct FQDN lookup endpoint
-	// This would need to be implemented if they add such an API
-	return nil, fmt.Errorf("FQDN lookup not yet implemented for GoDaddy adapter")
+	// Use wildcard version to get the latest/best matching version
+	// GoDaddy's API supports semantic versioning and will return the best match
+	resolutionReq := godaddyResolutionRequest{
+		AgentHost: fqdn,
+		Version:   "*", // Wildcard to match any version
+	}
+
+	resolutionURL := fmt.Sprintf("%s/agents/resolution", g.baseURL)
+	resolutionResp, err := g.makeRequest(ctx, "POST", resolutionURL, resolutionReq)
+	if err != nil {
+		return nil, err
+	}
+
+	var resolution godaddyResolutionResponse
+	if err := json.Unmarshal(resolutionResp, &resolution); err != nil {
+		return nil, fmt.Errorf("failed to parse resolution response: %w", err)
+	}
+
+	// Find agent-details link
+	var detailsURL string
+	for _, link := range resolution.Links {
+		if link.Rel == "agent-details" {
+			detailsURL = link.Href
+			break
+		}
+	}
+
+	if detailsURL == "" {
+		return nil, &ErrNotFound{ANSName: fqdn}
+	}
+
+	// Get agent details
+	if strings.Contains(detailsURL, "ra.int.godaddy.com") || strings.Contains(detailsURL, ".int.") {
+		parts := strings.Split(detailsURL, "/agents/")
+		if len(parts) == 2 {
+			agentID := parts[1]
+			detailsURL = fmt.Sprintf("%s/agents/%s", g.baseURL, agentID)
+			log.Debug().Str("agentId", agentID).Str("publicURL", detailsURL).Msg("Converted internal URL to public API")
+		}
+	}
+
+	detailsResp, err := g.makeRequest(ctx, "GET", detailsURL, nil)
+	if err != nil {
+		return nil, fmt.Errorf("registry lookup failed: %w", err)
+	}
+
+	var details godaddyAgentDetails
+	if err := json.Unmarshal(detailsResp, &details); err != nil {
+		return nil, fmt.Errorf("failed to parse agent details: %w", err)
+	}
+
+	// Check status
+	if details.AgentStatus != "ACTIVE" && details.AgentStatus != "VERIFIED" {
+		return nil, &ErrNotFound{ANSName: fqdn}
+	}
+
+	// Get certificates
+	serverCert, identityCert, err := g.getCertificates(ctx, details.Links)
+	if err != nil {
+		log.Warn().Err(err).Str("fqdn", fqdn).Msg("Failed to retrieve certificates")
+	}
+
+	// Build the record
+	record := g.buildRecord(&details, serverCert, identityCert)
+
+	// Return as a slice (GoDaddy returns single best match for wildcard)
+	return []*Record{record}, nil
 }
 
 // GetMerkleProof retrieves the Merkle inclusion proof
@@ -285,36 +370,24 @@ func (g *godaddyAdapter) makeRequest(ctx context.Context, method, url string, bo
 		return nil, fmt.Errorf("failed to read response: %w", err)
 	}
 
-	if resp.StatusCode == http.StatusNotFound {
-		return nil, &ErrNotFound{ANSName: url}
-	}
-
+	// Handle error responses
 	if resp.StatusCode >= 400 {
+		var gdErr godaddyError
+		if err := json.Unmarshal(respBody, &gdErr); err == nil && gdErr.Code != "" {
+			// Structured error from GoDaddy
+			if resp.StatusCode == http.StatusNotFound {
+				return nil, &ErrNotFound{ANSName: url}
+			}
+			return nil, fmt.Errorf("godaddy API error (%s): %s", gdErr.Code, gdErr.Message)
+		}
+		// Fallback for non-structured errors
+		if resp.StatusCode == http.StatusNotFound {
+			return nil, &ErrNotFound{ANSName: url}
+		}
 		return nil, fmt.Errorf("API error (%d): %s", resp.StatusCode, string(respBody))
 	}
 
 	return respBody, nil
-}
-
-func (g *godaddyAdapter) parseANSName(name *ansname.ANSName) (map[string]string, error) {
-	// ANSName format: protocol://agentName.capability.provider.version.extension
-	// Example: a2a://greeting.greet.PID-1234.v1.0.0.neelanjan.dev
-
-	parts := make(map[string]string)
-	parts["protocol"] = name.Protocol
-	parts["name"] = name.AgentName
-	parts["capability"] = name.Capability
-	parts["provider"] = name.ProviderID
-	parts["extension"] = name.Extension
-
-	// Version might have 'v' prefix - remove it
-	version := name.Version
-	if len(version) > 0 && version[0] == 'v' {
-		version = version[1:]
-	}
-	parts["version"] = version
-
-	return parts, nil
 }
 
 func (g *godaddyAdapter) getCertificates(ctx context.Context, links []struct {
@@ -360,19 +433,48 @@ func (g *godaddyAdapter) getCertificates(ctx context.Context, links []struct {
 }
 
 func (g *godaddyAdapter) buildRecord(details *godaddyAgentDetails, serverCert, identityCert *godaddyCertificate) *Record {
+	// Extract endpoint and protocol info from endpoints array
+	var endpoint, protocol string
+	var capabilities []string
+	var protocols []string
+
+	if len(details.Endpoints) > 0 {
+		firstEndpoint := details.Endpoints[0]
+		endpoint = firstEndpoint.AgentURL
+		protocol = firstEndpoint.Protocol
+		protocols = append(protocols, firstEndpoint.Protocol)
+
+		// Extract capabilities from functions
+		for _, fn := range firstEndpoint.Functions {
+			capabilities = append(capabilities, fn.ID)
+		}
+	}
+
+	// Fallback to agentHost if no endpoint URL
+	if endpoint == "" && details.AgentHost != "" {
+		endpoint = fmt.Sprintf("https://%s", details.AgentHost)
+	}
+
+	// Fallback for protocol
+	if protocol == "" {
+		protocol = details.Protocol // Use deprecated field if available
+	}
+
 	record := &Record{
 		ANSName:     details.ANSName,
-		FQDN:        fmt.Sprintf("%s.%s", details.AgentName, details.Extension),
-		Protocol:    details.Protocol,
+		FQDN:        details.AgentHost,
+		Protocol:    protocol,
 		Version:     details.Version,
 		Status:      g.mapStatus(details.AgentStatus),
 		RegistrarID: "godaddy",
 		TTL:         5 * time.Minute,
 		UpdatedAt:   time.Now(),
+		Endpoint:    endpoint,
 		Metadata: AgentMetadata{
-			DisplayName:  details.AgentName,
-			Capabilities: []string{details.AgentCapability},
-			Protocols:    []string{details.Protocol},
+			DisplayName:  details.AgentDisplayName,
+			Description:  details.AgentDescription,
+			Capabilities: capabilities,
+			Protocols:    protocols,
 		},
 	}
 
@@ -381,19 +483,6 @@ func (g *godaddyAdapter) buildRecord(details *godaddyAgentDetails, serverCert, i
 		if t, err := time.Parse(time.RFC3339, details.RegistrationTimestamp); err == nil {
 			record.RegisteredAt = t
 		}
-	}
-
-	// Extract endpoint from protocol extensions
-	if a2aData, ok := details.ProtocolExtensions["a2a"].(map[string]interface{}); ok {
-		if url, ok := a2aData["url"].(string); ok {
-			record.Endpoint = url
-			record.Metadata.ProtocolExtensions = details.ProtocolExtensions
-		}
-	}
-
-	// Set default endpoint if not found
-	if record.Endpoint == "" {
-		record.Endpoint = fmt.Sprintf("https://%s.%s", details.AgentName, details.Extension)
 	}
 
 	// Add certificate information

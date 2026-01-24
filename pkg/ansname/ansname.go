@@ -105,10 +105,40 @@ func Parse(raw string) (*ANSName, error) {
 func parseComponents(protocol, host, raw string) (*ANSName, error) {
 	parts := strings.Split(host, ".")
 
+	// Try simplified format first (GoDaddy): protocol://version.host.domain
+	// Example: ans://v1.0.0.greeting.neelanjan.dev
+	if len(parts) >= 3 && len(parts[0]) > 0 && parts[0][0] == 'v' {
+		potentialVersion := parts[0] + "." + parts[1] + "." + parts[2]
+		if versionPattern.MatchString(potentialVersion) {
+			// This is simplified format
+			if len(parts) < 4 {
+				return nil, fmt.Errorf("%w: need at least version and host", ErrInvalidFormat)
+			}
+			agentName := parts[3]                     // First part after version is agent name
+			extension := strings.Join(parts[4:], ".") // Rest is the domain
+
+			// For simplified format, we need at least agent.domain (2 parts after version)
+			if extension == "" {
+				return nil, fmt.Errorf("%w: need at least agent name and domain", ErrInvalidFormat)
+			}
+
+			return &ANSName{
+				Protocol:   protocol,
+				AgentName:  agentName,
+				Capability: "default",  // No capability in simplified format
+				ProviderID: "PID-0000", // No provider in simplified format
+				Version:    potentialVersion,
+				Extension:  extension,
+				Raw:        raw,
+			}, nil
+		}
+	}
+
+	// Fall back to full format parsing
 	// Minimum parts: agentName.capability.providerID.v1.0.0.extension (at least 7 parts)
 	// Version like v1.0.0 takes 3 parts after dot split
 	if len(parts) < 7 {
-		return nil, fmt.Errorf("%w: expected at least 7 dot-separated components", ErrInvalidFormat)
+		return nil, fmt.Errorf("%w: expected at least 7 dot-separated components for full format or version.host.domain for simplified format", ErrInvalidFormat)
 	}
 
 	// Find the version start component (starts with 'v' followed by digits)

@@ -2,21 +2,37 @@
 
 Common use cases and code examples for Route ANS Resolver.
 
+## ANSName Format Requirements
+
+**Important**: All requests must include a **valid version** in the ANSName, even when using version negotiation.
+
+- **Full format**: `protocol://agentName.capability.providerID.version.extension`
+- **Simplified format**: `protocol://version.host.domain`
+
+The version in the ANSName is used for parsing and FQDN extraction. Use the `version` query parameter to override version selection.
+
 ## Basic Resolution
 
-### Exact Version
+### Full Format (Mock Registry)
 
 ```bash
+# Exact version
 curl "http://localhost:8080/v1/resolve?name=mcp://chatbot.conversation.PID-5678.v1.2.3.example.com"
 ```
 
-### Latest Version
+### Simplified Format (GoDaddy Registry)
 
 ```bash
-curl "http://localhost:8080/v1/resolve?name=mcp://chatbot.conversation.PID-5678.v1.0.0.example.com&version=*"
+# Exact version
+curl "http://localhost:8080/v1/resolve?name=ans://v1.0.0.greeting.example.com"
+
+# Latest version
+curl "http://localhost:8080/v1/resolve?name=ans://v1.0.0.greeting.example.com&version=*"
 ```
 
-### Version Range
+## Version Negotiation
+
+### With Full Format
 
 ```bash
 # Any 1.x version
@@ -27,6 +43,19 @@ curl "http://localhost:8080/v1/resolve?name=mcp://chatbot.conversation.PID-5678.
 
 # Patch updates only
 curl "http://localhost:8080/v1/resolve?name=mcp://chatbot.conversation.PID-5678.v1.2.3.example.com&version=~1.2.3"
+```
+
+### With Simplified Format (GoDaddy)
+
+```bash
+# Compatible versions
+curl "http://localhost:8080/v1/resolve?name=ans://v1.0.0.greeting.example.com&version=^1.0.0"
+
+# Greater than or equal
+curl "http://localhost:8080/v1/resolve?name=ans://v1.0.0.greeting.example.com&version=>=1.0.0"
+
+# Latest version
+curl "http://localhost:8080/v1/resolve?name=ans://v1.0.0.greeting.example.com&version=*"
 ```
 
 ## Batch Resolution

@@ -83,8 +83,11 @@ export GODADDY_API_SECRET="your_api_secret"
 
 4. **Test Resolution**:
 ```bash
-# Resolve an agent registered in GoDaddy
-curl "http://localhost:8080/v1/resolve?name=a2a://greeting.greet.PID-1234.v1.0.0.neelanjan.dev"
+# Resolve using simplified format (GoDaddy registry)
+curl "http://localhost:8080/v1/resolve?name=ans://v1.0.0.greeting.example.com"
+
+# Version negotiation with semantic versioning
+curl "http://localhost:8080/v1/resolve?name=ans://v1.0.0.greeting.example.com&version=^1.0.0"
 ```
 
 ### Registering Your Agent
@@ -144,24 +147,41 @@ kubectl apply -k deployments/kubernetes/
 Resolve an agent's ANSName to its verified endpoint:
 
 ```bash
+# Full format (mock registry)
 GET /v1/resolve?name=a2a://greeting.greet.PID-1234.v1.0.0.neelanjan.dev
+
+# Simplified format (GoDaddy registry)
+GET /v1/resolve?name=ans://v1.0.0.greeting.example.com
 ```
 
 **Response:**
 ```json
 {
-  "status": "verified",
-  "agent": "a2a://greeting.greet.PID-1234.v1.0.0.neelanjan.dev",
-  "protocol": "a2a",
-  "endpoint": "https://greeting.neelanjan.dev",
-  "expiresAt": "2026-03-05T10:45:00Z",
-  "protocolExtensions": {
-    "a2a": {
-      "url": "https://greeting.neelanjan.dev/agent"
-    }
-  }
+  "status": "active",
+  "agent": "ans://v1.0.0.greeting.example.com",
+  "protocol": "A2A",
+  "endpoint": "https://greeting.example.com",
+  "expiresAt": "2026-04-24T11:43:26+05:30"
 }
 ```
+
+### ANSName Formats
+
+**Full Format** (7+ components):
+```
+protocol://agentName.capability.providerID.version.extension
+```
+Example: `mcp://chatbot.conversation.PID-5678.v1.2.3.example.com`
+
+**Simplified Format** (GoDaddy and compatible registries):
+```
+protocol://version.host.domain
+```
+Example: `ans://v1.0.0.greeting.example.com`
+
+The parser automatically detects which format is used.
+
+**Important**: A valid version component is **required** in all ANSName formats, even when using version negotiation. The version in the ANSName is used for parsing and FQDN extraction. Use the `version` query parameter to override version selection.
 
 ### Version Negotiation
 
@@ -186,25 +206,32 @@ The resolver supports semantic version ranges for flexible version resolution. T
 
 **Request latest version:**
 ```bash
-GET /v1/resolve?name=a2a://greeting.greet.PID-1234.v1.0.0.neelanjan.dev&version=*
+GET /v1/resolve?name=ans://v1.0.0.greeting.example.com&version=*
 ```
 
 **Request compatible version (caret):**
 ```bash
 # Allows 1.2.3, 1.2.4, 1.5.0 but not 2.0.0
-GET /v1/resolve?name=a2a://greeting.greet.PID-1234.v1.0.0.neelanjan.dev&version=^1.2.3
+GET /v1/resolve?name=ans://v1.0.0.greeting.example.com&version=^1.2.0
 ```
 
 **Request patch updates only (tilde):**
 ```bash
 # Allows 1.2.3, 1.2.4 but not 1.3.0
-GET /v1/resolve?name=a2a://greeting.greet.PID-1234.v1.0.0.neelanjan.dev&version=~1.2.3
+GET /v1/resolve?name=ans://v1.0.0.greeting.example.com&version=~1.2.3
 ```
 
-**Request any 1.x version:**
+**Request with comparison:**
 ```bash
-GET /v1/resolve?name=a2a://greeting.greet.PID-1234.v1.0.0.neelanjan.dev&version=1.x
+# Greater than or equal to 1.0.0
+GET /v1/resolve?name=ans://v1.0.0.greeting.example.com&version=>=1.0.0
 ```
+
+**Registry Support:**
+- **GoDaddy**: Native semantic versioning support - version negotiation happens server-side
+- **Mock Registry**: Local version negotiation with full semver support
+
+### Batch Resolution
 
 **Request version range:**
 ```bash

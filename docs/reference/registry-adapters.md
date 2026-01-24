@@ -52,30 +52,64 @@ export GODADDY_SECRET=your_secret
 
 ### API Endpoints
 
+**Resolution:**
 ```
-GET /v1/domains/{domain}/records/TXT/_ans
-POST /v1/domains/{domain}/records
-PUT /v1/domains/{domain}/records/TXT/_ans
-DELETE /v1/domains/{domain}/records/TXT/_ans/{id}
+POST /v1/agents/resolution
+```
+
+Request body:
+```json
+{
+  "agentHost": "greeting.example.com",
+  "version": "1.0.0"
+}
+```
+
+Response (200):
+```json
+{
+  "ansName": "ans://v1.0.0.greeting.example.com",
+  "links": [
+    {
+      "rel": "agent-details",
+      "href": "https://api.godaddy.com/v1/agents/{agentId}"
+    }
+  ]
+}
+```
+
+**Version Negotiation:**
+
+GoDaddy supports semantic version ranges:
+
+```json
+{
+  "agentHost": "greeting.example.com",
+  "version": "^1.0.0"
+}
+```
+
+Supported ranges: `*`, `^1.0.0`, `~1.2.3`, `>=1.0.0`, exact versions
+
+GoDaddy's API automatically selects the best matching version.
+
+**Agent Details:**
+```
+GET /v1/agents/{agentId}
 ```
 
 ### Record Format
 
-```json
-{
-  "type": "TXT",
-  "name": "_ans",
-  "data": "{\"ans_name\":\"mcp://test.PID-123.v1.0.0.example.com\",\"endpoint\":\"https://agent.example.com:8443\",\"cert_fingerprint\":\"SHA256:abc123\",\"expires_at\":\"2025-01-15T00:00:00Z\"}",
-  "ttl": 3600
-}
-```
+Response includes agent metadata, endpoint, and certificate information retrieved through linked resources.
 
 ### Error Handling
 
 | Status | Error | Action |
 |--------|-------|--------|
-| 401 | Unauthorized | Check API credentials |
-| 404 | Domain not found | Verify domain ownership |
+| 401 | Authentication failed | Check API credentials |
+| 403 | Authorization failed | Verify API permissions |
+| 404 | Agent not found | Agent not registered |
+| 422 | Invalid request | Check agentHost and version format |
 | 429 | Rate limit | Retry with backoff |
 | 500 | Server error | Retry operation |
 

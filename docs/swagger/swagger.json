@@ -6,7 +6,7 @@
     "swagger": "2.0",
     "info": {
         "description": "High-performance, cryptographically-verified resolution of ANSName identifiers to agent endpoints.",
-        "title": "ANS Resolution Server API",
+        "title": "Route ANS API",
         "termsOfService": "https://github.com/route-ans/route-ans",
         "contact": {
             "name": "Route ANS Team",

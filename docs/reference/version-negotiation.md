@@ -29,39 +29,82 @@ Version negotiation allows clients to request compatible agent versions using se
 
 ## Usage
 
-Add `version` parameter to resolution requests:
+### Requirements
 
-```
-GET /v1/resolve?name=mcp://agent.example.com&version=^1.0.0
+**Critical**: The ANSName MUST include a valid version component, even when using version negotiation.
+
+- **Full format**: `protocol://agentName.capability.providerID.version.extension`
+- **Simplified format**: `protocol://version.host.domain`
+
+The version in the ANSName is used for:
+1. Format validation and parsing
+2. Extracting the FQDN for registry lookup
+3. Default version when no `version` parameter is provided
+
+### Query Parameter
+
+Add `version` parameter to override/refine version selection:
+
+```bash
+# ANSName must include a version (v1.0.0 here)
+# version parameter (^1.0.0) overrides it for negotiation
+GET /v1/resolve?name=ans://v1.0.0.greeting.example.com&version=^1.0.0
 ```
 
 **Selection Strategy**: When multiple versions match, the **highest** version is selected.
 
+### Registry Support
+
+**GoDaddy Registry**: Fully supports version negotiation. GoDaddy's API accepts semantic version ranges and returns the best matching version. The resolver validates the returned version matches the requested range.
+
+**Mock Registry**: Supports all version range formats with local negotiation.
+
 ## Examples
 
-**Request latest compatible version:**
-```
+### Correct Usage
+
+All examples below include a valid version in the ANSName:
+
+**Request latest compatible version (caret `^`):**
+```bash
 GET /v1/resolve?name=mcp://agent.example.com&version=^1.0.0
 ```
 Returns: `1.5.2` (if available and compatible)
 
-**Request patch updates only:**
-```
+**Request patch updates only (tilde `~`):**
+```bash
 GET /v1/resolve?name=mcp://agent.example.com&version=~1.2.0
 ```
 Returns: `1.2.5` (highest patch in 1.2.x)
 
 **Request any version in major release:**
-```
+```bash
 GET /v1/resolve?name=mcp://agent.example.com&version=1.x
 ```
 Returns: `1.9.3` (highest 1.x version)
 
 **Request latest version:**
-```
+```bash
 GET /v1/resolve?name=mcp://agent.example.com&version=*
 ```
 Returns: Latest registered version
+
+### Common Mistakes
+
+**❌ Incorrect - Missing version in ANSName:**
+```bash
+# This will fail with "invalid ANSName format"
+GET /v1/resolve?name=ans://greeting.example.com&version=*
+```
+
+**✅ Correct - Version included in ANSName:**
+```bash
+# Use any valid version in the ANSName, version parameter for negotiation
+GET /v1/resolve?name=ans://v1.0.0.greeting.example.com&version=*
+```
+
+The version in the ANSName (v1.0.0) can be any valid version - it's used for parsing.
+The version parameter (*) determines which version is actually selected.
 
 ## See Also
 
