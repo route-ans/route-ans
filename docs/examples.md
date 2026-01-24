@@ -71,20 +71,6 @@ curl -X POST http://localhost:8080/v1/resolve/batch \
   }'
 ```
 
-## Agent Information
-
-### Get Details
-
-```bash
-curl "http://localhost:8080/v1/agent/mcp://chatbot.conversation.PID-5678.v1.2.3.example.com"
-```
-
-### Verify Agent
-
-```bash
-curl "http://localhost:8080/v1/agent/mcp://chatbot.conversation.PID-5678.v1.2.3.example.com/verify"
-```
-
 ## Next Steps
 
 - **[Version Negotiation](reference/version-negotiation.md)** - Version range details

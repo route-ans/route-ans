@@ -300,18 +300,6 @@ http://localhost:8080/swagger/
 curl -X DELETE "http://localhost:8080/v1/cache?name=mcp://agent.PID-123.v1.0.0.example.com"
 ```
 
-### Task: Get Agent Details
-
-```bash
-curl "http://localhost:8080/v1/agent/mcp://agent.PID-123.v1.0.0.example.com"
-```
-
-### Task: Explicit Verification
-
-```bash
-curl "http://localhost:8080/v1/agent/mcp://agent.PID-123.v1.0.0.example.com/verify"
-```
-
 ## Troubleshooting
 
 ### Issue: Connection Refused

@@ -1,7 +1,7 @@
 // Package main is the entry point for the ANS Resolution Server.
 // It initializes all components and starts the HTTP server.
 //
-// @title ANS Resolution Server API
+// @title Route ANS API
 // @version 1.0.0
 // @description High-performance, cryptographically-verified resolution of ANSName identifiers to agent endpoints.
 // @termsOfService https://github.com/route-ans/route-ans

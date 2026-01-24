@@ -1,27 +1,5 @@
 basePath: /v1
 definitions:
-  resolver.CheckResult:
-    properties:
-      details:
-        additionalProperties: true
-        description: Details contains additional check-specific details
-        type: object
-      duration:
-        description: Duration is how long the check took (in nanoseconds)
-        type: integer
-      message:
-        description: Message contains a human-readable message
-        type: string
-      name:
-        description: Name is the check name
-        type: string
-      passed:
-        description: Passed indicates if the check passed
-        type: boolean
-      required:
-        description: Required indicates if this check is required for overall success
-        type: boolean
-    type: object
   server.BatchResolveRequest:
     properties:
       names:
@@ -67,17 +45,6 @@ definitions:
       status:
         type: string
     type: object
-  server.VerifyResponse:
-    properties:
-      checks:
-        additionalProperties:
-          $ref: '#/definitions/resolver.CheckResult'
-        type: object
-      valid:
-        type: boolean
-      verifiedAt:
-        type: string
-    type: object
 host: localhost:8080
 info:
   contact:
@@ -92,67 +59,9 @@ info:
   title: Route ANS API
   version: 1.0.0
 paths:
-  /agent/{ansName}:
-    get:
-      description: Returns detailed information about a specific agent
-      parameters:
-      - description: The ANSName of the agent
-        in: path
-        name: ansName
-        required: true
-        type: string
-      produces:
-      - application/json
-      responses:
-        "200":
-          description: OK
-          schema:
-            $ref: '#/definitions/server.ResolutionResponse'
-        "404":
-          description: Not Found
-          schema:
-            $ref: '#/definitions/server.ErrorResponse'
-        "500":
-          description: Internal Server Error
-          schema:
-            $ref: '#/definitions/server.ErrorResponse'
-      summary: Get agent details
-      tags:
-      - Agents
-  /agent/{ansName}/verify:
-    get:
-      description: Performs cryptographic verification of an agent's registration
-      parameters:
-      - description: The ANSName of the agent to verify
-        in: path
-        name: ansName
-        required: true
-        type: string
-      produces:
-      - application/json
-      responses:
-        "200":
-          description: OK
-          schema:
-            $ref: '#/definitions/server.VerifyResponse'
-        "400":
-          description: Bad Request
-          schema:
-            $ref: '#/definitions/server.ErrorResponse'
-        "404":
-          description: Not Found
-          schema:
-            $ref: '#/definitions/server.ErrorResponse'
-        "500":
-          description: Internal Server Error
-          schema:
-            $ref: '#/definitions/server.ErrorResponse'
-      summary: Verify an agent
-      tags:
-      - Agents
   /health:
     get:
-      description: Returns the health status of the server
+      description: Returns server health status and version. Use for liveness probes.
       produces:
       - application/json
       responses:
@@ -166,7 +75,8 @@ paths:
       - Health
   /ready:
     get:
-      description: Returns whether the server is ready to accept requests
+      description: Checks if server can accept traffic by verifying registry connectivity.
+        Use for readiness probes.
       produces:
       - application/json
       responses:
@@ -185,7 +95,9 @@ paths:
       - Health
   /resolve:
     get:
-      description: Resolves an ANSName identifier to its verified endpoint
+      description: Resolves an ANSName to its verified endpoint with optional version
+        negotiation. Performs cryptographic verification and caches results. Use this
+        for agent discovery and connection establishment.
       parameters:
       - description: The full ANSName to resolve
         example: mcp://agent.example.com
@@ -225,14 +137,16 @@ paths:
           description: Internal Server Error
           schema:
             $ref: '#/definitions/server.ErrorResponse'
-      summary: Resolve an ANSName
+      summary: Resolve ANSName to endpoint
       tags:
       - Resolution
   /resolve/batch:
     post:
       consumes:
       - application/json
-      description: Resolves multiple ANSName identifiers in a single request
+      description: Resolves multiple ANSNames in parallel for efficiency. Returns
+        results for all names, including errors. Use when discovering multiple agents
+        simultaneously.
       parameters:
       - description: Batch resolve request
         in: body
@@ -251,12 +165,13 @@ paths:
           description: Bad Request
           schema:
             $ref: '#/definitions/server.ErrorResponse'
-      summary: Batch resolve ANSNames
+      summary: Batch resolve multiple ANSNames
       tags:
       - Resolution
   /stats:
     get:
-      description: Returns statistics about the resolver's operation
+      description: Returns operational metrics including cache hit rates, queue depth,
+        and resolution counts. Use for monitoring and observability.
       produces:
       - application/json
       responses:

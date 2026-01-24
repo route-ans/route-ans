@@ -282,11 +282,9 @@ make docs
 |----------|-------------|
 | `GET /health` | Health check |
 | `GET /ready` | Readiness check |
-| `GET /metrics` | Prometheus metrics |
+| `GET /v1/resolve` | Resolve ANSName to endpoint |
 | `POST /v1/resolve/batch` | Batch resolution |
-| `GET /v1/agent/{ansName}` | Get agent details |
-| `GET /v1/agent/{ansName}/verify` | Explicit verification |
-| `GET /v1/search?q=...` | Search agents |
+| `GET /v1/stats` | Resolver statistics |
 
 ## Configuration
 

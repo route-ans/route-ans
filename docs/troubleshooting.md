@@ -48,11 +48,11 @@ dig TXT _ans.example.com
 
 **Solutions:**
 ```bash
-# 1. List available versions
-curl "http://localhost:8080/v1/agent/mcp://agent.PID-123.v1.0.0.example.com"
+# 1. Use wildcard for latest
+curl "http://localhost:8080/v1/resolve?name=mcp://agent.PID-123.v1.0.0.example.com&version=*"
 
-# 2. Use wildcard for latest
-curl "http://localhost:8080/v1/resolve?name=...&version=*"
+# 2. Try specific version
+curl "http://localhost:8080/v1/resolve?name=mcp://agent.PID-123.v1.0.0.example.com&version=1.0.0"
 
 # 3. Check version format
 # Valid: 1.0.0, ^1.0.0, ~1.2.0, >=1.0.0, *

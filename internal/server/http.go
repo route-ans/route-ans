@@ -241,10 +241,6 @@ func (s *Server) routes() http.Handler {
 		r.Get("/resolve", s.handleResolve)
 		r.Post("/resolve/batch", s.handleResolveBatch)
 
-		// Agent info endpoints
-		r.Get("/agent/{ansName}", s.handleGetAgent)
-		r.Get("/agent/{ansName}/verify", s.handleVerifyAgent)
-
 		// Stats
 		r.Get("/stats", s.handleStats)
 	})
@@ -443,7 +439,7 @@ func (s *Server) loggingMiddleware(next http.Handler) http.Handler {
 
 // handleHealth godoc
 // @Summary Health check
-// @Description Returns the health status of the server
+// @Description Returns server health status and version. Use for liveness probes.
 // @Tags Health
 // @Produce json
 // @Success 200 {object} map[string]interface{}
@@ -457,7 +453,7 @@ func (s *Server) handleHealth(w http.ResponseWriter, r *http.Request) {
 
 // handleReady godoc
 // @Summary Readiness check
-// @Description Returns whether the server is ready to accept requests
+// @Description Checks if server can accept traffic by verifying registry connectivity. Use for readiness probes.
 // @Tags Health
 // @Produce json
 // @Success 200 {object} map[string]interface{}
@@ -480,8 +476,8 @@ func (s *Server) handleReady(w http.ResponseWriter, r *http.Request) {
 }
 
 // handleResolve godoc
-// @Summary Resolve an ANSName
-// @Description Resolves an ANSName identifier to its verified endpoint
+// @Summary Resolve ANSName to endpoint
+// @Description Resolves an ANSName to its verified endpoint with optional version negotiation. Performs cryptographic verification and caches results. Use this for agent discovery and connection establishment.
 // @Tags Resolution
 // @Produce json
 // @Param name query string true "The full ANSName to resolve" example(mcp://agent.example.com)
@@ -563,8 +559,8 @@ func (s *Server) handleResolve(w http.ResponseWriter, r *http.Request) {
 }
 
 // handleResolveBatch godoc
-// @Summary Batch resolve ANSNames
-// @Description Resolves multiple ANSName identifiers in a single request
+// @Summary Batch resolve multiple ANSNames
+// @Description Resolves multiple ANSNames in parallel for efficiency. Returns results for all names, including errors. Use when discovering multiple agents simultaneously.
 // @Tags Resolution
 // @Accept json
 // @Produce json
@@ -622,75 +618,9 @@ func (s *Server) handleResolveBatch(w http.ResponseWriter, r *http.Request) {
 	s.jsonResponse(w, http.StatusOK, BatchResolveResponse{Results: results})
 }
 
-// handleGetAgent godoc
-// @Summary Get agent details
-// @Description Returns detailed information about a specific agent
-// @Tags Agents
-// @Produce json
-// @Param ansName path string true "The ANSName of the agent"
-// @Success 200 {object} ResolutionResponse
-// @Failure 404 {object} ErrorResponse
-// @Failure 500 {object} ErrorResponse
-// @Router /agent/{ansName} [get]
-func (s *Server) handleGetAgent(w http.ResponseWriter, r *http.Request) {
-	ansName := chi.URLParam(r, "ansName")
-
-	record, err := s.resolver.ResolveRaw(r.Context(), ansName)
-	if err != nil {
-		var notFoundErr *resolver.ErrNotFound
-		if errors.As(err, &notFoundErr) {
-			s.errorResponse(w, http.StatusNotFound, "agent not found")
-			return
-		}
-		s.errorResponse(w, http.StatusInternalServerError, err.Error())
-		return
-	}
-
-	s.jsonResponse(w, http.StatusOK, record)
-}
-
-// handleVerifyAgent godoc
-// @Summary Verify an agent
-// @Description Performs cryptographic verification of an agent's registration
-// @Tags Agents
-// @Produce json
-// @Param ansName path string true "The ANSName of the agent to verify"
-// @Success 200 {object} VerifyResponse
-// @Failure 400 {object} ErrorResponse
-// @Failure 404 {object} ErrorResponse
-// @Failure 500 {object} ErrorResponse
-// @Router /agent/{ansName}/verify [get]
-func (s *Server) handleVerifyAgent(w http.ResponseWriter, r *http.Request) {
-	ansName := chi.URLParam(r, "ansName")
-
-	name, err := ansname.Parse(ansName)
-	if err != nil {
-		s.errorResponse(w, http.StatusBadRequest, fmt.Sprintf("invalid ANSName: %v", err))
-		return
-	}
-
-	// Use the resolver to verify the agent
-	result, err := s.resolver.Verify(r.Context(), name)
-	if err != nil {
-		var notFoundErr *resolver.ErrNotFound
-		if errors.As(err, &notFoundErr) {
-			s.errorResponse(w, http.StatusNotFound, "agent not found")
-			return
-		}
-		s.errorResponse(w, http.StatusInternalServerError, fmt.Sprintf("verification failed: %v", err))
-		return
-	}
-
-	s.jsonResponse(w, http.StatusOK, VerifyResponse{
-		Valid:      result.Valid,
-		VerifiedAt: result.VerifiedAt.Format(time.RFC3339),
-		Checks:     result.Checks,
-	})
-}
-
 // handleStats godoc
 // @Summary Get resolver statistics
-// @Description Returns statistics about the resolver's operation
+// @Description Returns operational metrics including cache hit rates, queue depth, and resolution counts. Use for monitoring and observability.
 // @Tags Stats
 // @Produce json
 // @Success 200 {object} map[string]interface{}
