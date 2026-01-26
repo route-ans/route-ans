@@ -4,8 +4,7 @@ certs/
 *.csr
 *.crt
 *.pem
-
-agents/
+.env
 
 ans-resolver
 site/

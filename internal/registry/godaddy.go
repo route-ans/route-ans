@@ -4,7 +4,10 @@ package registry
 import (
 	"bytes"
 	"context"
+	"crypto/sha256"
+	"encoding/hex"
 	"encoding/json"
+	"encoding/pem"
 	"fmt"
 	"io"
 	"net/http"
@@ -78,13 +81,46 @@ type godaddyFunction struct {
 	Tags []string `json:"tags"`
 }
 
+type godaddyCertificateResponse struct {
+	CertificatePEM                string `json:"certificatePEM"`
+	CertificateIssuer             string `json:"certificateIssuer"`
+	CertificateSubject            string `json:"certificateSubject"`
+	CertificateSerialNumber       string `json:"certificateSerialNumber"`
+	CertificatePublicKeyAlgorithm string `json:"certificatePublicKeyAlgorithm"`
+	CertificateSignatureAlgorithm string `json:"certificateSignatureAlgorithm"`
+	CertificateValidFrom          string `json:"certificateValidFrom"`
+	CertificateValidTo            string `json:"certificateValidTo"`
+}
+
+// GoDaddy Events API structures
+type godaddyEventsResponse struct {
+	Items     []godaddyEvent `json:"items"`
+	LastLogID string         `json:"lastLogId"`
+}
+
+type godaddyEvent struct {
+	LogID            string            `json:"logId"`
+	EventType        string            `json:"eventType"` // AGENT_REGISTERED, AGENT_RENEWED, AGENT_REVOKED, etc.
+	CreatedAt        string            `json:"createdAt"`
+	ExpiresAt        string            `json:"expiresAt"`
+	AgentID          string            `json:"agentId"`
+	ANSName          string            `json:"ansName"`
+	AgentHost        string            `json:"agentHost"`
+	AgentDisplayName string            `json:"agentDisplayName"`
+	AgentDescription string            `json:"agentDescription"`
+	Version          string            `json:"version"`
+	ProviderID       string            `json:"providerId"`
+	Endpoints        []godaddyEndpoint `json:"endpoints"`
+}
+
 type godaddyCertificate struct {
-	Certificate      string   `json:"certificate"`
-	CertificateChain []string `json:"certificateChain"`
-	Fingerprint      string   `json:"fingerprint"`
-	IssuedAt         string   `json:"issuedAt"`
-	ExpiresAt        string   `json:"expiresAt"`
-	Issuer           string   `json:"issuer"`
+	PEM          string
+	Fingerprint  string
+	Issuer       string
+	Subject      string
+	SerialNumber string
+	NotBefore    time.Time
+	NotAfter     time.Time
 }
 
 type godaddyError struct {
@@ -298,11 +334,151 @@ func (g *godaddyAdapter) VerifyRecord(ctx context.Context, record *Record) (*Ver
 	}, nil
 }
 
-// Subscribe starts receiving events from the registry
+// Subscribe starts receiving events from the GoDaddy events API
 func (g *godaddyAdapter) Subscribe(ctx context.Context, handler EventHandler) error {
-	// Event streaming not yet implemented for GoDaddy
-	<-ctx.Done()
-	return ctx.Err()
+	log.Info().Msg("Starting GoDaddy events subscription")
+
+	var lastLogID string
+	pollInterval := 10 * time.Second // Poll every 10 seconds
+	ticker := time.NewTicker(pollInterval)
+	defer ticker.Stop()
+
+	for {
+		select {
+		case <-ctx.Done():
+			log.Info().Msg("GoDaddy events subscription stopped")
+			return ctx.Err()
+		case <-ticker.C:
+			// Fetch events from GoDaddy API
+			events, newLastLogID, err := g.fetchEvents(ctx, lastLogID, 100)
+			if err != nil {
+				log.Error().Err(err).Msg("Failed to fetch events from GoDaddy")
+				continue
+			}
+
+			// Process each event
+			for _, gdEvent := range events {
+				event := g.convertEvent(&gdEvent)
+				if err := handler(ctx, event); err != nil {
+					log.Error().
+						Err(err).
+						Str("logId", gdEvent.LogID).
+						Str("eventType", gdEvent.EventType).
+						Msg("Event handler failed")
+				}
+			}
+
+			// Update cursor if we got events
+			if newLastLogID != "" {
+				lastLogID = newLastLogID
+			}
+
+			if len(events) > 0 {
+				log.Debug().
+					Int("count", len(events)).
+					Str("lastLogId", lastLogID).
+					Msg("Processed GoDaddy events")
+			}
+		}
+	}
+}
+
+// fetchEvents retrieves events from GoDaddy's GET /v1/agents/events endpoint
+func (g *godaddyAdapter) fetchEvents(ctx context.Context, lastLogID string, limit int) ([]godaddyEvent, string, error) {
+	url := fmt.Sprintf("%s/agents/events", g.baseURL)
+
+	req, err := http.NewRequestWithContext(ctx, "GET", url, nil)
+	if err != nil {
+		return nil, "", err
+	}
+
+	// Add query parameters
+	q := req.URL.Query()
+	if lastLogID != "" {
+		q.Add("lastLogId", lastLogID)
+	}
+	if limit > 0 {
+		q.Add("limit", fmt.Sprintf("%d", limit))
+	}
+	req.URL.RawQuery = q.Encode()
+
+	// Add authentication
+	req.Header.Set("Authorization", fmt.Sprintf("sso-key %s:%s", g.apiKey, g.apiSecret))
+	req.Header.Set("Accept", "application/json")
+
+	resp, err := g.client.Do(req)
+	if err != nil {
+		return nil, "", err
+	}
+	defer resp.Body.Close()
+
+	if resp.StatusCode != http.StatusOK {
+		body, _ := io.ReadAll(resp.Body)
+		return nil, "", fmt.Errorf("GoDaddy events API returned %d: %s", resp.StatusCode, string(body))
+	}
+
+	var eventsResp godaddyEventsResponse
+	if err := json.NewDecoder(resp.Body).Decode(&eventsResp); err != nil {
+		return nil, "", fmt.Errorf("failed to decode events response: %w", err)
+	}
+
+	return eventsResp.Items, eventsResp.LastLogID, nil
+}
+
+// convertEvent converts a GoDaddy event to our internal Event structure
+func (g *godaddyAdapter) convertEvent(gdEvent *godaddyEvent) *Event {
+	// Parse timestamp
+	timestamp, _ := time.Parse(time.RFC3339, gdEvent.CreatedAt)
+
+	// Map GoDaddy event types to our internal types
+	eventType := mapEventType(gdEvent.EventType)
+
+	// Extract endpoint if available
+	endpoint := ""
+	if len(gdEvent.Endpoints) > 0 {
+		endpoint = gdEvent.Endpoints[0].AgentURL
+	}
+
+	// Extract FQDN from ANS name
+	fqdn := gdEvent.AgentHost
+
+	return &Event{
+		ID:        gdEvent.LogID,
+		Type:      eventType,
+		ANSName:   gdEvent.ANSName,
+		FQDN:      fqdn,
+		Timestamp: timestamp,
+		Data: map[string]interface{}{
+			"agentId":          gdEvent.AgentID,
+			"agentDisplayName": gdEvent.AgentDisplayName,
+			"agentDescription": gdEvent.AgentDescription,
+			"version":          gdEvent.Version,
+			"providerId":       gdEvent.ProviderID,
+			"endpoint":         endpoint,
+			"expiresAt":        gdEvent.ExpiresAt,
+		},
+		Signature: "", // GoDaddy doesn't sign individual events
+	}
+}
+
+// mapEventType maps GoDaddy event types to internal event types
+func mapEventType(godaddyType string) string {
+	switch godaddyType {
+	case "AGENT_REGISTERED":
+		return "registered"
+	case "AGENT_RENEWED":
+		return "renewed"
+	case "AGENT_REVOKED":
+		return "revoked"
+	case "AGENT_DEPRECATED":
+		return "deprecated"
+	case "AGENT_EXPIRED":
+		return "expired"
+	case "AGENT_UPDATED":
+		return "updated"
+	default:
+		return strings.ToLower(strings.TrimPrefix(godaddyType, "AGENT_"))
+	}
 }
 
 // Name returns the adapter name
@@ -411,9 +587,9 @@ func (g *godaddyAdapter) getCertificates(ctx context.Context, links []struct {
 	if serverCertURL != "" {
 		resp, err := g.makeRequest(ctx, "GET", serverCertURL, nil)
 		if err == nil {
-			var cert godaddyCertificate
-			if err := json.Unmarshal(resp, &cert); err == nil {
-				serverCert = &cert
+			var certs []godaddyCertificateResponse
+			if err := json.Unmarshal(resp, &certs); err == nil && len(certs) > 0 {
+				serverCert = g.parseCertificate(&certs[0])
 			}
 		}
 	}
@@ -422,14 +598,49 @@ func (g *godaddyAdapter) getCertificates(ctx context.Context, links []struct {
 	if identityCertURL != "" {
 		resp, err := g.makeRequest(ctx, "GET", identityCertURL, nil)
 		if err == nil {
-			var cert godaddyCertificate
-			if err := json.Unmarshal(resp, &cert); err == nil {
-				identityCert = &cert
+			var certs []godaddyCertificateResponse
+			if err := json.Unmarshal(resp, &certs); err == nil && len(certs) > 0 {
+				identityCert = g.parseCertificate(&certs[0])
 			}
 		}
 	}
 
 	return serverCert, identityCert, nil
+}
+
+func (g *godaddyAdapter) parseCertificate(cert *godaddyCertificateResponse) *godaddyCertificate {
+	if cert == nil || cert.CertificatePEM == "" {
+		return nil
+	}
+
+	// Calculate SHA-256 fingerprint from PEM
+	fingerprint := g.calculateFingerprint(cert.CertificatePEM)
+
+	// Parse timestamps
+	notBefore, _ := time.Parse(time.RFC3339, cert.CertificateValidFrom)
+	notAfter, _ := time.Parse(time.RFC3339, cert.CertificateValidTo)
+
+	return &godaddyCertificate{
+		PEM:          cert.CertificatePEM,
+		Fingerprint:  fingerprint,
+		Issuer:       cert.CertificateIssuer,
+		Subject:      cert.CertificateSubject,
+		SerialNumber: cert.CertificateSerialNumber,
+		NotBefore:    notBefore,
+		NotAfter:     notAfter,
+	}
+}
+
+func (g *godaddyAdapter) calculateFingerprint(certPEM string) string {
+	// Parse PEM to get DER bytes
+	block, _ := pem.Decode([]byte(certPEM))
+	if block == nil {
+		return ""
+	}
+
+	// Calculate SHA-256 hash of DER-encoded certificate
+	hash := sha256.Sum256(block.Bytes)
+	return "SHA256:" + hex.EncodeToString(hash[:])
 }
 
 func (g *godaddyAdapter) buildRecord(details *godaddyAgentDetails, serverCert, identityCert *godaddyCertificate) *Record {
@@ -460,16 +671,38 @@ func (g *godaddyAdapter) buildRecord(details *godaddyAgentDetails, serverCert, i
 		protocol = details.Protocol // Use deprecated field if available
 	}
 
+	// Build certificate info
+	certInfo := CertificateInfo{}
+	if serverCert != nil {
+		certInfo.PublicCert = CertDetails{
+			Fingerprint:  serverCert.Fingerprint,
+			Issuer:       serverCert.Issuer,
+			SerialNumber: serverCert.SerialNumber,
+			IssuedAt:     serverCert.NotBefore,
+			ExpiresAt:    serverCert.NotAfter,
+		}
+	}
+	if identityCert != nil {
+		certInfo.PrivateCert = CertDetails{
+			Fingerprint:  identityCert.Fingerprint,
+			Issuer:       identityCert.Issuer,
+			SerialNumber: identityCert.SerialNumber,
+			IssuedAt:     identityCert.NotBefore,
+			ExpiresAt:    identityCert.NotAfter,
+		}
+	}
+
 	record := &Record{
-		ANSName:     details.ANSName,
-		FQDN:        details.AgentHost,
-		Protocol:    protocol,
-		Version:     details.Version,
-		Status:      g.mapStatus(details.AgentStatus),
-		RegistrarID: "godaddy",
-		TTL:         5 * time.Minute,
-		UpdatedAt:   time.Now(),
-		Endpoint:    endpoint,
+		ANSName:      details.ANSName,
+		FQDN:         details.AgentHost,
+		Protocol:     protocol,
+		Version:      details.Version,
+		Status:       g.mapStatus(details.AgentStatus),
+		RegistrarID:  "godaddy",
+		TTL:          5 * time.Minute,
+		Certificates: certInfo,
+		UpdatedAt:    time.Now(),
+		Endpoint:     endpoint,
 		Metadata: AgentMetadata{
 			DisplayName:  details.AgentDisplayName,
 			Description:  details.AgentDescription,
@@ -493,11 +726,9 @@ func (g *godaddyAdapter) buildRecord(details *godaddyAgentDetails, serverCert, i
 		record.Certificates.PrivateCert = g.parseCertDetails(identityCert)
 	}
 
-	// Set expiration
-	if identityCert != nil && identityCert.ExpiresAt != "" {
-		if t, err := time.Parse(time.RFC3339, identityCert.ExpiresAt); err == nil {
-			record.ExpiresAt = t
-		}
+	// Set expiration based on identity certificate
+	if identityCert != nil && !identityCert.NotAfter.IsZero() {
+		record.ExpiresAt = identityCert.NotAfter
 	} else {
 		record.ExpiresAt = time.Now().Add(90 * 24 * time.Hour)
 	}
@@ -506,24 +737,13 @@ func (g *godaddyAdapter) buildRecord(details *godaddyAgentDetails, serverCert, i
 }
 
 func (g *godaddyAdapter) parseCertDetails(cert *godaddyCertificate) CertDetails {
-	details := CertDetails{
-		Fingerprint: cert.Fingerprint,
-		Issuer:      cert.Issuer,
+	return CertDetails{
+		Fingerprint:  cert.Fingerprint,
+		Issuer:       cert.Issuer,
+		SerialNumber: cert.SerialNumber,
+		IssuedAt:     cert.NotBefore,
+		ExpiresAt:    cert.NotAfter,
 	}
-
-	if cert.IssuedAt != "" {
-		if t, err := time.Parse(time.RFC3339, cert.IssuedAt); err == nil {
-			details.IssuedAt = t
-		}
-	}
-
-	if cert.ExpiresAt != "" {
-		if t, err := time.Parse(time.RFC3339, cert.ExpiresAt); err == nil {
-			details.ExpiresAt = t
-		}
-	}
-
-	return details
 }
 
 func (g *godaddyAdapter) mapStatus(status string) string {

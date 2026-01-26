@@ -9,6 +9,7 @@ import (
 	"crypto/ed25519"
 	"crypto/rsa"
 	"crypto/sha256"
+	"crypto/tls"
 	"crypto/x509"
 	"encoding/base64"
 	"encoding/hex"
@@ -151,14 +152,32 @@ func (v *DefaultVerifier) VerifyRegistryRecord(ctx context.Context, record *regi
 		}()
 	}
 
-	// Verify certificate
-	if record.Certificates.PublicCert.Fingerprint != "" {
+	// Verify endpoint certificate fingerprint
+	if record.Endpoint != "" && record.Certificates.PublicCert.Fingerprint != "" {
 		wg.Add(1)
 		go func() {
 			defer wg.Done()
-			check := v.checkCertificateExpiry(record)
-			addCheck(CheckCertificate, check)
+			check, err := v.VerifyEndpointFingerprint(ctx, record.Endpoint, record.Certificates.PublicCert.Fingerprint)
+			if err != nil {
+				log.Error().Err(err).Str("endpoint", record.Endpoint).Msg("Endpoint fingerprint verification error")
+				addCheck(CheckCertificate, &CheckResult{
+					Name:     CheckCertificate,
+					Passed:   false,
+					Required: true,
+					Message:  fmt.Sprintf("verification error: %v", err),
+				})
+			} else {
+				addCheck(CheckCertificate, check)
+			}
 		}()
+	} else if record.Certificates.PublicCert.Fingerprint == "" {
+		// No fingerprint provided by registry
+		addCheck(CheckCertificate, &CheckResult{
+			Name:     CheckCertificate,
+			Passed:   false,
+			Required: false,
+			Message:  "no certificate fingerprint provided by registry",
+		})
 	}
 
 	// Check expiry
@@ -293,6 +312,121 @@ func (v *DefaultVerifier) VerifySignature(ctx context.Context, payload []byte, s
 	}
 
 	return false, nil
+}
+
+// VerifyEndpointFingerprint connects to an agent endpoint and verifies its certificate fingerprint
+func (v *DefaultVerifier) VerifyEndpointFingerprint(ctx context.Context, endpoint, expectedFingerprint string) (*CheckResult, error) {
+	if expectedFingerprint == "" {
+		return &CheckResult{
+			Name:     "endpoint_fingerprint",
+			Passed:   false,
+			Required: true,
+			Message:  "no fingerprint provided by registry",
+		}, nil
+	}
+
+	// Parse endpoint URL to extract host:port
+	if !strings.HasPrefix(endpoint, "https://") {
+		return &CheckResult{
+			Name:     "endpoint_fingerprint",
+			Passed:   false,
+			Required: true,
+			Message:  "endpoint must use HTTPS for certificate verification",
+		}, nil
+	}
+
+	// Extract host from URL
+	host := strings.TrimPrefix(endpoint, "https://")
+	if idx := strings.Index(host, "/"); idx != -1 {
+		host = host[:idx]
+	}
+
+	// Add default port if not specified
+	if !strings.Contains(host, ":") {
+		host = host + ":443"
+	}
+
+	// Create TLS dialer that doesn't verify the cert chain (we verify fingerprint instead)
+	dialer := &tls.Dialer{
+		Config: &tls.Config{
+			InsecureSkipVerify: true, // We verify manually via fingerprint
+			MinVersion:         tls.VersionTLS12,
+		},
+	}
+
+	// Connect with timeout
+	connCtx, cancel := context.WithTimeout(ctx, 10*time.Second)
+	defer cancel()
+
+	conn, err := dialer.DialContext(connCtx, "tcp", host)
+	if err != nil {
+		return &CheckResult{
+			Name:     "endpoint_fingerprint",
+			Passed:   false,
+			Required: true,
+			Message:  fmt.Sprintf("failed to connect to endpoint: %v", err),
+		}, nil
+	}
+	defer conn.Close()
+
+	// Get peer certificates
+	tlsConn, ok := conn.(*tls.Conn)
+	if !ok {
+		return &CheckResult{
+			Name:     "endpoint_fingerprint",
+			Passed:   false,
+			Required: true,
+			Message:  "not a TLS connection",
+		}, nil
+	}
+
+	state := tlsConn.ConnectionState()
+	if len(state.PeerCertificates) == 0 {
+		return &CheckResult{
+			Name:     "endpoint_fingerprint",
+			Passed:   false,
+			Required: true,
+			Message:  "no certificates presented by endpoint",
+		}, nil
+	}
+
+	// Calculate fingerprint of the leaf certificate
+	leafCert := state.PeerCertificates[0]
+	hash := sha256.Sum256(leafCert.Raw)
+	actualFingerprint := "SHA256:" + hex.EncodeToString(hash[:])
+
+	// Compare fingerprints
+	if actualFingerprint != expectedFingerprint {
+		return &CheckResult{
+			Name:     "endpoint_fingerprint",
+			Passed:   false,
+			Required: true,
+			Message:  fmt.Sprintf("fingerprint mismatch: expected %s, got %s", expectedFingerprint, actualFingerprint),
+			Details: map[string]interface{}{
+				"expected": expectedFingerprint,
+				"actual":   actualFingerprint,
+				"subject":  leafCert.Subject.String(),
+				"issuer":   leafCert.Issuer.String(),
+			},
+		}, nil
+	}
+
+	// Fingerprint matches!
+	log.Debug().Str("endpoint", endpoint).Str("fingerprint", actualFingerprint).Msg("Endpoint fingerprint verified")
+
+	return &CheckResult{
+		Name:     "endpoint_fingerprint",
+		Passed:   true,
+		Required: true,
+		Message:  "certificate fingerprint matches registry",
+		Details: map[string]interface{}{
+			"fingerprint": actualFingerprint,
+			"subject":     leafCert.Subject.String(),
+			"issuer":      leafCert.Issuer.String(),
+			"notBefore":   leafCert.NotBefore,
+			"notAfter":    leafCert.NotAfter,
+		},
+	}, nil
 }
 
 // VerifyCertificate verifies an X.509 certificate chain

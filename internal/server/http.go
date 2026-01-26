@@ -116,6 +116,7 @@ func (s *Server) initProviders() error {
 		queueConfig := map[string]interface{}{
 			"address":  s.cfg.Queue.RedisStreams.Address,
 			"password": s.cfg.Queue.RedisStreams.Password,
+			"db":       s.cfg.Queue.RedisStreams.DB,
 			"stream":   s.cfg.Queue.RedisStreams.Stream,
 		}
 

@@ -97,9 +97,9 @@ This format is automatically detected and parsed. Default values are assigned:
 
 ## Resolution Process
 
-Per ANS Spec Section 4, resolution maps ANSName to endpoint:
+Per ANS specification, resolution maps ANSName to endpoint:
 
-- **Input**: 
+- **Input**:
     - ANSName (must include valid version component)
     - Optional Version Range (query parameter overrides ANSName version)
 - **Output**: Verified endpoint with metadata
@@ -318,7 +318,6 @@ Route ANS implements:
 - ✅ ANS Spec Section 5: Version Negotiation
 - ✅ ANS Spec Section 6: Trust Verification
 - ✅ ANS Spec Section 7: Caching
-- ⏳ ANS Spec Section 8: Agent Registration (planned)
 
 ## Comparison to DNS
 
@@ -331,19 +330,9 @@ Route ANS implements:
 | **Protocols** | TCP/UDP | HTTP/HTTPS, A2A, MCP |
 | **Caching** | TTL-based | TTL + expiration |
 
-## Future Extensions
-
-Planned features:
-
-- **Agent Registration API**: Self-service registration
-- **Capability Search**: Find agents by capability
-- **Health Monitoring**: Track agent availability
-- **Usage Metrics**: Track resolution patterns
-- **Federation**: Multi-registry support
-
 ## Reference
 
-- ANS Specification: [Link to spec PDF]
+- ANS Specification: [Link to spec](https://www.ietf.org/archive/id/draft-narajala-ans-00.html)
 - Semantic Versioning: https://semver.org/
 - TLS Fingerprinting: RFC 6698
 

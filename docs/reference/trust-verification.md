@@ -4,7 +4,21 @@ Complete reference for certificate verification and trust management.
 
 ## Overview
 
-Trust verification validates agent certificates to ensure secure communication. This implements Step 6 of the ANS specification.
+Trust verification validates agent certificates to ensure secure communication.
+
+## Verification Algorithm
+
+**Step 1: Resolve** - Get endpoint and certificate fingerprint from registry  
+**Step 2: Connect** - TLS handshake with agent endpoint  
+**Step 3: Extract** - Get peer certificate from connection  
+**Step 4: Calculate** - SHA-256 hash of certificate DER bytes  
+**Step 5: Compare** - Match calculated fingerprint with registry's fingerprint  
+**Step 6: Validate** - Check expiry, revocation (if enabled), and signature  
+
+**Trust anchor:** Agent Registry (similar to SSH host key verification)  
+**Protection:** Prevents MITM attacks via certificate pinning
+
+**Current Status:** Implementation complete, disabled by default (awaiting registry support for fingerprints in resolution responses)
 
 ## Interface Definition
 

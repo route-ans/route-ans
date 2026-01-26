@@ -201,7 +201,7 @@ func (r *DefaultResolver) ResolveRaw(ctx context.Context, nameStr string) (*Reso
 }
 
 // ResolveWithRange resolves an ANSName with version range negotiation.
-// This implements ANS Spec Step 4: Version Negotiation.
+// This implements version negotiation.
 // If multiple versions match the range, returns the highest compatible version.
 func (r *DefaultResolver) ResolveWithRange(ctx context.Context, name *ansname.ANSName, versionRange string) (*ResolutionRecord, error) {
 	start := time.Now()

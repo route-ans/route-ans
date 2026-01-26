@@ -102,6 +102,7 @@ type QueueConfig struct {
 type RedisStreamsConfig struct {
 	Address       string        `yaml:"address"`
 	Password      string        `yaml:"password"`
+	DB            int           `yaml:"db"`
 	Stream        string        `yaml:"stream"`
 	ConsumerGroup string        `yaml:"consumerGroup"`
 	Consumer      string        `yaml:"consumer"`

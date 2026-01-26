@@ -299,11 +299,8 @@ func init() {
 		if v, ok := config["password"].(string); ok {
 			redisOpts.Password = v
 		}
-		if v, ok := config["stream"].(string); ok {
-			redisOpts.Stream = v
-		}
-		if v, ok := config["consumerGroup"].(string); ok {
-			redisOpts.ConsumerGroup = v
+		if v, ok := config["db"].(int); ok {
+			redisOpts.DB = v
 		}
 
 		redisOpts.ConsumerName = opts.ConsumerName

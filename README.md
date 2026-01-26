@@ -185,7 +185,7 @@ The parser automatically detects which format is used.
 
 ### Version Negotiation
 
-The resolver supports semantic version ranges for flexible version resolution. This implements **ANS Spec Step 4: Version Negotiation**.
+The resolver supports semantic version ranges for flexible version resolution.
 
 #### Supported Version Range Formats
 

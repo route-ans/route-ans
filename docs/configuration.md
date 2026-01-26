@@ -16,9 +16,9 @@ Jump to a specific section:
 
 - **🟢 [Server Configuration](#server-server-configuration)** - HTTP server settings
 - **🟢 [Cache Configuration](#cache-cache-configuration)** - Memory/Redis cache providers
-- **🟡 [Queue Configuration](#queue-queue-configuration)** - Event processing (disabled by default)
+- **🟢 [Queue Configuration](#queue-queue-configuration)** - Event processing for registry emitted events
 - **🟢 [Registry Configuration](#registries-registry-adapters)** - GoDaddy and mock registries
-- **🟢 [Trust/Verification](#trust-trust-and-verification)** - Security and verification settings
+- **🔴 [Trust/Verification](#trust-trust-and-verification)** - Security and verification settings (awaiting registry support)
 - **🟢 [Rate Limiting](#ratelimit-rate-limiting)** - API rate limiting
 - **🟢 [Telemetry](#telemetry-telemetry-configuration)** - Logging, metrics, tracing
 - **🟢 [Environment Variables](#environment-variables)** - Variable substitution guide
@@ -230,64 +230,131 @@ cache:
 
 ### `queue` - Queue Configuration
 
-🟡 **Status:** Partial - Event Processor Ready, No Event Sources  
+🟢 **Status:** Fully Implemented  
 **Type:** Object  
 **Required:** Yes
-
-!!! warning "Limited Functionality"
-    The queue event processor can handle registry events for cache invalidation. However, **GoDaddy registry doesn't emit events**, so there's nothing to consume. Useful for testing or future registries that support webhooks/event streams. Disabled by default.
 
 Message queue configuration for handling asynchronous registry events.
 
 | Field | Type | Default | Description | Status |
 |-------|------|---------|-------------|--------|
-| `enabled` | bool | **false** | Enable/disable queue event processing | 🟡 ⚠️ Disabled by default |
-| `provider` | string | memory | Queue provider: `memory` (works), `redis-streams` (config only) | 🟡 |
-| `bufferSize` | int | 1000 | Buffer size for in-memory queue | 🟡 |
-| `redis-streams` | RedisStreamsConfig | - | Redis Streams settings | 🟡 Config only |
+| `enabled` | bool | **false** | Enable/disable queue event processing | 🟢 ⚠️ Disabled by default |
+| `provider` | string | memory | Queue provider: `memory`, `redis-streams` | 🟢 |
+| `bufferSize` | int | 1000 | Buffer size for in-memory queue (memory provider) | 🟢 |
+| `redis-streams` | RedisStreamsConfig | - | Redis Streams settings (redis-streams provider) | 🟢 |
 
 **What it does when enabled:**
 
-1. **Cache invalidation** - Automatically invalidates cache when registry events arrive
-2. **Event processing** - Handles registered, renewed, revoked, deprecated, expired events
-3. **Metrics tracking** - Records queue statistics (processed, failed, pending)
-4. **Background processing** - Async event handling without blocking resolution
+1. **Poll registry events** - Periodically fetch events from registry event endpoint
+2. **Cache invalidation** - Automatically invalidate cache when registry events arrive
+3. **Event processing** - Handle registered, renewed, revoked, deprecated, expired events
+4. **Cursor-based pagination** - Track cursor position to resume from last processed event
+5. **Metrics tracking** - Record queue statistics (processed, failed, pending)
 
-⚠️ **Important:** GoDaddy registry doesn't currently emit events. The queue will run but have nothing to process until you:
-- Implement a custom event source
-- Use a different registry that supports webhooks/event streams
-- Manually publish test events to the queue
+**Registry-Specific Implementation:**
 
-**Event Types Processed:**
+*GoDaddy Registry:*
 
-- `registered` - Cache invalidated, metrics recorded
-- `renewed` - Cache invalidated for fresh lookup
-- `revoked` - Cache entry removed immediately
-- `deprecated` - Cache entry removed
-- `expired` - Cache entry removed
+- Endpoint: `GET /v1/agents/events`
+- Polling interval: 10 seconds
+- Pagination: Cursor-based via `lastLogId` parameter
+- Batch size: 100 events per request
+- Event retention: 30 days
+- Authentication: SSO-Key credentials
+
+**Event Types Supported:**
+
+- `registered` - New agent registered, invalidate cache
+- `renewed` - Agent renewed, refresh cache entry
+- `revoked` - Agent revoked, remove from cache immediately
+- `deprecated` - Agent deprecated, remove from cache
+- `expired` - Agent expired, remove from cache
+- `updated` - Agent metadata updated, invalidate cache
+
+*Note: Registry-specific event names (e.g., GoDaddy's `AGENT_REGISTERED`) are automatically mapped to internal event types.*
 
 **Default Configuration (Disabled):**
 ```yaml
 queue:
-  enabled: false      # No overhead when disabled
-  provider: memory    # Use in-memory queue for testing
+  enabled: false      # Enable to start polling registry events
+  provider: memory
   bufferSize: 1000
 ```
 
-**When to enable:**
+**Enable for production:**
+```yaml
+queue:
+  enabled: true       # Start polling registry events
+  provider: memory    # Or redis-streams for distributed processing
+  bufferSize: 1000
+```
 
-- Registry provides event webhooks or SSE streams
-- Running multiple resolver instances needing cache coordination
-- Using Redis Streams for distributed event processing
-- Need metrics on registry event activity
+**Use cases:**
 
-**Enable for testing:**
+- Automatic cache invalidation when agents are updated/revoked
+- Real-time synchronization with registry changes
+- Metrics on registry event activity
+- Multi-resolver deployments needing cache coordination
+
+---
+
+### `queue.redis-streams` - Redis Streams Configuration
+
+🟢 **Status:** Fully Implemented  
+**Type:** Object  
+**Used when:** `queue.provider: redis-streams`
+
+Redis Streams configuration for distributed event processing across multiple resolver instances.
+
+| Field | Type | Default | Description | Status |
+|-------|------|---------|-------------|--------|
+| `address` | string | localhost:6379 | Redis server address (host:port) | 🟢 |
+| `password` | string | "" | Redis authentication password | 🟢 |
+| `db` | int | 0 | Redis database number (0-15) | 🟢 |
+| `stream` | string | ans:events | Redis stream name for events | 🟢 |
+| `consumerGroup` | string | resolver-group | Consumer group name | 🟢 |
+| `consumer` | string | resolver-1 | This consumer's unique name | 🟢 |
+| `blockTimeout` | duration | 5s | Max time to block waiting for events | 🟢 |
+| `batchSize` | int | 10 | Max events to fetch per batch | 🟢 |
+
+**Example:**
 ```yaml
 queue:
   enabled: true
-  provider: memory
-  bufferSize: 100
+  provider: redis-streams
+  redis-streams:
+    address: "${REDIS_ADDRESS:localhost:6379}"
+    password: "${REDIS_PASSWORD:}"
+    db: 0
+    stream: ans:events
+    consumerGroup: resolver-group
+    consumer: resolver-1
+    blockTimeout: 5s
+    batchSize: 10
 ```
+
+**How it works:**
+
+1. **Redis Streams** - Uses native Redis Streams (XREADGROUP/XADD) for event distribution
+2. **Consumer Groups** - Multiple resolvers join same consumer group for load balancing
+3. **Acknowledgment** - Events are acknowledged after successful processing
+4. **Pending tracking** - Failed events remain pending for retry
+5. **Stats available** - Tracks processed, failed, pending, and consumer lag
+
+**When to use Redis Streams:**
+
+- Running multiple resolver instances
+- Need distributed event processing across instances
+- Want event persistence and replay capability
+- Require guaranteed event delivery with acks
+- Need metrics on consumer lag and pending events
+
+**Performance tuning:**
+
+- Increase `batchSize` for higher throughput (up to 100)
+- Adjust `blockTimeout` based on event frequency
+- Use separate Redis instance from cache for isolation
+- Monitor consumer lag via Stats endpoint
 
 ---
 
@@ -299,11 +366,11 @@ queue:
 **Type:** Array of RegistryConfig  
 **Required:** Yes (at least one)
 
-!!! success "Working Registries"
-    - ✅ **GoDaddy** - Fully functional, production-ready
-    - ✅ **Mock** - For testing/development
+!!! success "Supported Registries"
+    - ✅ **GoDaddy** - Production registry, fully functional
+    - ✅ **Mock** - Testing/development registry with configurable responses
 
-Configures connections to ANS registries where agents are registered.
+Configures connections to ANS registries where agents are registered. The resolver supports multiple registries with priority-based fallback.
 
 | Field | Type | Default | Description | Status |
 |-------|------|---------|-------------|--------|
@@ -357,8 +424,12 @@ registries:
 
 ### `trust` - Trust and Verification
 
+🔴 **Status:** Future - Awaiting Registry Support  
 **Type:** Object  
 **Required:** Yes
+
+!!! info "Registry Support Required"
+    Trust verification code is implemented but **cannot be used** because registries must include certificate fingerprints in resolution responses. Currently, no supported registries provide this data. Will be available once registry implementations are updated.
 
 | Field | Type | Default | Description | Status |
 |-------|------|---------|-------------|--------|
@@ -371,11 +442,10 @@ registries:
 trust:
   provider: file
   verification:
-    enabled: true
-    mode: permissive
-    requireSignature: true
-    requireMerkleProof: false
-    checkRevocation: true
+    enabled: false             # Disabled: awaiting registry support for fingerprints
+    requireSignature: false    # GoDaddy doesn't sign responses yet
+    requireMerkleProof: false  # Future feature
+    checkRevocation: false     # Disabled by default
 ```
 
 ---
@@ -386,22 +456,21 @@ trust:
 
 | Field | Type | Default | Description | Status |
 |-------|------|---------|-------------|--------|
-| `enabled` | bool | true | Enable trust verification | 🟢 |
-| `mode` | string | permissive | Mode: `strict`, `permissive`, `disabled` | 🟢 |
-| `requireSignature` | bool | true | Require registry signature | 🟢 |
+| `enabled` | bool | **false** | Enable trust verification (see note above) | 🔴 Future |
+| `requireSignature` | bool | false | Require registry signature on responses | 🔴 Future |
 | `requireMerkleProof` | bool | false | Require Merkle inclusion proof | 🔴 Future |
-| `checkRevocation` | bool | true | Check certificate revocation | 🟢 |
-| `allowExpiredGracePeriod` | duration | 24h | Grace period for expired certs | 🟢 |
-| `ocsp` | OCSPConfig | - | OCSP settings | 🟢 |
-| `crl` | CRLConfig | - | CRL settings | 🟢 |
+| `checkRevocation` | bool | false | Check certificate revocation via OCSP/CRL | 🔴 Future |
 
-**Modes:**
+**How it works:**
 
-- `strict` - All checks must pass, fail on error
-- `permissive` - Log failures but continue
-- `disabled` - Skip all verification (NOT ANS compliant)
+1. Registry provides certificate fingerprint in resolution response
+2. Resolver connects to agent endpoint via TLS
+3. Calculates SHA-256 fingerprint of presented certificate
+4. Compares with registry's fingerprint (prevents MITM attacks)
 
-**⚠️ Security Warning:** Only use `enabled: false` or `mode: disabled` for development/testing!
+**Current limitation:** Registries must include fingerprints in resolution responses for this to work. Some registries provide certificates via separate API endpoints, but trust verification requires fingerprints embedded in the resolution response itself.
+
+See [Trust Verification Reference](reference/trust-verification.md) for algorithm details.
 
 ---
 
