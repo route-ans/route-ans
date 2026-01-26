@@ -4,6 +4,7 @@ site_author: Route ANS Team
 repo_url: https://github.com/route-ans/route-ans
 
 theme:
+  logo: assets/logo.png
   name: material
   palette:
     - scheme: default
