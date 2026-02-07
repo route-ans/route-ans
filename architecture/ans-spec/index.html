@@ -22,7 +22,7 @@
         
       
       
-      <link rel="icon" href="../../assets/images/favicon.png">
+      <link rel="icon" href="../../assets/logo.ico">
       <meta name="generator" content="mkdocs-1.5.3, mkdocs-material-9.7.1">
     
     
@@ -98,8 +98,7 @@
   <nav class="md-header__inner md-grid" aria-label="Header">
     <a href="../.." title="Route ANS" class="md-header__button md-logo" aria-label="Route ANS" data-md-component="logo">
       
-  
-  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3 3 3 0 0 0 3 3m0 3.54C9.64 9.35 6.5 8 3 8v11c3.5 0 6.64 1.35 9 3.54 2.36-2.19 5.5-3.54 9-3.54V8c-3.5 0-6.64 1.35-9 3.54"/></svg>
+  <img src="../../assets/logo.png" alt="logo">
 
     </a>
     <label class="md-header__button md-icon" for="__drawer">
@@ -236,8 +235,7 @@
   <label class="md-nav__title" for="__drawer">
     <a href="../.." title="Route ANS" class="md-nav__button md-logo" aria-label="Route ANS" data-md-component="logo">
       
-  
-  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3 3 3 0 0 0 3 3m0 3.54C9.64 9.35 6.5 8 3 8v11c3.5 0 6.64 1.35 9 3.54 2.36-2.19 5.5-3.54 9-3.54V8c-3.5 0-6.64 1.35-9 3.54"/></svg>
+  <img src="../../assets/logo.png" alt="logo">
 
     </a>
     Route ANS
@@ -1031,10 +1029,21 @@
       <ul class="md-nav__list">
         
           <li class="md-nav__item">
-  <a href="#structure" class="md-nav__link">
+  <a href="#full-format" class="md-nav__link">
     <span class="md-ellipsis">
       
-        Structure
+        Full Format
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#simplified-format-registry-specific" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Simplified Format (Registry-Specific)
       
     </span>
   </a>
@@ -1351,17 +1360,6 @@
     <span class="md-ellipsis">
       
         Comparison to DNS
-      
-    </span>
-  </a>
-  
-</li>
-      
-        <li class="md-nav__item">
-  <a href="#future-extensions" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        Future Extensions
       
     </span>
   </a>
@@ -1732,10 +1730,21 @@
       <ul class="md-nav__list">
         
           <li class="md-nav__item">
-  <a href="#structure" class="md-nav__link">
+  <a href="#full-format" class="md-nav__link">
     <span class="md-ellipsis">
       
-        Structure
+        Full Format
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#simplified-format-registry-specific" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Simplified Format (Registry-Specific)
       
     </span>
   </a>
@@ -2059,17 +2068,6 @@
 </li>
       
         <li class="md-nav__item">
-  <a href="#future-extensions" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        Future Extensions
-      
-    </span>
-  </a>
-  
-</li>
-      
-        <li class="md-nav__item">
   <a href="#reference" class="md-nav__link">
     <span class="md-ellipsis">
       
@@ -2116,7 +2114,7 @@
 <h2 id="ans-overview">ANS Overview<a class="headerlink" href="#ans-overview" title="Permanent link">&para;</a></h2>
 <p>ANS provides a decentralized, secure naming system for AI agents, similar to DNS for traditional services.</p>
 <h2 id="ansname-format">ANSName Format<a class="headerlink" href="#ansname-format" title="Permanent link">&para;</a></h2>
-<h3 id="structure">Structure<a class="headerlink" href="#structure" title="Permanent link">&para;</a></h3>
+<h3 id="full-format">Full Format<a class="headerlink" href="#full-format" title="Permanent link">&para;</a></h3>
 <p>Hierarchical naming format similar to URLs:</p>
 <ul>
 <li>Protocol prefix (mcp://, a2a://, acp://, https://)</li>
@@ -2126,6 +2124,19 @@
 <li>Fully qualified domain name for registry location</li>
 </ul>
 <p><strong>Design Principle</strong>: Self-describing names that encode protocol, capability, and version information.</p>
+<h3 id="simplified-format-registry-specific">Simplified Format (Registry-Specific)<a class="headerlink" href="#simplified-format-registry-specific" title="Permanent link">&para;</a></h3>
+<p>Some registries (like GoDaddy) use a simplified format:</p>
+<div class="highlight"><pre><span></span><code>protocol://version.host.domain
+</code></pre></div>
+<p>Example: <code>ans://v1.0.0.greeting.example.com</code></p>
+<ul>
+<li><strong>Protocol</strong>: Communication protocol (ans, a2a, etc.)</li>
+<li><strong>Version</strong>: Semantic version (v1.0.0)</li>
+<li><strong>Host</strong>: Fully qualified domain name</li>
+</ul>
+<p>This format is automatically detected and parsed. Default values are assigned:
+- Capability: <code>default</code>
+- Provider ID: <code>PID-0000</code></p>
 <h3 id="components">Components<a class="headerlink" href="#components" title="Permanent link">&para;</a></h3>
 <ol>
 <li>
@@ -2159,8 +2170,10 @@
 <li>
 <p><strong>Version</strong>: Semantic version (v1.2.3)</p>
 <ul>
+<li><strong>Required</strong> in all ANSName formats</li>
 <li>Enables compatibility negotiation</li>
 <li>Follows semantic versioning spec</li>
+<li>Used for FQDN extraction and parsing</li>
 </ul>
 </li>
 <li>
@@ -2168,6 +2181,7 @@
 <ul>
 <li>Registry location for agent records</li>
 <li>Leverages DNS infrastructure</li>
+<li>Extracted from ANSName components</li>
 </ul>
 </li>
 </ol>
@@ -2198,11 +2212,16 @@
 </ul>
 <p><strong>Extensibility</strong>: New protocols can be added by implementing protocol handlers without changing core resolution logic.</p>
 <h2 id="resolution-process">Resolution Process<a class="headerlink" href="#resolution-process" title="Permanent link">&para;</a></h2>
-<p>Per ANS Spec Section 4, resolution maps ANSName to endpoint:</p>
+<p>Per ANS specification, resolution maps ANSName to endpoint:</p>
 <ul>
-<li><strong>Input</strong>: ANSName, Optional Version Range</li>
+<li><strong>Input</strong>:<ul>
+<li>ANSName (must include valid version component)</li>
+<li>Optional Version Range (query parameter overrides ANSName version)</li>
+</ul>
+</li>
 <li><strong>Output</strong>: Verified endpoint with metadata</li>
 </ul>
+<p><strong>Note</strong>: The version in the ANSName is required for parsing and FQDN extraction. When a version query parameter is provided, it overrides the ANSName version for negotiation.</p>
 <h3 id="steps">Steps<a class="headerlink" href="#steps" title="Permanent link">&para;</a></h3>
 <ol>
 <li>
@@ -2433,7 +2452,6 @@
 <li>✅ ANS Spec Section 5: Version Negotiation</li>
 <li>✅ ANS Spec Section 6: Trust Verification</li>
 <li>✅ ANS Spec Section 7: Caching</li>
-<li>⏳ ANS Spec Section 8: Agent Registration (planned)</li>
 </ul>
 <h2 id="comparison-to-dns">Comparison to DNS<a class="headerlink" href="#comparison-to-dns" title="Permanent link">&para;</a></h2>
 <table>
@@ -2477,18 +2495,9 @@
 </tr>
 </tbody>
 </table>
-<h2 id="future-extensions">Future Extensions<a class="headerlink" href="#future-extensions" title="Permanent link">&para;</a></h2>
-<p>Planned features:</p>
-<ul>
-<li><strong>Agent Registration API</strong>: Self-service registration</li>
-<li><strong>Capability Search</strong>: Find agents by capability</li>
-<li><strong>Health Monitoring</strong>: Track agent availability</li>
-<li><strong>Usage Metrics</strong>: Track resolution patterns</li>
-<li><strong>Federation</strong>: Multi-registry support</li>
-</ul>
 <h2 id="reference">Reference<a class="headerlink" href="#reference" title="Permanent link">&para;</a></h2>
 <ul>
-<li>ANS Specification: [Link to spec PDF]</li>
+<li>ANS Specification: <a href="https://www.ietf.org/archive/id/draft-narajala-ans-00.html">Link to spec</a></li>
 <li>Semantic Versioning: https://semver.org/</li>
 <li>TLS Fingerprinting: RFC 6698</li>
 </ul>

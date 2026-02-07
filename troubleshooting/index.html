@@ -22,7 +22,7 @@
         
       
       
-      <link rel="icon" href="../assets/images/favicon.png">
+      <link rel="icon" href="../assets/logo.ico">
       <meta name="generator" content="mkdocs-1.5.3, mkdocs-material-9.7.1">
     
     
@@ -98,8 +98,7 @@
   <nav class="md-header__inner md-grid" aria-label="Header">
     <a href=".." title="Route ANS" class="md-header__button md-logo" aria-label="Route ANS" data-md-component="logo">
       
-  
-  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3 3 3 0 0 0 3 3m0 3.54C9.64 9.35 6.5 8 3 8v11c3.5 0 6.64 1.35 9 3.54 2.36-2.19 5.5-3.54 9-3.54V8c-3.5 0-6.64 1.35-9 3.54"/></svg>
+  <img src="../assets/logo.png" alt="logo">
 
     </a>
     <label class="md-header__button md-icon" for="__drawer">
@@ -236,8 +235,7 @@
   <label class="md-nav__title" for="__drawer">
     <a href=".." title="Route ANS" class="md-nav__button md-logo" aria-label="Route ANS" data-md-component="logo">
       
-  
-  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3 3 3 0 0 0 3 3m0 3.54C9.64 9.35 6.5 8 3 8v11c3.5 0 6.64 1.35 9 3.54 2.36-2.19 5.5-3.54 9-3.54V8c-3.5 0-6.64 1.35-9 3.54"/></svg>
+  <img src="../assets/logo.png" alt="logo">
 
     </a>
     Route ANS
@@ -2116,11 +2114,11 @@ dig<span class="w"> </span>TXT<span class="w"> </span>_ans.example.com
 <span class="p">}</span>
 </code></pre></div></p>
 <p><strong>Solutions:</strong>
-<div class="highlight"><pre><span></span><code><span class="c1"># 1. List available versions</span>
-curl<span class="w"> </span><span class="s2">&quot;http://localhost:8080/v1/agent/mcp://agent.PID-123.v1.0.0.example.com&quot;</span>
+<div class="highlight"><pre><span></span><code><span class="c1"># 1. Use wildcard for latest</span>
+curl<span class="w"> </span><span class="s2">&quot;http://localhost:8080/v1/resolve?name=mcp://agent.PID-123.v1.0.0.example.com&amp;version=*&quot;</span>
 
-<span class="c1"># 2. Use wildcard for latest</span>
-curl<span class="w"> </span><span class="s2">&quot;http://localhost:8080/v1/resolve?name=...&amp;version=*&quot;</span>
+<span class="c1"># 2. Try specific version</span>
+curl<span class="w"> </span><span class="s2">&quot;http://localhost:8080/v1/resolve?name=mcp://agent.PID-123.v1.0.0.example.com&amp;version=1.0.0&quot;</span>
 
 <span class="c1"># 3. Check version format</span>
 <span class="c1"># Valid: 1.0.0, ^1.0.0, ~1.2.0, &gt;=1.0.0, *</span>
@@ -2343,7 +2341,7 @@ diff<span class="w"> </span>configs/resolver.yaml<span class="w"> </span>configs
 docker<span class="w"> </span>logs<span class="w"> </span>ans-resolver
 
 <span class="c1"># 2. Run interactively</span>
-docker<span class="w"> </span>run<span class="w"> </span>-it<span class="w"> </span>--entrypoint<span class="w"> </span>sh<span class="w"> </span>ghcr.io/route-ans/resolver:latest
+docker<span class="w"> </span>run<span class="w"> </span>-it<span class="w"> </span>--entrypoint<span class="w"> </span>sh<span class="w"> </span>ghcr.io/route-ans/route-ans:latest
 
 <span class="c1"># 3. Check config mount</span>
 docker<span class="w"> </span>run<span class="w"> </span>-v<span class="w"> </span><span class="k">$(</span><span class="nb">pwd</span><span class="k">)</span>/configs:/configs<span class="w"> </span>...<span class="w"> </span>--config<span class="w"> </span>/configs/resolver.yaml
@@ -2357,7 +2355,7 @@ docker<span class="w"> </span>run<span class="w"> </span>--env-file<span class="
 <span class="nb">echo</span><span class="w"> </span><span class="nv">$GITHUB_TOKEN</span><span class="w"> </span><span class="p">|</span><span class="w"> </span>docker<span class="w"> </span>login<span class="w"> </span>ghcr.io<span class="w"> </span>-u<span class="w"> </span>USERNAME<span class="w"> </span>--password-stdin
 
 <span class="c1"># 2. Use specific tag</span>
-docker<span class="w"> </span>pull<span class="w"> </span>ghcr.io/route-ans/resolver:v1.0.0
+docker<span class="w"> </span>pull<span class="w"> </span>ghcr.io/route-ans/route-ans:1.0.0
 
 <span class="c1"># 3. Check image exists</span>
 curl<span class="w"> </span>https://ghcr.io/v2/route-ans/resolver/tags/list

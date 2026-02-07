@@ -23,97 +23,9 @@ const docTemplate = `{
     "host": "{{.Host}}",
     "basePath": "{{.BasePath}}",
     "paths": {
-        "/agent/{ansName}": {
-            "get": {
-                "description": "Returns detailed information about a specific agent",
-                "produces": [
-                    "application/json"
-                ],
-                "tags": [
-                    "Agents"
-                ],
-                "summary": "Get agent details",
-                "parameters": [
-                    {
-                        "type": "string",
-                        "description": "The ANSName of the agent",
-                        "name": "ansName",
-                        "in": "path",
-                        "required": true
-                    }
-                ],
-                "responses": {
-                    "200": {
-                        "description": "OK",
-                        "schema": {
-                            "$ref": "#/definitions/server.ResolutionResponse"
-                        }
-                    },
-                    "404": {
-                        "description": "Not Found",
-                        "schema": {
-                            "$ref": "#/definitions/server.ErrorResponse"
-                        }
-                    },
-                    "500": {
-                        "description": "Internal Server Error",
-                        "schema": {
-                            "$ref": "#/definitions/server.ErrorResponse"
-                        }
-                    }
-                }
-            }
-        },
-        "/agent/{ansName}/verify": {
-            "get": {
-                "description": "Performs cryptographic verification of an agent's registration",
-                "produces": [
-                    "application/json"
-                ],
-                "tags": [
-                    "Agents"
-                ],
-                "summary": "Verify an agent",
-                "parameters": [
-                    {
-                        "type": "string",
-                        "description": "The ANSName of the agent to verify",
-                        "name": "ansName",
-                        "in": "path",
-                        "required": true
-                    }
-                ],
-                "responses": {
-                    "200": {
-                        "description": "OK",
-                        "schema": {
-                            "$ref": "#/definitions/server.VerifyResponse"
-                        }
-                    },
-                    "400": {
-                        "description": "Bad Request",
-                        "schema": {
-                            "$ref": "#/definitions/server.ErrorResponse"
-                        }
-                    },
-                    "404": {
-                        "description": "Not Found",
-                        "schema": {
-                            "$ref": "#/definitions/server.ErrorResponse"
-                        }
-                    },
-                    "500": {
-                        "description": "Internal Server Error",
-                        "schema": {
-                            "$ref": "#/definitions/server.ErrorResponse"
-                        }
-                    }
-                }
-            }
-        },
         "/health": {
             "get": {
-                "description": "Returns the health status of the server",
+                "description": "Returns server health status and version. Use for liveness probes.",
                 "produces": [
                     "application/json"
                 ],
@@ -134,7 +46,7 @@ const docTemplate = `{
         },
         "/ready": {
             "get": {
-                "description": "Returns whether the server is ready to accept requests",
+                "description": "Checks if server can accept traffic by verifying registry connectivity. Use for readiness probes.",
                 "produces": [
                     "application/json"
                 ],
@@ -162,14 +74,14 @@ const docTemplate = `{
         },
         "/resolve": {
             "get": {
-                "description": "Resolves an ANSName identifier to its verified endpoint",
+                "description": "Resolves an ANSName to its verified endpoint with optional version negotiation. Performs cryptographic verification and caches results. Use this for agent discovery and connection establishment.",
                 "produces": [
                     "application/json"
                 ],
                 "tags": [
                     "Resolution"
                 ],
-                "summary": "Resolve an ANSName",
+                "summary": "Resolve ANSName to endpoint",
                 "parameters": [
                     {
                         "type": "string",
@@ -228,7 +140,7 @@ const docTemplate = `{
         },
         "/resolve/batch": {
             "post": {
-                "description": "Resolves multiple ANSName identifiers in a single request",
+                "description": "Resolves multiple ANSNames in parallel for efficiency. Returns results for all names, including errors. Use when discovering multiple agents simultaneously.",
                 "consumes": [
                     "application/json"
                 ],
@@ -238,7 +150,7 @@ const docTemplate = `{
                 "tags": [
                     "Resolution"
                 ],
-                "summary": "Batch resolve ANSNames",
+                "summary": "Batch resolve multiple ANSNames",
                 "parameters": [
                     {
                         "description": "Batch resolve request",
@@ -268,7 +180,7 @@ const docTemplate = `{
         },
         "/stats": {
             "get": {
-                "description": "Returns statistics about the resolver's operation",
+                "description": "Returns operational metrics including cache hit rates, queue depth, and resolution counts. Use for monitoring and observability.",
                 "produces": [
                     "application/json"
                 ],
@@ -295,36 +207,6 @@ const docTemplate = `{
         }
     },
     "definitions": {
-        "resolver.CheckResult": {
-            "type": "object",
-            "properties": {
-                "details": {
-                    "description": "Details contains additional check-specific details",
-                    "type": "object",
-                    "additionalProperties": true
-                },
-                "duration": {
-                    "description": "Duration is how long the check took (in nanoseconds)",
-                    "type": "integer"
-                },
-                "message": {
-                    "description": "Message contains a human-readable message",
-                    "type": "string"
-                },
-                "name": {
-                    "description": "Name is the check name",
-                    "type": "string"
-                },
-                "passed": {
-                    "description": "Passed indicates if the check passed",
-                    "type": "boolean"
-                },
-                "required": {
-                    "description": "Required indicates if this check is required for overall success",
-                    "type": "boolean"
-                }
-            }
-        },
         "server.BatchResolveRequest": {
             "type": "object",
             "properties": {
@@ -393,23 +275,6 @@ const docTemplate = `{
                     "type": "string"
                 }
             }
-        },
-        "server.VerifyResponse": {
-            "type": "object",
-            "properties": {
-                "checks": {
-                    "type": "object",
-                    "additionalProperties": {
-                        "$ref": "#/definitions/resolver.CheckResult"
-                    }
-                },
-                "valid": {
-                    "type": "boolean"
-                },
-                "verifiedAt": {
-                    "type": "string"
-                }
-            }
         }
     }
 }`
@@ -420,7 +285,7 @@ var SwaggerInfo = &swag.Spec{
 	Host:             "localhost:8080",
 	BasePath:         "/v1",
 	Schemes:          []string{"http", "https"},
-	Title:            "ANS Resolution Server API",
+	Title:            "Route ANS API",
 	Description:      "High-performance, cryptographically-verified resolution of ANSName identifiers to agent endpoints.",
 	InfoInstanceName: "swagger",
 	SwaggerTemplate:  docTemplate,

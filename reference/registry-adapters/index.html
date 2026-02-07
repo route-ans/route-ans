@@ -22,7 +22,7 @@
         
       
       
-      <link rel="icon" href="../../assets/images/favicon.png">
+      <link rel="icon" href="../../assets/logo.ico">
       <meta name="generator" content="mkdocs-1.5.3, mkdocs-material-9.7.1">
     
     
@@ -98,8 +98,7 @@
   <nav class="md-header__inner md-grid" aria-label="Header">
     <a href="../.." title="Route ANS" class="md-header__button md-logo" aria-label="Route ANS" data-md-component="logo">
       
-  
-  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3 3 3 0 0 0 3 3m0 3.54C9.64 9.35 6.5 8 3 8v11c3.5 0 6.64 1.35 9 3.54 2.36-2.19 5.5-3.54 9-3.54V8c-3.5 0-6.64 1.35-9 3.54"/></svg>
+  <img src="../../assets/logo.png" alt="logo">
 
     </a>
     <label class="md-header__button md-icon" for="__drawer">
@@ -236,8 +235,7 @@
   <label class="md-nav__title" for="__drawer">
     <a href="../.." title="Route ANS" class="md-nav__button md-logo" aria-label="Route ANS" data-md-component="logo">
       
-  
-  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3 3 3 0 0 0 3 3m0 3.54C9.64 9.35 6.5 8 3 8v11c3.5 0 6.64 1.35 9 3.54 2.36-2.19 5.5-3.54 9-3.54V8c-3.5 0-6.64 1.35-9 3.54"/></svg>
+  <img src="../../assets/logo.png" alt="logo">
 
     </a>
     Route ANS
@@ -1861,19 +1859,40 @@
 <span class="nb">export</span><span class="w"> </span><span class="nv">GODADDY_SECRET</span><span class="o">=</span>your_secret
 </code></pre></div>
 <h3 id="api-endpoints">API Endpoints<a class="headerlink" href="#api-endpoints" title="Permanent link">&para;</a></h3>
-<div class="highlight"><pre><span></span><code>GET /v1/domains/{domain}/records/TXT/_ans
-POST /v1/domains/{domain}/records
-PUT /v1/domains/{domain}/records/TXT/_ans
-DELETE /v1/domains/{domain}/records/TXT/_ans/{id}
-</code></pre></div>
-<h3 id="record-format">Record Format<a class="headerlink" href="#record-format" title="Permanent link">&para;</a></h3>
+<p><strong>Resolution:</strong>
+<div class="highlight"><pre><span></span><code>POST /v1/agents/resolution
+</code></pre></div></p>
+<p>Request body:
 <div class="highlight"><pre><span></span><code><span class="p">{</span>
-<span class="w">  </span><span class="nt">&quot;type&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;TXT&quot;</span><span class="p">,</span>
-<span class="w">  </span><span class="nt">&quot;name&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;_ans&quot;</span><span class="p">,</span>
-<span class="w">  </span><span class="nt">&quot;data&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;{\&quot;ans_name\&quot;:\&quot;mcp://test.PID-123.v1.0.0.example.com\&quot;,\&quot;endpoint\&quot;:\&quot;https://agent.example.com:8443\&quot;,\&quot;cert_fingerprint\&quot;:\&quot;SHA256:abc123\&quot;,\&quot;expires_at\&quot;:\&quot;2025-01-15T00:00:00Z\&quot;}&quot;</span><span class="p">,</span>
-<span class="w">  </span><span class="nt">&quot;ttl&quot;</span><span class="p">:</span><span class="w"> </span><span class="mi">3600</span>
+<span class="w">  </span><span class="nt">&quot;agentHost&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;greeting.example.com&quot;</span><span class="p">,</span>
+<span class="w">  </span><span class="nt">&quot;version&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;1.0.0&quot;</span>
+<span class="p">}</span>
+</code></pre></div></p>
+<p>Response (200):
+<div class="highlight"><pre><span></span><code><span class="p">{</span>
+<span class="w">  </span><span class="nt">&quot;ansName&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;ans://v1.0.0.greeting.example.com&quot;</span><span class="p">,</span>
+<span class="w">  </span><span class="nt">&quot;links&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">[</span>
+<span class="w">    </span><span class="p">{</span>
+<span class="w">      </span><span class="nt">&quot;rel&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;agent-details&quot;</span><span class="p">,</span>
+<span class="w">      </span><span class="nt">&quot;href&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;https://api.godaddy.com/v1/agents/{agentId}&quot;</span>
+<span class="w">    </span><span class="p">}</span>
+<span class="w">  </span><span class="p">]</span>
+<span class="p">}</span>
+</code></pre></div></p>
+<p><strong>Version Negotiation:</strong></p>
+<p>GoDaddy supports semantic version ranges:</p>
+<div class="highlight"><pre><span></span><code><span class="p">{</span>
+<span class="w">  </span><span class="nt">&quot;agentHost&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;greeting.example.com&quot;</span><span class="p">,</span>
+<span class="w">  </span><span class="nt">&quot;version&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;^1.0.0&quot;</span>
 <span class="p">}</span>
 </code></pre></div>
+<p>Supported ranges: <code>*</code>, <code>^1.0.0</code>, <code>~1.2.3</code>, <code>&gt;=1.0.0</code>, exact versions</p>
+<p>GoDaddy's API automatically selects the best matching version.</p>
+<p><strong>Agent Details:</strong>
+<div class="highlight"><pre><span></span><code>GET /v1/agents/{agentId}
+</code></pre></div></p>
+<h3 id="record-format">Record Format<a class="headerlink" href="#record-format" title="Permanent link">&para;</a></h3>
+<p>Response includes agent metadata, endpoint, and certificate information retrieved through linked resources.</p>
 <h3 id="error-handling">Error Handling<a class="headerlink" href="#error-handling" title="Permanent link">&para;</a></h3>
 <table>
 <thead>
@@ -1886,13 +1905,23 @@ DELETE /v1/domains/{domain}/records/TXT/_ans/{id}
 <tbody>
 <tr>
 <td>401</td>
-<td>Unauthorized</td>
+<td>Authentication failed</td>
 <td>Check API credentials</td>
 </tr>
 <tr>
+<td>403</td>
+<td>Authorization failed</td>
+<td>Verify API permissions</td>
+</tr>
+<tr>
 <td>404</td>
-<td>Domain not found</td>
-<td>Verify domain ownership</td>
+<td>Agent not found</td>
+<td>Agent not registered</td>
+</tr>
+<tr>
+<td>422</td>
+<td>Invalid request</td>
+<td>Check agentHost and version format</td>
 </tr>
 <tr>
 <td>429</td>

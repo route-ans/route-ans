@@ -22,7 +22,7 @@
         
       
       
-      <link rel="icon" href="../assets/images/favicon.png">
+      <link rel="icon" href="../assets/logo.ico">
       <meta name="generator" content="mkdocs-1.5.3, mkdocs-material-9.7.1">
     
     
@@ -98,8 +98,7 @@
   <nav class="md-header__inner md-grid" aria-label="Header">
     <a href=".." title="Route ANS" class="md-header__button md-logo" aria-label="Route ANS" data-md-component="logo">
       
-  
-  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3 3 3 0 0 0 3 3m0 3.54C9.64 9.35 6.5 8 3 8v11c3.5 0 6.64 1.35 9 3.54 2.36-2.19 5.5-3.54 9-3.54V8c-3.5 0-6.64 1.35-9 3.54"/></svg>
+  <img src="../assets/logo.png" alt="logo">
 
     </a>
     <label class="md-header__button md-icon" for="__drawer">
@@ -236,8 +235,7 @@
   <label class="md-nav__title" for="__drawer">
     <a href=".." title="Route ANS" class="md-nav__button md-logo" aria-label="Route ANS" data-md-component="logo">
       
-  
-  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3 3 3 0 0 0 3 3m0 3.54C9.64 9.35 6.5 8 3 8v11c3.5 0 6.64 1.35 9 3.54 2.36-2.19 5.5-3.54 9-3.54V8c-3.5 0-6.64 1.35-9 3.54"/></svg>
+  <img src="../assets/logo.png" alt="logo">
 
     </a>
     Route ANS
@@ -780,6 +778,17 @@
     <span class="md-ellipsis">
       
         queue - Queue Configuration
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#queueredis-streams-redis-streams-configuration" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        queue.redis-streams - Redis Streams Configuration
       
     </span>
   </a>
@@ -1707,6 +1716,17 @@
 </li>
         
           <li class="md-nav__item">
+  <a href="#queueredis-streams-redis-streams-configuration" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        queue.redis-streams - Redis Streams Configuration
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
   <a href="#store-data-store-configuration" class="md-nav__link">
     <span class="md-ellipsis">
       
@@ -1902,9 +1922,9 @@
 <ul>
 <li><strong>🟢 <a href="#server-server-configuration">Server Configuration</a></strong> - HTTP server settings</li>
 <li><strong>🟢 <a href="#cache-cache-configuration">Cache Configuration</a></strong> - Memory/Redis cache providers</li>
-<li><strong>🟡 <a href="#queue-queue-configuration">Queue Configuration</a></strong> - Event processing (disabled by default)</li>
+<li><strong>🟢 <a href="#queue-queue-configuration">Queue Configuration</a></strong> - Event processing for registry emitted events</li>
 <li><strong>🟢 <a href="#registries-registry-adapters">Registry Configuration</a></strong> - GoDaddy and mock registries</li>
-<li><strong>🟢 <a href="#trust-trust-and-verification">Trust/Verification</a></strong> - Security and verification settings</li>
+<li><strong>🔴 <a href="#trust-trust-and-verification">Trust/Verification</a></strong> - Security and verification settings (awaiting registry support)</li>
 <li><strong>🟢 <a href="#ratelimit-rate-limiting">Rate Limiting</a></strong> - API rate limiting</li>
 <li><strong>🟢 <a href="#telemetry-telemetry-configuration">Telemetry</a></strong> - Logging, metrics, tracing</li>
 <li><strong>🟢 <a href="#environment-variables">Environment Variables</a></strong> - Variable substitution guide</li>
@@ -2325,13 +2345,9 @@
 </ul>
 <hr />
 <h3 id="queue-queue-configuration"><code>queue</code> - Queue Configuration<a class="headerlink" href="#queue-queue-configuration" title="Permanent link">&para;</a></h3>
-<p>🟡 <strong>Status:</strong> Partial - Event Processor Ready, No Event Sources<br />
+<p>🟢 <strong>Status:</strong> Fully Implemented<br />
 <strong>Type:</strong> Object<br />
 <strong>Required:</strong> Yes</p>
-<div class="admonition warning">
-<p class="admonition-title">Limited Functionality</p>
-<p>The queue event processor can handle registry events for cache invalidation. However, <strong>GoDaddy registry doesn't emit events</strong>, so there's nothing to consume. Useful for testing or future registries that support webhooks/event streams. Disabled by default.</p>
-</div>
 <p>Message queue configuration for handling asynchronous registry events.</p>
 <table>
 <thead>
@@ -2349,69 +2365,190 @@
 <td>bool</td>
 <td><strong>false</strong></td>
 <td>Enable/disable queue event processing</td>
-<td>🟡 ⚠️ Disabled by default</td>
+<td>🟢 ⚠️ Disabled by default</td>
 </tr>
 <tr>
 <td><code>provider</code></td>
 <td>string</td>
 <td>memory</td>
-<td>Queue provider: <code>memory</code> (works), <code>redis-streams</code> (config only)</td>
-<td>🟡</td>
+<td>Queue provider: <code>memory</code>, <code>redis-streams</code></td>
+<td>🟢</td>
 </tr>
 <tr>
 <td><code>bufferSize</code></td>
 <td>int</td>
 <td>1000</td>
-<td>Buffer size for in-memory queue</td>
-<td>🟡</td>
+<td>Buffer size for in-memory queue (memory provider)</td>
+<td>🟢</td>
 </tr>
 <tr>
 <td><code>redis-streams</code></td>
 <td>RedisStreamsConfig</td>
 <td>-</td>
-<td>Redis Streams settings</td>
-<td>🟡 Config only</td>
+<td>Redis Streams settings (redis-streams provider)</td>
+<td>🟢</td>
 </tr>
 </tbody>
 </table>
 <p><strong>What it does when enabled:</strong></p>
 <ol>
-<li><strong>Cache invalidation</strong> - Automatically invalidates cache when registry events arrive</li>
-<li><strong>Event processing</strong> - Handles registered, renewed, revoked, deprecated, expired events</li>
-<li><strong>Metrics tracking</strong> - Records queue statistics (processed, failed, pending)</li>
-<li><strong>Background processing</strong> - Async event handling without blocking resolution</li>
+<li><strong>Poll registry events</strong> - Periodically fetch events from registry event endpoint</li>
+<li><strong>Cache invalidation</strong> - Automatically invalidate cache when registry events arrive</li>
+<li><strong>Event processing</strong> - Handle registered, renewed, revoked, deprecated, expired events</li>
+<li><strong>Cursor-based pagination</strong> - Track cursor position to resume from last processed event</li>
+<li><strong>Metrics tracking</strong> - Record queue statistics (processed, failed, pending)</li>
 </ol>
-<p>⚠️ <strong>Important:</strong> GoDaddy registry doesn't currently emit events. The queue will run but have nothing to process until you:
-- Implement a custom event source
-- Use a different registry that supports webhooks/event streams
-- Manually publish test events to the queue</p>
-<p><strong>Event Types Processed:</strong></p>
+<p><strong>Registry-Specific Implementation:</strong></p>
+<p><em>GoDaddy Registry:</em></p>
 <ul>
-<li><code>registered</code> - Cache invalidated, metrics recorded</li>
-<li><code>renewed</code> - Cache invalidated for fresh lookup</li>
-<li><code>revoked</code> - Cache entry removed immediately</li>
-<li><code>deprecated</code> - Cache entry removed</li>
-<li><code>expired</code> - Cache entry removed</li>
+<li>Endpoint: <code>GET /v1/agents/events</code></li>
+<li>Polling interval: 10 seconds</li>
+<li>Pagination: Cursor-based via <code>lastLogId</code> parameter</li>
+<li>Batch size: 100 events per request</li>
+<li>Event retention: 30 days</li>
+<li>Authentication: SSO-Key credentials</li>
 </ul>
+<p><strong>Event Types Supported:</strong></p>
+<ul>
+<li><code>registered</code> - New agent registered, invalidate cache</li>
+<li><code>renewed</code> - Agent renewed, refresh cache entry</li>
+<li><code>revoked</code> - Agent revoked, remove from cache immediately</li>
+<li><code>deprecated</code> - Agent deprecated, remove from cache</li>
+<li><code>expired</code> - Agent expired, remove from cache</li>
+<li><code>updated</code> - Agent metadata updated, invalidate cache</li>
+</ul>
+<p><em>Note: Registry-specific event names (e.g., GoDaddy's <code>AGENT_REGISTERED</code>) are automatically mapped to internal event types.</em></p>
 <p><strong>Default Configuration (Disabled):</strong>
 <div class="highlight"><pre><span></span><code><span class="nt">queue</span><span class="p">:</span>
-<span class="w">  </span><span class="nt">enabled</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">false</span><span class="w">      </span><span class="c1"># No overhead when disabled</span>
-<span class="w">  </span><span class="nt">provider</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">memory</span><span class="w">    </span><span class="c1"># Use in-memory queue for testing</span>
+<span class="w">  </span><span class="nt">enabled</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">false</span><span class="w">      </span><span class="c1"># Enable to start polling registry events</span>
+<span class="w">  </span><span class="nt">provider</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">memory</span>
 <span class="w">  </span><span class="nt">bufferSize</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">1000</span>
 </code></pre></div></p>
-<p><strong>When to enable:</strong></p>
+<p><strong>Enable for production:</strong>
+<div class="highlight"><pre><span></span><code><span class="nt">queue</span><span class="p">:</span>
+<span class="w">  </span><span class="nt">enabled</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">true</span><span class="w">       </span><span class="c1"># Start polling registry events</span>
+<span class="w">  </span><span class="nt">provider</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">memory</span><span class="w">    </span><span class="c1"># Or redis-streams for distributed processing</span>
+<span class="w">  </span><span class="nt">bufferSize</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">1000</span>
+</code></pre></div></p>
+<p><strong>Use cases:</strong></p>
 <ul>
-<li>Registry provides event webhooks or SSE streams</li>
-<li>Running multiple resolver instances needing cache coordination</li>
-<li>Using Redis Streams for distributed event processing</li>
-<li>Need metrics on registry event activity</li>
+<li>Automatic cache invalidation when agents are updated/revoked</li>
+<li>Real-time synchronization with registry changes</li>
+<li>Metrics on registry event activity</li>
+<li>Multi-resolver deployments needing cache coordination</li>
 </ul>
-<p><strong>Enable for testing:</strong>
+<hr />
+<h3 id="queueredis-streams-redis-streams-configuration"><code>queue.redis-streams</code> - Redis Streams Configuration<a class="headerlink" href="#queueredis-streams-redis-streams-configuration" title="Permanent link">&para;</a></h3>
+<p>🟢 <strong>Status:</strong> Fully Implemented<br />
+<strong>Type:</strong> Object<br />
+<strong>Used when:</strong> <code>queue.provider: redis-streams</code></p>
+<p>Redis Streams configuration for distributed event processing across multiple resolver instances.</p>
+<table>
+<thead>
+<tr>
+<th>Field</th>
+<th>Type</th>
+<th>Default</th>
+<th>Description</th>
+<th>Status</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>address</code></td>
+<td>string</td>
+<td>localhost:6379</td>
+<td>Redis server address (host:port)</td>
+<td>🟢</td>
+</tr>
+<tr>
+<td><code>password</code></td>
+<td>string</td>
+<td>""</td>
+<td>Redis authentication password</td>
+<td>🟢</td>
+</tr>
+<tr>
+<td><code>db</code></td>
+<td>int</td>
+<td>0</td>
+<td>Redis database number (0-15)</td>
+<td>🟢</td>
+</tr>
+<tr>
+<td><code>stream</code></td>
+<td>string</td>
+<td>ans:events</td>
+<td>Redis stream name for events</td>
+<td>🟢</td>
+</tr>
+<tr>
+<td><code>consumerGroup</code></td>
+<td>string</td>
+<td>resolver-group</td>
+<td>Consumer group name</td>
+<td>🟢</td>
+</tr>
+<tr>
+<td><code>consumer</code></td>
+<td>string</td>
+<td>resolver-1</td>
+<td>This consumer's unique name</td>
+<td>🟢</td>
+</tr>
+<tr>
+<td><code>blockTimeout</code></td>
+<td>duration</td>
+<td>5s</td>
+<td>Max time to block waiting for events</td>
+<td>🟢</td>
+</tr>
+<tr>
+<td><code>batchSize</code></td>
+<td>int</td>
+<td>10</td>
+<td>Max events to fetch per batch</td>
+<td>🟢</td>
+</tr>
+</tbody>
+</table>
+<p><strong>Example:</strong>
 <div class="highlight"><pre><span></span><code><span class="nt">queue</span><span class="p">:</span>
 <span class="w">  </span><span class="nt">enabled</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">true</span>
-<span class="w">  </span><span class="nt">provider</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">memory</span>
-<span class="w">  </span><span class="nt">bufferSize</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">100</span>
+<span class="w">  </span><span class="nt">provider</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">redis-streams</span>
+<span class="w">  </span><span class="nt">redis-streams</span><span class="p">:</span>
+<span class="w">    </span><span class="nt">address</span><span class="p">:</span><span class="w"> </span><span class="s">&quot;${REDIS_ADDRESS:localhost:6379}&quot;</span>
+<span class="w">    </span><span class="nt">password</span><span class="p">:</span><span class="w"> </span><span class="s">&quot;${REDIS_PASSWORD:}&quot;</span>
+<span class="w">    </span><span class="nt">db</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">0</span>
+<span class="w">    </span><span class="nt">stream</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">ans:events</span>
+<span class="w">    </span><span class="nt">consumerGroup</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">resolver-group</span>
+<span class="w">    </span><span class="nt">consumer</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">resolver-1</span>
+<span class="w">    </span><span class="nt">blockTimeout</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">5s</span>
+<span class="w">    </span><span class="nt">batchSize</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">10</span>
 </code></pre></div></p>
+<p><strong>How it works:</strong></p>
+<ol>
+<li><strong>Redis Streams</strong> - Uses native Redis Streams (XREADGROUP/XADD) for event distribution</li>
+<li><strong>Consumer Groups</strong> - Multiple resolvers join same consumer group for load balancing</li>
+<li><strong>Acknowledgment</strong> - Events are acknowledged after successful processing</li>
+<li><strong>Pending tracking</strong> - Failed events remain pending for retry</li>
+<li><strong>Stats available</strong> - Tracks processed, failed, pending, and consumer lag</li>
+</ol>
+<p><strong>When to use Redis Streams:</strong></p>
+<ul>
+<li>Running multiple resolver instances</li>
+<li>Need distributed event processing across instances</li>
+<li>Want event persistence and replay capability</li>
+<li>Require guaranteed event delivery with acks</li>
+<li>Need metrics on consumer lag and pending events</li>
+</ul>
+<p><strong>Performance tuning:</strong></p>
+<ul>
+<li>Increase <code>batchSize</code> for higher throughput (up to 100)</li>
+<li>Adjust <code>blockTimeout</code> based on event frequency</li>
+<li>Use separate Redis instance from cache for isolation</li>
+<li>Monitor consumer lag via Stats endpoint</li>
+</ul>
 <hr />
 <h3 id="store-data-store-configuration"><code>store</code> - Data Store Configuration<a class="headerlink" href="#store-data-store-configuration" title="Permanent link">&para;</a></h3>
 <h3 id="registries-registry-adapters"><code>registries</code> - Registry Adapters<a class="headerlink" href="#registries-registry-adapters" title="Permanent link">&para;</a></h3>
@@ -2419,13 +2556,13 @@
 <strong>Type:</strong> Array of RegistryConfig<br />
 <strong>Required:</strong> Yes (at least one)</p>
 <div class="admonition success">
-<p class="admonition-title">Working Registries</p>
+<p class="admonition-title">Supported Registries</p>
 <ul>
-<li>✅ <strong>GoDaddy</strong> - Fully functional, production-ready</li>
-<li>✅ <strong>Mock</strong> - For testing/development</li>
+<li>✅ <strong>GoDaddy</strong> - Production registry, fully functional</li>
+<li>✅ <strong>Mock</strong> - Testing/development registry with configurable responses</li>
 </ul>
 </div>
-<p>Configures connections to ANS registries where agents are registered.</p>
+<p>Configures connections to ANS registries where agents are registered. The resolver supports multiple registries with priority-based fallback.</p>
 <table>
 <thead>
 <tr>
@@ -2556,8 +2693,13 @@ You can configure multiple registries with different priorities. The resolver wi
 <p><strong>Get credentials:</strong> https://developer.godaddy.com/keys</p>
 <hr />
 <h3 id="trust-trust-and-verification"><code>trust</code> - Trust and Verification<a class="headerlink" href="#trust-trust-and-verification" title="Permanent link">&para;</a></h3>
-<p><strong>Type:</strong> Object<br />
+<p>🔴 <strong>Status:</strong> Future - Awaiting Registry Support<br />
+<strong>Type:</strong> Object<br />
 <strong>Required:</strong> Yes</p>
+<div class="admonition info">
+<p class="admonition-title">Registry Support Required</p>
+<p>Trust verification code is implemented but <strong>cannot be used</strong> because registries must include certificate fingerprints in resolution responses. Currently, no supported registries provide this data. Will be available once registry implementations are updated.</p>
+</div>
 <table>
 <thead>
 <tr>
@@ -2596,11 +2738,10 @@ You can configure multiple registries with different priorities. The resolver wi
 <div class="highlight"><pre><span></span><code><span class="nt">trust</span><span class="p">:</span>
 <span class="w">  </span><span class="nt">provider</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">file</span>
 <span class="w">  </span><span class="nt">verification</span><span class="p">:</span>
-<span class="w">    </span><span class="nt">enabled</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">true</span>
-<span class="w">    </span><span class="nt">mode</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">permissive</span>
-<span class="w">    </span><span class="nt">requireSignature</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">true</span>
-<span class="w">    </span><span class="nt">requireMerkleProof</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">false</span>
-<span class="w">    </span><span class="nt">checkRevocation</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">true</span>
+<span class="w">    </span><span class="nt">enabled</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">false</span><span class="w">             </span><span class="c1"># Disabled: awaiting registry support for fingerprints</span>
+<span class="w">    </span><span class="nt">requireSignature</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">false</span><span class="w">    </span><span class="c1"># GoDaddy doesn&#39;t sign responses yet</span>
+<span class="w">    </span><span class="nt">requireMerkleProof</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">false</span><span class="w">  </span><span class="c1"># Future feature</span>
+<span class="w">    </span><span class="nt">checkRevocation</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">false</span><span class="w">     </span><span class="c1"># Disabled by default</span>
 </code></pre></div></p>
 <hr />
 <h3 id="trustverification-verification-settings"><code>trust.verification</code> - Verification Settings<a class="headerlink" href="#trustverification-verification-settings" title="Permanent link">&para;</a></h3>
@@ -2619,23 +2760,16 @@ You can configure multiple registries with different priorities. The resolver wi
 <tr>
 <td><code>enabled</code></td>
 <td>bool</td>
-<td>true</td>
-<td>Enable trust verification</td>
-<td>🟢</td>
-</tr>
-<tr>
-<td><code>mode</code></td>
-<td>string</td>
-<td>permissive</td>
-<td>Mode: <code>strict</code>, <code>permissive</code>, <code>disabled</code></td>
-<td>🟢</td>
+<td><strong>false</strong></td>
+<td>Enable trust verification (see note above)</td>
+<td>🔴 Future</td>
 </tr>
 <tr>
 <td><code>requireSignature</code></td>
 <td>bool</td>
-<td>true</td>
-<td>Require registry signature</td>
-<td>🟢</td>
+<td>false</td>
+<td>Require registry signature on responses</td>
+<td>🔴 Future</td>
 </tr>
 <tr>
 <td><code>requireMerkleProof</code></td>
@@ -2647,40 +2781,21 @@ You can configure multiple registries with different priorities. The resolver wi
 <tr>
 <td><code>checkRevocation</code></td>
 <td>bool</td>
-<td>true</td>
-<td>Check certificate revocation</td>
-<td>🟢</td>
-</tr>
-<tr>
-<td><code>allowExpiredGracePeriod</code></td>
-<td>duration</td>
-<td>24h</td>
-<td>Grace period for expired certs</td>
-<td>🟢</td>
-</tr>
-<tr>
-<td><code>ocsp</code></td>
-<td>OCSPConfig</td>
-<td>-</td>
-<td>OCSP settings</td>
-<td>🟢</td>
-</tr>
-<tr>
-<td><code>crl</code></td>
-<td>CRLConfig</td>
-<td>-</td>
-<td>CRL settings</td>
-<td>🟢</td>
+<td>false</td>
+<td>Check certificate revocation via OCSP/CRL</td>
+<td>🔴 Future</td>
 </tr>
 </tbody>
 </table>
-<p><strong>Modes:</strong></p>
-<ul>
-<li><code>strict</code> - All checks must pass, fail on error</li>
-<li><code>permissive</code> - Log failures but continue</li>
-<li><code>disabled</code> - Skip all verification (NOT ANS compliant)</li>
-</ul>
-<p><strong>⚠️ Security Warning:</strong> Only use <code>enabled: false</code> or <code>mode: disabled</code> for development/testing!</p>
+<p><strong>How it works:</strong></p>
+<ol>
+<li>Registry provides certificate fingerprint in resolution response</li>
+<li>Resolver connects to agent endpoint via TLS</li>
+<li>Calculates SHA-256 fingerprint of presented certificate</li>
+<li>Compares with registry's fingerprint (prevents MITM attacks)</li>
+</ol>
+<p><strong>Current limitation:</strong> Registries must include fingerprints in resolution responses for this to work. Some registries provide certificates via separate API endpoints, but trust verification requires fingerprints embedded in the resolution response itself.</p>
+<p>See <a href="../reference/trust-verification/">Trust Verification Reference</a> for algorithm details.</p>
 <hr />
 <h3 id="ratelimit-rate-limiting"><code>rateLimit</code> - Rate Limiting<a class="headerlink" href="#ratelimit-rate-limiting" title="Permanent link">&para;</a></h3>
 <p><strong>Type:</strong> Object</p>

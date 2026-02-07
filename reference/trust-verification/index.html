@@ -20,7 +20,7 @@
         
       
       
-      <link rel="icon" href="../../assets/images/favicon.png">
+      <link rel="icon" href="../../assets/logo.ico">
       <meta name="generator" content="mkdocs-1.5.3, mkdocs-material-9.7.1">
     
     
@@ -96,8 +96,7 @@
   <nav class="md-header__inner md-grid" aria-label="Header">
     <a href="../.." title="Route ANS" class="md-header__button md-logo" aria-label="Route ANS" data-md-component="logo">
       
-  
-  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3 3 3 0 0 0 3 3m0 3.54C9.64 9.35 6.5 8 3 8v11c3.5 0 6.64 1.35 9 3.54 2.36-2.19 5.5-3.54 9-3.54V8c-3.5 0-6.64 1.35-9 3.54"/></svg>
+  <img src="../../assets/logo.png" alt="logo">
 
     </a>
     <label class="md-header__button md-icon" for="__drawer">
@@ -234,8 +233,7 @@
   <label class="md-nav__title" for="__drawer">
     <a href="../.." title="Route ANS" class="md-nav__button md-logo" aria-label="Route ANS" data-md-component="logo">
       
-  
-  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3 3 3 0 0 0 3 3m0 3.54C9.64 9.35 6.5 8 3 8v11c3.5 0 6.64 1.35 9 3.54 2.36-2.19 5.5-3.54 9-3.54V8c-3.5 0-6.64 1.35-9 3.54"/></svg>
+  <img src="../../assets/logo.png" alt="logo">
 
     </a>
     Route ANS
@@ -1293,6 +1291,17 @@
 </li>
       
         <li class="md-nav__item">
+  <a href="#verification-algorithm" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Verification Algorithm
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
   <a href="#interface-definition" class="md-nav__link">
     <span class="md-ellipsis">
       
@@ -1829,6 +1838,17 @@
 </li>
       
         <li class="md-nav__item">
+  <a href="#verification-algorithm" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Verification Algorithm
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
   <a href="#interface-definition" class="md-nav__link">
     <span class="md-ellipsis">
       
@@ -2334,7 +2354,17 @@
 <h1 id="trust-verification-reference">Trust Verification Reference<a class="headerlink" href="#trust-verification-reference" title="Permanent link">&para;</a></h1>
 <p>Complete reference for certificate verification and trust management.</p>
 <h2 id="overview">Overview<a class="headerlink" href="#overview" title="Permanent link">&para;</a></h2>
-<p>Trust verification validates agent certificates to ensure secure communication. This implements Step 6 of the ANS specification.</p>
+<p>Trust verification validates agent certificates to ensure secure communication.</p>
+<h2 id="verification-algorithm">Verification Algorithm<a class="headerlink" href="#verification-algorithm" title="Permanent link">&para;</a></h2>
+<p><strong>Step 1: Resolve</strong> - Get endpoint and certificate fingerprint from registry<br />
+<strong>Step 2: Connect</strong> - TLS handshake with agent endpoint<br />
+<strong>Step 3: Extract</strong> - Get peer certificate from connection<br />
+<strong>Step 4: Calculate</strong> - SHA-256 hash of certificate DER bytes<br />
+<strong>Step 5: Compare</strong> - Match calculated fingerprint with registry's fingerprint<br />
+<strong>Step 6: Validate</strong> - Check expiry, revocation (if enabled), and signature  </p>
+<p><strong>Trust anchor:</strong> Agent Registry (similar to SSH host key verification)<br />
+<strong>Protection:</strong> Prevents MITM attacks via certificate pinning</p>
+<p><strong>Current Status:</strong> Implementation complete, disabled by default (awaiting registry support for fingerprints in resolution responses)</p>
 <h2 id="interface-definition">Interface Definition<a class="headerlink" href="#interface-definition" title="Permanent link">&para;</a></h2>
 <div class="highlight"><pre><span></span><code><span class="kd">type</span><span class="w"> </span><span class="nx">Verifier</span><span class="w"> </span><span class="kd">interface</span><span class="w"> </span><span class="p">{</span>
 <span class="w">    </span><span class="c1">// Verify agent certificate matches expected fingerprint</span>

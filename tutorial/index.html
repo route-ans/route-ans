@@ -22,7 +22,7 @@
         
       
       
-      <link rel="icon" href="../assets/images/favicon.png">
+      <link rel="icon" href="../assets/logo.ico">
       <meta name="generator" content="mkdocs-1.5.3, mkdocs-material-9.7.1">
     
     
@@ -98,8 +98,7 @@
   <nav class="md-header__inner md-grid" aria-label="Header">
     <a href=".." title="Route ANS" class="md-header__button md-logo" aria-label="Route ANS" data-md-component="logo">
       
-  
-  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3 3 3 0 0 0 3 3m0 3.54C9.64 9.35 6.5 8 3 8v11c3.5 0 6.64 1.35 9 3.54 2.36-2.19 5.5-3.54 9-3.54V8c-3.5 0-6.64 1.35-9 3.54"/></svg>
+  <img src="../assets/logo.png" alt="logo">
 
     </a>
     <label class="md-header__button md-icon" for="__drawer">
@@ -236,8 +235,7 @@
   <label class="md-nav__title" for="__drawer">
     <a href=".." title="Route ANS" class="md-nav__button md-logo" aria-label="Route ANS" data-md-component="logo">
       
-  
-  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3 3 3 0 0 0 3 3m0 3.54C9.64 9.35 6.5 8 3 8v11c3.5 0 6.64 1.35 9 3.54 2.36-2.19 5.5-3.54 9-3.54V8c-3.5 0-6.64 1.35-9 3.54"/></svg>
+  <img src="../assets/logo.png" alt="logo">
 
     </a>
     Route ANS
@@ -883,28 +881,6 @@
     <span class="md-ellipsis">
       
         Task: Invalidate Cache
-      
-    </span>
-  </a>
-  
-</li>
-        
-          <li class="md-nav__item">
-  <a href="#task-get-agent-details" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        Task: Get Agent Details
-      
-    </span>
-  </a>
-  
-</li>
-        
-          <li class="md-nav__item">
-  <a href="#task-explicit-verification" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        Task: Explicit Verification
       
     </span>
   </a>
@@ -2275,28 +2251,6 @@
   
 </li>
         
-          <li class="md-nav__item">
-  <a href="#task-get-agent-details" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        Task: Get Agent Details
-      
-    </span>
-  </a>
-  
-</li>
-        
-          <li class="md-nav__item">
-  <a href="#task-explicit-verification" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        Task: Explicit Verification
-      
-    </span>
-  </a>
-  
-</li>
-        
       </ul>
     </nav>
   
@@ -2639,12 +2593,6 @@ ans_resolver_cache_hits_total 28
 <h3 id="task-invalidate-cache">Task: Invalidate Cache<a class="headerlink" href="#task-invalidate-cache" title="Permanent link">&para;</a></h3>
 <div class="highlight"><pre><span></span><code><span class="c1"># Invalidate specific agent</span>
 curl<span class="w"> </span>-X<span class="w"> </span>DELETE<span class="w"> </span><span class="s2">&quot;http://localhost:8080/v1/cache?name=mcp://agent.PID-123.v1.0.0.example.com&quot;</span>
-</code></pre></div>
-<h3 id="task-get-agent-details">Task: Get Agent Details<a class="headerlink" href="#task-get-agent-details" title="Permanent link">&para;</a></h3>
-<div class="highlight"><pre><span></span><code>curl<span class="w"> </span><span class="s2">&quot;http://localhost:8080/v1/agent/mcp://agent.PID-123.v1.0.0.example.com&quot;</span>
-</code></pre></div>
-<h3 id="task-explicit-verification">Task: Explicit Verification<a class="headerlink" href="#task-explicit-verification" title="Permanent link">&para;</a></h3>
-<div class="highlight"><pre><span></span><code>curl<span class="w"> </span><span class="s2">&quot;http://localhost:8080/v1/agent/mcp://agent.PID-123.v1.0.0.example.com/verify&quot;</span>
 </code></pre></div>
 <h2 id="troubleshooting">Troubleshooting<a class="headerlink" href="#troubleshooting" title="Permanent link">&para;</a></h2>
 <h3 id="issue-connection-refused">Issue: Connection Refused<a class="headerlink" href="#issue-connection-refused" title="Permanent link">&para;</a></h3>
