@@ -3,7 +3,7 @@ module github.com/route-ans/route-ans
 go 1.23.0
 
 require (
-	github.com/go-chi/chi/v5 v5.0.10
+	github.com/go-chi/chi/v5 v5.2.5
 	github.com/go-chi/httprate v0.7.4
 	github.com/prometheus/client_golang v1.19.1
 	github.com/redis/go-redis/v9 v9.3.0
