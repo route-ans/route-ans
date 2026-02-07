@@ -68,7 +68,7 @@ wget https://github.com/route-ans/route-ans/releases/latest/download/ans-resolve
 chmod +x ans-resolver-linux-amd64
 
 # Or use Docker
-docker run -p 8080:8080 ghcr.io/route-ans/resolver:latest
+docker run -p 8080:8080 ghcr.io/route-ans/route-ans:latest
 
 # Or build from source
 git clone https://github.com/route-ans/route-ans

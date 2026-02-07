@@ -1,10 +1,10 @@
 apiVersion: v1
 kind: Service
 metadata:
-  name: ans-resolver
+  name: route-ans
   namespace: route-ans
   labels:
-    app: ans-resolver
+    app: route-ans
 spec:
   type: ClusterIP
   ports:
@@ -17,37 +17,37 @@ spec:
       targetPort: metrics
       protocol: TCP
   selector:
-    app: ans-resolver
+    app: route-ans
 ---
 apiVersion: v1
 kind: ServiceAccount
 metadata:
-  name: ans-resolver
+  name: route-ans
   namespace: route-ans
   labels:
-    app: ans-resolver
+    app: route-ans
 ---
 apiVersion: policy/v1
 kind: PodDisruptionBudget
 metadata:
-  name: ans-resolver
+  name: route-ans
   namespace: route-ans
 spec:
   minAvailable: 2
   selector:
     matchLabels:
-      app: ans-resolver
+      app: route-ans
 ---
 apiVersion: autoscaling/v2
 kind: HorizontalPodAutoscaler
 metadata:
-  name: ans-resolver
+  name: route-ans
   namespace: route-ans
 spec:
   scaleTargetRef:
     apiVersion: apps/v1
     kind: Deployment
-    name: ans-resolver
+    name: route-ans
   minReplicas: 3
   maxReplicas: 20
   metrics:

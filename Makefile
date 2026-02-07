@@ -1,14 +1,16 @@
 # ANS Resolution Server Makefile
 
-.PHONY: all build run test lint clean docker docker-build docker-run help
+.PHONY: all build run test lint clean docker docker-build docker-run docker-tag docker-push docker-release help
 
 # Variables
-BINARY_NAME=ans-resolver
+BINARY_NAME=route-ans
 VERSION?=$(shell git describe --tags --always --dirty 2>/dev/null || echo "dev")
 BUILD_TIME=$(shell date -u '+%Y-%m-%dT%H:%M:%SZ')
 LDFLAGS=-ldflags "-X main.version=$(VERSION) -X main.buildTime=$(BUILD_TIME)"
-DOCKER_IMAGE=ans-resolution-server
-DOCKER_TAG?=latest
+DOCKER_IMAGE=route-ans
+DOCKER_TAG?=1.0.0
+DOCKER_REGISTRY?=ghcr.io
+DOCKER_USERNAME?= route-ans
 
 # Go parameters
 GOCMD=go
@@ -77,12 +79,38 @@ clean:
 ## Build Docker image
 docker-build:
 	@echo "Building Docker image..."
-	docker build -t $(DOCKER_IMAGE):$(DOCKER_TAG) -f deployments/docker/Dockerfile .
+	docker build \
+		--build-arg VERSION=$(VERSION) \
+		--build-arg BUILD_TIME=$(BUILD_TIME) \
+		-t $(DOCKER_IMAGE):$(DOCKER_TAG) \
+		-f deployments/docker/Dockerfile .
 
 ## Run Docker container
 docker-run:
 	@echo "Running Docker container..."
 	docker run -p 8080:8080 -p 9091:9091 $(DOCKER_IMAGE):$(DOCKER_TAG)
+
+## Tag Docker image for registry
+docker-tag:
+	@echo "Tagging Docker image for $(DOCKER_REGISTRY)/$(DOCKER_USERNAME)/$(DOCKER_IMAGE)..."
+	docker tag $(DOCKER_IMAGE):$(DOCKER_TAG) $(DOCKER_REGISTRY)/$(DOCKER_USERNAME)/$(DOCKER_IMAGE):$(DOCKER_TAG)
+	docker tag $(DOCKER_IMAGE):$(DOCKER_TAG) $(DOCKER_REGISTRY)/$(DOCKER_USERNAME)/$(DOCKER_IMAGE):$(VERSION)
+	@if [ "$(DOCKER_TAG)" = "latest" ]; then \
+		docker tag $(DOCKER_IMAGE):$(DOCKER_TAG) $(DOCKER_REGISTRY)/$(DOCKER_USERNAME)/$(DOCKER_IMAGE):latest; \
+	fi
+
+## Push Docker image to registry
+docker-push: docker-tag
+	@echo "Pushing Docker image to $(DOCKER_REGISTRY)/$(DOCKER_USERNAME)/$(DOCKER_IMAGE)..."
+	docker push $(DOCKER_REGISTRY)/$(DOCKER_USERNAME)/$(DOCKER_IMAGE):$(DOCKER_TAG)
+	docker push $(DOCKER_REGISTRY)/$(DOCKER_USERNAME)/$(DOCKER_IMAGE):$(VERSION)
+	@if [ "$(DOCKER_TAG)" = "latest" ]; then \
+		docker push $(DOCKER_REGISTRY)/$(DOCKER_USERNAME)/$(DOCKER_IMAGE):latest; \
+	fi
+
+## Build and push Docker image
+docker-release: docker-build docker-push
+	@echo "Docker image released: $(DOCKER_REGISTRY)/$(DOCKER_USERNAME)/$(DOCKER_IMAGE):$(VERSION)"
 
 ## Generate API docs
 api-docs:

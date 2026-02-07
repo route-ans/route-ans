@@ -1,18 +1,18 @@
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  name: ans-resolver
+  name: route-ans
   namespace: route-ans
   labels:
-    app: ans-resolver
-    app.kubernetes.io/name: ans-resolver
+    app: route-ans
+    app.kubernetes.io/name: route-ans
     app.kubernetes.io/component: resolver
     app.kubernetes.io/part-of: ans
 spec:
   replicas: 3
   selector:
     matchLabels:
-      app: ans-resolver
+      app: route-ans
   strategy:
     type: RollingUpdate
     rollingUpdate:
@@ -21,21 +21,21 @@ spec:
   template:
     metadata:
       labels:
-        app: ans-resolver
+        app: route-ans
       annotations:
         prometheus.io/scrape: "true"
         prometheus.io/port: "9091"
         prometheus.io/path: "/metrics"
     spec:
-      serviceAccountName: ans-resolver
+      serviceAccountName: route-ans
       securityContext:
         runAsNonRoot: true
         runAsUser: 1000
         runAsGroup: 1000
         fsGroup: 1000
       containers:
-        - name: resolver
-          image: ans-resolution-server:latest
+        - name: route-ans
+          image: ghcr.io/route-ans/route-ans:latest
           imagePullPolicy: IfNotPresent
           args:
             - --config=/etc/ans/resolver.yaml
@@ -56,14 +56,26 @@ spec:
             - name: REDIS_ADDRESS
               valueFrom:
                 configMapKeyRef:
-                  name: ans-resolver-config
+                  name: route-ans-config
                   key: redis.address
             - name: REDIS_PASSWORD
               valueFrom:
                 secretKeyRef:
-                  name: ans-resolver-secrets
+                  name: route-ans-secrets
                   key: redis.password
                   optional: true
+            - name: GODADDY_API_URL
+              value: "https://api.godaddy.com/v1"
+            - name: GODADDY_API_KEY
+              valueFrom:
+                secretKeyRef:
+                  name: route-ans-secrets
+                  key: godaddy.api.key
+            - name: GODADDY_API_SECRET
+              valueFrom:
+                secretKeyRef:
+                  name: route-ans-secrets
+                  key: godaddy.api.secret
           resources:
             requests:
               cpu: 100m
@@ -91,9 +103,6 @@ spec:
             - name: config
               mountPath: /etc/ans
               readOnly: true
-            - name: trust-bundle
-              mountPath: /etc/ans/trust
-              readOnly: true
           securityContext:
             allowPrivilegeEscalation: false
             readOnlyRootFilesystem: true
@@ -103,11 +112,7 @@ spec:
       volumes:
         - name: config
           configMap:
-            name: ans-resolver-config
-        - name: trust-bundle
-          secret:
-            secretName: ans-trust-bundle
-            optional: true
+            name: route-ans-config
       affinity:
         podAntiAffinity:
           preferredDuringSchedulingIgnoredDuringExecution:
@@ -115,7 +120,7 @@ spec:
               podAffinityTerm:
                 labelSelector:
                   matchLabels:
-                    app: ans-resolver
+                    app: route-ans
                 topologyKey: kubernetes.io/hostname
       topologySpreadConstraints:
         - maxSkew: 1
@@ -123,4 +128,4 @@ spec:
           whenUnsatisfiable: ScheduleAnyway
           labelSelector:
             matchLabels:
-              app: ans-resolver
+              app: route-ans

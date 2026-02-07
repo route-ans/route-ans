@@ -8,20 +8,20 @@ Production deployment strategies for Route ANS Resolver.
 
 ```bash
 # Pull image
-docker pull ghcr.io/route-ans/resolver:latest
+docker pull ghcr.io/route-ans/route-ans:latest
 
 # Run with default config
 docker run -d \
   --name ans-resolver \
   -p 8080:8080 \
-  ghcr.io/route-ans/resolver:latest
+  ghcr.io/route-ans/route-ans:latest
 
 # Run with custom config
 docker run -d \
   --name ans-resolver \
   -p 8080:8080 \
   -v /path/to/config.yaml:/etc/resolver/config.yaml \
-  ghcr.io/route-ans/resolver:latest \
+  ghcr.io/route-ans/route-ans:latest \
   --config /etc/resolver/config.yaml
 ```
 
@@ -32,7 +32,7 @@ version: '3.8'
 
 services:
   resolver:
-    image: ghcr.io/route-ans/resolver:latest
+    image: ghcr.io/route-ans/route-ans:latest
     ports:
       - "8080:8080"
     volumes:
@@ -68,7 +68,7 @@ version: '3.8'
 
 services:
   resolver:
-    image: ghcr.io/route-ans/resolver:latest
+    image: ghcr.io/route-ans/route-ans:latest
     depends_on:
       - redis
     ports:
@@ -126,7 +126,7 @@ spec:
     spec:
       containers:
       - name: resolver
-        image: ghcr.io/route-ans/resolver:v1.0.0
+        image: ghcr.io/route-ans/route-ans:v1.0.0
         ports:
         - containerPort: 8080
           name: http
@@ -305,7 +305,7 @@ sudo systemctl status ans-resolver
   "containerDefinitions": [
     {
       "name": "resolver",
-      "image": "ghcr.io/route-ans/resolver:latest",
+      "image": "ghcr.io/route-ans/route-ans:latest",
       "portMappings": [
         {
           "containerPort": 8080,
@@ -351,7 +351,7 @@ spec:
   template:
     spec:
       containers:
-      - image: ghcr.io/route-ans/resolver:latest
+      - image: ghcr.io/route-ans/route-ans:latest
         ports:
         - containerPort: 8080
         env:
@@ -367,7 +367,7 @@ Deploy:
 
 ```bash
 gcloud run deploy ans-resolver \
-  --image ghcr.io/route-ans/resolver:latest \
+  --image ghcr.io/route-ans/route-ans:latest \
   --platform managed \
   --region us-central1 \
   --allow-unauthenticated \
@@ -382,7 +382,7 @@ gcloud run deploy ans-resolver \
 az container create \
   --resource-group ans-resolver \
   --name ans-resolver \
-  --image ghcr.io/route-ans/resolver:latest \
+  --image ghcr.io/route-ans/route-ans:latest \
   --dns-name-label ans-resolver \
   --ports 8080 \
   --cpu 1 \
@@ -502,7 +502,7 @@ docker restart redis
 ```bash
 # Update image
 kubectl set image deployment/ans-resolver \
-  resolver=ghcr.io/route-ans/resolver:v1.1.0 \
+  resolver=ghcr.io/route-ans/route-ans:v1.1.0 \
   -n ans-system
 
 # Watch rollout

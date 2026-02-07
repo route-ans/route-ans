@@ -328,7 +328,7 @@ docker ps -a  # Shows Exited (1)
 docker logs ans-resolver
 
 # 2. Run interactively
-docker run -it --entrypoint sh ghcr.io/route-ans/resolver:latest
+docker run -it --entrypoint sh ghcr.io/route-ans/route-ans:latest
 
 # 3. Check config mount
 docker run -v $(pwd)/configs:/configs ... --config /configs/resolver.yaml
@@ -345,7 +345,7 @@ docker run --env-file .env ...
 echo $GITHUB_TOKEN | docker login ghcr.io -u USERNAME --password-stdin
 
 # 2. Use specific tag
-docker pull ghcr.io/route-ans/resolver:v1.0.0
+docker pull ghcr.io/route-ans/route-ans:1.0.0
 
 # 3. Check image exists
 curl https://ghcr.io/v2/route-ans/resolver/tags/list

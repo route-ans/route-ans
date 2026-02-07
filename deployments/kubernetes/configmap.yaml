@@ -1,10 +1,10 @@
 apiVersion: v1
 kind: ConfigMap
 metadata:
-  name: ans-resolver-config
+  name: route-ans-config
   namespace: route-ans
   labels:
-    app: ans-resolver
+    app: route-ans
 data:
   # Redis connection
   redis.address: "redis-master.ans-system.svc.cluster.local:6379"
@@ -31,25 +31,20 @@ data:
         password: ${REDIS_PASSWORD:}
         poolSize: 10
 
-    queue:
-      provider: redis-streams
-      redis-streams:
-        address: ${REDIS_ADDRESS:redis:6379}
-        stream: ans:events
-        consumerGroup: resolver-group
-
     store:
       provider: memory
 
     registries:
       - name: primary
-        type: ans-registry
+        type: godaddy
         enabled: true
         priority: 1
         timeout: 10s
         retries: 3
         config:
-          baseUrl: ${ANS_REGISTRY_URL:https://registry.ans.io}
+          baseUrl: ${GODADDY_API_URL:https://api.godaddy.com/v1}
+          apiKey: ${GODADDY_API_KEY}
+          apiSecret: ${GODADDY_API_SECRET}
           events:
             enabled: true
 
@@ -102,4 +97,4 @@ data:
         enabled: ${TRACING_ENABLED:false}
         provider: otlp
         sampleRate: 0.1
-        serviceName: ans-resolver
+        serviceName: route-ans

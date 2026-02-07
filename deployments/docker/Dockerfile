@@ -22,7 +22,7 @@ ARG VERSION=dev
 ARG BUILD_TIME
 RUN CGO_ENABLED=0 GOOS=linux GOARCH=amd64 go build \
     -ldflags "-X main.version=${VERSION} -X main.buildTime=${BUILD_TIME} -w -s" \
-    -o /app/bin/ans-resolver \
+    -o /app/bin/route-ans \
     ./cmd/resolver
 
 # Runtime stage
@@ -39,7 +39,7 @@ RUN addgroup -g 1000 ans && \
 WORKDIR /app
 
 # Copy binary from builder
-COPY --from=builder /app/bin/ans-resolver /app/ans-resolver
+COPY --from=builder /app/bin/route-ans /app/route-ans
 
 # Copy default config
 COPY configs/resolver.yaml /etc/ans/resolver.yaml
@@ -62,5 +62,5 @@ HEALTHCHECK --interval=30s --timeout=5s --start-period=5s --retries=3 \
     CMD wget --no-verbose --tries=1 --spider http://localhost:8080/health || exit 1
 
 # Default command
-ENTRYPOINT ["/app/ans-resolver"]
+ENTRYPOINT ["/app/route-ans"]
 CMD ["--config", "/etc/ans/resolver.yaml"]
