@@ -7,7 +7,7 @@ require (
 	github.com/go-chi/httprate v0.7.4
 	github.com/prometheus/client_golang v1.19.1
 	github.com/redis/go-redis/v9 v9.3.0
-	github.com/rs/zerolog v1.31.0
+	github.com/rs/zerolog v1.34.0
 	github.com/swaggo/http-swagger/v2 v2.0.2
 	github.com/swaggo/swag v1.16.6
 	go.opentelemetry.io/otel v1.19.0
