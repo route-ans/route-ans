@@ -5,6 +5,7 @@ repo_url: https://github.com/route-ans/route-ans
 
 theme:
   logo: assets/logo.png
+  favicon: assets/logo.ico
   name: material
   palette:
     - scheme: default

@@ -1,4 +1,17 @@
-# ANS Resolution Server
+<div align="center">
+  <img src="docs/assets/logo.png" alt="ANS Logo" width="200"/>
+  
+  # ANS Resolution Server
+
+  [![License](https://img.shields.io/badge/License-Apache%202.0-blue.svg)](LICENSE)
+  [![Go Report Card](https://goreportcard.com/badge/github.com/route-ans/route-ans)](https://goreportcard.com/report/github.com/route-ans/route-ans)
+  [![Go Version](https://img.shields.io/github/go-mod/go-version/route-ans/route-ans)](go.mod)
+  [![Release](https://img.shields.io/github/v/release/route-ans/route-ans)](https://github.com/route-ans/route-ans/releases)
+  [![Container Image](https://img.shields.io/badge/ghcr.io-route--ans-blue?logo=docker)](https://github.com/route-ans/route-ans/pkgs/container/route-ans)
+  [![Build Status](https://img.shields.io/github/actions/workflow/status/route-ans/route-ans/ci.yml?branch=main)](https://github.com/route-ans/route-ans/actions)
+  [![Documentation](https://img.shields.io/badge/docs-mkdocs-blue)](https://route-ans.github.io/route-ans/)
+  
+</div>
 
 A high-performance, cryptographically-verified resolution service for the Agent Name Service (ANS) ecosystem. The resolution server translates ANSName identifiers into verified agent endpoints, acting as the "DNS resolver" layer for autonomous AI agents.
 
