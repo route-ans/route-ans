@@ -5,7 +5,7 @@ import (
 	"time"
 )
 
-// ResolutionRecord represents a verified agent resolution record
+// ResolutionRecord represents a verified agent resolution record with cryptographic proof
 type ResolutionRecord struct {
 	// ANSName is the full ANSName identifier
 	ANSName string `json:"ansName"`
@@ -103,6 +103,7 @@ type MerkleProofData struct {
 
 // Status constants for ResolutionRecord
 const (
+	// StatusActive indicates an active, verified agent
 	StatusActive     = "active"
 	StatusPending    = "pending"
 	StatusRevoked    = "revoked"

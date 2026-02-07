@@ -117,6 +117,7 @@ type VerificationResult struct {
 type VerificationStatus string
 
 const (
+	// StatusVerified indicates successful verification of all checks
 	StatusVerified  VerificationStatus = "verified"
 	StatusInvalid   VerificationStatus = "invalid"
 	StatusRevoked   VerificationStatus = "revoked"

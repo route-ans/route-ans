@@ -90,11 +90,9 @@ func (q *memoryQueue) Acknowledge(ctx context.Context, eventID string) error {
 }
 
 // Reject marks an event as failed (no-op for memory queue)
+// For memory queue, we can't requeue. In a real implementation, this would add to a retry queue.
 func (q *memoryQueue) Reject(ctx context.Context, eventID string, requeue bool) error {
-	if requeue {
-		// For memory queue, we can't really requeue
-		// In a real implementation, this would add to a retry queue
-	}
+	_ = requeue // Ignored: memory queue doesn't support requeueing
 	return nil
 }
 
@@ -120,28 +118,30 @@ func (q *memoryQueue) Close() error {
 	return nil
 }
 
+const queueProviderName = "memory"
+
 // Name returns the provider name
 func (q *memoryQueue) Name() string {
-	return "memory"
+	return queueProviderName
 }
 
 // Common errors
 var (
-	ErrQueueClosed = &QueueError{Message: "queue is closed"}
-	ErrQueueFull   = &QueueError{Message: "queue is full"}
+	ErrQueueClosed = &Error{Message: "queue is closed"}
+	ErrQueueFull   = &Error{Message: "queue is full"}
 )
 
-// QueueError represents a queue error
-type QueueError struct {
+// Error represents a queue error
+type Error struct {
 	Message string
 }
 
-func (e *QueueError) Error() string {
+func (e *Error) Error() string {
 	return e.Message
 }
 
 func init() {
-	Register("memory", func(opts Options, config map[string]interface{}) (Provider, error) {
+	Register(queueProviderName, func(opts Options, config map[string]interface{}) (Provider, error) {
 		return NewMemoryQueue(opts, config)
 	})
 }

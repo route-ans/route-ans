@@ -222,17 +222,18 @@ func (g *godaddyAdapter) Lookup(ctx context.Context, name *ansname.ANSName) (*Re
 		return nil, fmt.Errorf("failed to parse agent details: %w", err)
 	}
 
+	const (
+		statusActive   = "ACTIVE"
+		statusVerified = "VERIFIED"
+	)
+
 	// Check status
-	if details.AgentStatus != "ACTIVE" && details.AgentStatus != "VERIFIED" {
+	if details.AgentStatus != statusActive && details.AgentStatus != statusVerified {
 		return nil, &ErrNotFound{ANSName: name.String()}
 	}
 
 	// Step 3: Get certificates
-	serverCert, identityCert, err := g.getCertificates(ctx, details.Links)
-	if err != nil {
-		log.Warn().Err(err).Str("ansName", name.String()).Msg("Failed to retrieve certificates")
-		// Continue without certificates - some agents may not have them yet
-	}
+	serverCert, identityCert := g.getCertificates(ctx, details.Links)
 
 	// Build the record
 	record := g.buildRecord(&details, serverCert, identityCert)
@@ -298,10 +299,7 @@ func (g *godaddyAdapter) LookupByFQDN(ctx context.Context, fqdn string) ([]*Reco
 	}
 
 	// Get certificates
-	serverCert, identityCert, err := g.getCertificates(ctx, details.Links)
-	if err != nil {
-		log.Warn().Err(err).Str("fqdn", fqdn).Msg("Failed to retrieve certificates")
-	}
+	serverCert, identityCert := g.getCertificates(ctx, details.Links)
 
 	// Build the record
 	record := g.buildRecord(&details, serverCert, identityCert)
@@ -410,7 +408,11 @@ func (g *godaddyAdapter) fetchEvents(ctx context.Context, lastLogID string, limi
 	if err != nil {
 		return nil, "", err
 	}
-	defer resp.Body.Close()
+	defer func() {
+		if err := resp.Body.Close(); err != nil {
+			log.Warn().Err(err).Msg("Failed to close response body")
+		}
+	}()
 
 	if resp.StatusCode != http.StatusOK {
 		body, _ := io.ReadAll(resp.Body)
@@ -503,7 +505,11 @@ func (g *godaddyAdapter) Healthy(ctx context.Context) (bool, error) {
 	if err != nil {
 		return false, err
 	}
-	defer resp.Body.Close()
+	defer func() {
+		if err := resp.Body.Close(); err != nil {
+			log.Warn().Err(err).Msg("Failed to close response body")
+		}
+	}()
 
 	return resp.StatusCode < 500, nil
 }
@@ -539,7 +545,11 @@ func (g *godaddyAdapter) makeRequest(ctx context.Context, method, url string, bo
 	if err != nil {
 		return nil, fmt.Errorf("request failed: %w", err)
 	}
-	defer resp.Body.Close()
+	defer func() {
+		if err := resp.Body.Close(); err != nil {
+			log.Warn().Err(err).Msg("Failed to close response body")
+		}
+	}()
 
 	respBody, err := io.ReadAll(resp.Body)
 	if err != nil {
@@ -569,7 +579,7 @@ func (g *godaddyAdapter) makeRequest(ctx context.Context, method, url string, bo
 func (g *godaddyAdapter) getCertificates(ctx context.Context, links []struct {
 	Rel  string `json:"rel"`
 	Href string `json:"href"`
-}) (*godaddyCertificate, *godaddyCertificate, error) {
+}) (*godaddyCertificate, *godaddyCertificate) {
 	var serverCertURL, identityCertURL string
 
 	for _, link := range links {
@@ -605,7 +615,7 @@ func (g *godaddyAdapter) getCertificates(ctx context.Context, links []struct {
 		}
 	}
 
-	return serverCert, identityCert, nil
+	return serverCert, identityCert
 }
 
 func (g *godaddyAdapter) parseCertificate(cert *godaddyCertificateResponse) *godaddyCertificate {

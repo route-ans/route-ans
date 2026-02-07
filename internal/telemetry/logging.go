@@ -45,7 +45,7 @@ func NewLogger(cfg config.LoggingConfig) zerolog.Logger {
 	}
 
 	// Configure level
-	level := zerolog.InfoLevel
+	var level zerolog.Level
 	switch cfg.Level {
 	case "debug":
 		level = zerolog.DebugLevel

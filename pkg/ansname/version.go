@@ -131,6 +131,8 @@ func ParseVersionRange(rangeStr string) (*VersionRange, error) {
 }
 
 // Matches checks if the given ANSName version satisfies this version range.
+//
+//nolint:gocyclo // High complexity required for comprehensive version range matching logic
 func (vr *VersionRange) Matches(name *ANSName) (bool, error) {
 	major, minor, patch, err := name.VersionComponents()
 	if err != nil {

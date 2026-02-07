@@ -223,13 +223,15 @@ func (c *memoryCache) Close() error {
 	return nil
 }
 
+const providerName = "memory"
+
 // Name returns the provider name
 func (c *memoryCache) Name() string {
-	return "memory"
+	return providerName
 }
 
 func init() {
-	Register("memory", func(opts Options, config map[string]interface{}) (Provider, error) {
+	Register(providerName, func(opts Options, config map[string]interface{}) (Provider, error) {
 		return NewMemoryCache(opts)
 	})
 }

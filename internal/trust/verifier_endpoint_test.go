@@ -59,6 +59,7 @@ func TestVerifyEndpointFingerprint(t *testing.T) {
 				PrivateKey:  priv,
 			},
 		},
+		MinVersion: tls.VersionTLS12,
 	}
 	server.StartTLS()
 	defer server.Close()
@@ -138,13 +139,18 @@ func TestVerifyEndpointFingerprint_RealWorld(t *testing.T) {
 		dialer := &tls.Dialer{
 			Config: &tls.Config{
 				InsecureSkipVerify: false,
+				MinVersion:         tls.VersionTLS12,
 			},
 		}
 		conn, err := dialer.DialContext(context.Background(), "tcp", "www.google.com:443")
 		if err != nil {
 			t.Skipf("Cannot connect to google.com: %v", err)
 		}
-		defer conn.Close()
+		defer func() {
+			if err := conn.Close(); err != nil {
+				t.Logf("Failed to close connection: %v", err)
+			}
+		}()
 
 		tlsConn := conn.(*tls.Conn)
 		state := tlsConn.ConnectionState()

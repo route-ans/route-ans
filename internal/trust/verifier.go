@@ -113,6 +113,8 @@ func (v *DefaultVerifier) VerifyRecord(ctx context.Context, record *models.Resol
 }
 
 // VerifyRegistryRecord verifies a record from the registry
+//
+//nolint:gocyclo // High complexity due to multiple verification checks; splitting would reduce clarity
 func (v *DefaultVerifier) VerifyRegistryRecord(ctx context.Context, record *registry.Record) (*VerificationResult, error) {
 	start := time.Now()
 	result := &VerificationResult{
@@ -349,6 +351,7 @@ func (v *DefaultVerifier) VerifyEndpointFingerprint(ctx context.Context, endpoin
 	// Create TLS dialer that doesn't verify the cert chain (we verify fingerprint instead)
 	dialer := &tls.Dialer{
 		Config: &tls.Config{
+			// #nosec G402 -- InsecureSkipVerify is intentional here; we verify the certificate via fingerprint matching instead of standard chain validation
 			InsecureSkipVerify: true, // We verify manually via fingerprint
 			MinVersion:         tls.VersionTLS12,
 		},
@@ -365,9 +368,13 @@ func (v *DefaultVerifier) VerifyEndpointFingerprint(ctx context.Context, endpoin
 			Passed:   false,
 			Required: true,
 			Message:  fmt.Sprintf("failed to connect to endpoint: %v", err),
-		}, nil
+		}, fmt.Errorf("failed to connect: %w", err)
 	}
-	defer conn.Close()
+	defer func() {
+		if err := conn.Close(); err != nil {
+			log.Warn().Err(err).Msg("Failed to close TLS connection")
+		}
+	}()
 
 	// Get peer certificates
 	tlsConn, ok := conn.(*tls.Conn)
@@ -377,7 +384,7 @@ func (v *DefaultVerifier) VerifyEndpointFingerprint(ctx context.Context, endpoin
 			Passed:   false,
 			Required: true,
 			Message:  "not a TLS connection",
-		}, nil
+		}, errors.New("connection is not a TLS connection")
 	}
 
 	state := tlsConn.ConnectionState()
@@ -554,7 +561,7 @@ func (v *DefaultVerifier) CheckRevocation(ctx context.Context, cert *x509.Certif
 }
 
 // checkOCSP performs OCSP revocation check
-func (v *DefaultVerifier) checkOCSP(ctx context.Context, cert *x509.Certificate) (*RevocationResult, error) {
+func (v *DefaultVerifier) checkOCSP(_ context.Context, cert *x509.Certificate) (*RevocationResult, error) {
 	if len(cert.OCSPServer) == 0 {
 		return nil, errors.New("no OCSP server specified")
 	}
@@ -659,7 +666,11 @@ func (v *DefaultVerifier) fetchCRL(ctx context.Context, crlURL string) (*x509.Re
 	if err != nil {
 		return nil, err
 	}
-	defer resp.Body.Close()
+	defer func() {
+		if err := resp.Body.Close(); err != nil {
+			log.Warn().Err(err).Msg("Failed to close CRL response body")
+		}
+	}()
 
 	if resp.StatusCode != http.StatusOK {
 		return nil, fmt.Errorf("CRL fetch failed with status %d", resp.StatusCode)
@@ -805,44 +816,6 @@ func (v *DefaultVerifier) verifyRecordSignature(ctx context.Context, record *reg
 		check.Message = "Invalid signature"
 	}
 	check.Duration = time.Since(start)
-	return check
-}
-
-func (v *DefaultVerifier) checkCertificateExpiry(record *registry.Record) *CheckResult {
-	check := &CheckResult{
-		Name:     CheckCertificate,
-		Required: true,
-		Details:  make(map[string]interface{}),
-	}
-
-	now := time.Now()
-	certExpiry := record.Certificates.PublicCert.ExpiresAt
-
-	if certExpiry.IsZero() {
-		check.Passed = true
-		check.Message = "No certificate expiry set"
-		return check
-	}
-
-	if now.After(certExpiry) {
-		if now.Before(certExpiry.Add(v.config.GracePeriod)) {
-			check.Passed = true
-			check.Message = "Certificate expired but within grace period"
-		} else {
-			check.Passed = false
-			check.Message = "Certificate expired"
-		}
-	} else {
-		check.Passed = true
-		check.Message = "Certificate valid"
-		// Warn if expiring soon
-		if certExpiry.Sub(now) < 30*24*time.Hour {
-			check.Details["warning"] = "Certificate expires within 30 days"
-		}
-	}
-
-	check.Details["expiresAt"] = certExpiry
-	check.Details["fingerprint"] = record.Certificates.PublicCert.Fingerprint
 	return check
 }
 
@@ -1008,9 +981,4 @@ func init() {
 	Register("mock", func(opts Options, config map[string]interface{}) (Provider, error) {
 		return NewMockProvider(), nil
 	})
-}
-
-// Helper to check if string contains a substring (case-insensitive)
-func containsIgnoreCase(s, substr string) bool {
-	return strings.Contains(strings.ToLower(s), strings.ToLower(substr))
 }

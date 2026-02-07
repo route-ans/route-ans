@@ -102,6 +102,8 @@ func Parse(raw string) (*ANSName, error) {
 }
 
 // parseComponents extracts and validates the individual components from the host string
+//
+//nolint:gocyclo // High complexity due to format parsing logic; refactoring would reduce readability
 func parseComponents(protocol, host, raw string) (*ANSName, error) {
 	parts := strings.Split(host, ".")
 

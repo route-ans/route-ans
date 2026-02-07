@@ -133,14 +133,7 @@ func (q *redisQueue) Subscribe(ctx context.Context, handler EventHandler) error 
 		// Process messages
 		for _, stream := range streams {
 			for _, msg := range stream.Messages {
-				event, err := q.parseMessage(msg)
-				if err != nil {
-					log.Warn().Err(err).Str("id", msg.ID).Msg("Failed to parse message")
-					q.failed.Add(1)
-					// Acknowledge to prevent reprocessing
-					q.client.XAck(ctx, q.stream, q.consumerGroup, msg.ID)
-					continue
-				}
+				event := q.parseMessage(msg)
 
 				// Call handler
 				if err := handler(ctx, event); err != nil {
@@ -162,7 +155,7 @@ func (q *redisQueue) Subscribe(ctx context.Context, handler EventHandler) error 
 	}
 }
 
-func (q *redisQueue) parseMessage(msg redis.XMessage) (*Event, error) {
+func (q *redisQueue) parseMessage(msg redis.XMessage) *Event {
 	event := &Event{
 		ID:        msg.ID,
 		Timestamp: time.Now(), // Redis doesn't store original timestamp in simple case
@@ -190,10 +183,12 @@ func (q *redisQueue) parseMessage(msg redis.XMessage) (*Event, error) {
 
 	// Parse metadata if present
 	if v, ok := msg.Values["meta"].(string); ok {
-		json.Unmarshal([]byte(v), &event.Meta)
+		if err := json.Unmarshal([]byte(v), &event.Meta); err != nil {
+			log.Warn().Err(err).Msg("Failed to unmarshal event metadata")
+		}
 	}
 
-	return event, nil
+	return event
 }
 
 // Publish sends an event to the Redis stream

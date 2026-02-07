@@ -66,7 +66,7 @@ type EventHandler func(ctx context.Context, event *Event) error
 // Provider defines the interface for message queue implementations.
 type Provider interface {
 	// Subscribe starts consuming events and calls the handler for each event.
-	// This is a blocking call that runs until the context is cancelled.
+	// This is a blocking call that runs until the context is canceled.
 	Subscribe(ctx context.Context, handler EventHandler) error
 
 	// Publish sends an event to the queue (used for testing/federation).

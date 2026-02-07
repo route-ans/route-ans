@@ -32,20 +32,17 @@ type DefaultResolver struct {
 	lookupTimeout    time.Duration
 
 	// Stats
-	stats     ResolverStats
+	stats struct {
+		TotalRequests        int64
+		CacheHits            int64
+		CacheMisses          int64
+		RegistryLookups      int64
+		VerificationSuccess  int64
+		VerificationFailures int64
+		TotalLatencyNs       int64
+		RequestCount         int64
+	}
 	statsLock sync.RWMutex
-}
-
-// ResolverStats contains runtime statistics
-type ResolverStats struct {
-	TotalRequests        int64
-	CacheHits            int64
-	CacheMisses          int64
-	RegistryLookups      int64
-	VerificationSuccess  int64
-	VerificationFailures int64
-	TotalLatencyNs       int64
-	RequestCount         int64
 }
 
 // Config contains resolver configuration
@@ -94,6 +91,8 @@ func NewResolver(
 }
 
 // Resolve resolves an ANSName to a verified endpoint
+//
+//nolint:gocyclo // High complexity due to multi-step resolution with caching, lookup, and verification
 func (r *DefaultResolver) Resolve(ctx context.Context, name *ansname.ANSName) (*ResolutionRecord, error) {
 	start := time.Now()
 	atomic.AddInt64(&r.stats.TotalRequests, 1)
@@ -176,11 +175,14 @@ func (r *DefaultResolver) Resolve(ctx context.Context, name *ansname.ANSName) (*
 	resRecord.VerifiedAt = time.Now()
 
 	// Step 4: Determine TTL based on status
-	ttl := r.defaultTTL
-	if resRecord.Status == StatusActive {
+	var ttl time.Duration
+	switch resRecord.Status {
+	case StatusActive:
 		ttl = r.verifiedTTL
-	} else if resRecord.Status == StatusRevoked {
+	case StatusRevoked:
 		ttl = r.revokedTTL
+	default:
+		ttl = r.defaultTTL
 	}
 
 	// Step 5: Cache the result
@@ -240,7 +242,7 @@ func (r *DefaultResolver) ResolveWithRange(ctx context.Context, name *ansname.AN
 	}
 
 	// Step 3: Convert registry records to ANSNames for version negotiation
-	var candidates []*ansname.ANSName
+	candidates := make([]*ansname.ANSName, 0, len(records))
 	for _, record := range records {
 		candidate, err := ansname.Parse(record.ANSName)
 		if err != nil {
@@ -317,7 +319,7 @@ func (r *DefaultResolver) Verify(ctx context.Context, name *ansname.ANSName) (*V
 			Status:     VerificationError,
 			Error:      err.Error(),
 			VerifiedAt: time.Now(),
-		}, nil
+		}, err
 	}
 
 	// Perform verification
@@ -338,7 +340,7 @@ func (r *DefaultResolver) Verify(ctx context.Context, name *ansname.ANSName) (*V
 			Status:     VerificationError,
 			Error:      err.Error(),
 			VerifiedAt: time.Now(),
-		}, nil
+		}, err
 	}
 
 	// Convert trust.CheckResult to resolver.CheckResult

@@ -283,7 +283,11 @@ func (s *Server) startMetricsServer() {
 
 	log.Info().Str("addr", addr).Msg("Starting metrics server")
 
-	srv := &http.Server{Addr: addr, Handler: mux}
+	srv := &http.Server{
+		Addr:              addr,
+		Handler:           mux,
+		ReadHeaderTimeout: 10 * time.Second,
+	}
 	if err := srv.ListenAndServe(); err != nil && !errors.Is(err, http.ErrServerClosed) {
 		log.Error().Err(err).Msg("Metrics server error")
 	}
@@ -295,13 +299,19 @@ func (s *Server) Shutdown(ctx context.Context) error {
 
 	// Close providers
 	if s.cache != nil {
-		s.cache.Close()
+		if err := s.cache.Close(); err != nil {
+			log.Warn().Err(err).Msg("Error closing cache")
+		}
 	}
 	if s.queue != nil {
-		s.queue.Close()
+		if err := s.queue.Close(); err != nil {
+			log.Warn().Err(err).Msg("Error closing queue")
+		}
 	}
 	if s.registry != nil {
-		s.registry.Close()
+		if err := s.registry.Close(); err != nil {
+			log.Warn().Err(err).Msg("Error closing registry")
+		}
 	}
 
 	return s.httpServer.Shutdown(ctx)
@@ -332,12 +342,16 @@ func (s *Server) processQueueEvents(ctx context.Context) {
 				Msg("Failed to process queue event")
 
 			// Reject the event for retry
-			s.queue.Reject(ctx, event.ID, true)
+			if rejectErr := s.queue.Reject(ctx, event.ID, true); rejectErr != nil {
+				log.Warn().Err(rejectErr).Msg("Failed to reject event")
+			}
 			return err
 		}
 
 		// Acknowledge successful processing
-		s.queue.Acknowledge(ctx, event.ID)
+		if ackErr := s.queue.Acknowledge(ctx, event.ID); ackErr != nil {
+			log.Warn().Err(ackErr).Msg("Failed to acknowledge event")
+		}
 
 		log.Debug().
 			Str("eventID", event.ID).
@@ -366,7 +380,9 @@ func (s *Server) handleQueueEvent(ctx context.Context, event *queue.Event) error
 
 		// If we have endpoint info, we could proactively cache it
 		// For now, just invalidate to force fresh lookup
-		s.cache.Delete(ctx, event.ANSName)
+		if err := s.cache.Delete(ctx, event.ANSName); err != nil {
+			log.Warn().Err(err).Msg("Failed to delete from cache")
+		}
 
 		// Update metrics
 		s.metrics.RecordQueueEvent(event.Type, true)
@@ -379,7 +395,9 @@ func (s *Server) handleQueueEvent(ctx context.Context, event *queue.Event) error
 			Msg("Agent revocation/deprecation event received")
 
 		// Remove from cache
-		s.cache.Delete(ctx, event.ANSName)
+		if err := s.cache.Delete(ctx, event.ANSName); err != nil {
+			log.Warn().Err(err).Msg("Failed to delete from cache")
+		}
 
 		// Update metrics
 		s.metrics.RecordQueueEvent(event.Type, true)
@@ -390,7 +408,9 @@ func (s *Server) handleQueueEvent(ctx context.Context, event *queue.Event) error
 			Str("ansName", event.ANSName).
 			Msg("Agent expiration event received")
 
-		s.cache.Delete(ctx, event.ANSName)
+		if err := s.cache.Delete(ctx, event.ANSName); err != nil {
+			log.Warn().Err(err).Msg("Failed to delete from cache")
+		}
 		s.metrics.RecordQueueEvent(event.Type, true)
 
 	default:
@@ -645,7 +665,9 @@ func (s *Server) handleStats(w http.ResponseWriter, r *http.Request) {
 func (s *Server) jsonResponse(w http.ResponseWriter, status int, data interface{}) {
 	w.Header().Set("Content-Type", "application/json")
 	w.WriteHeader(status)
-	json.NewEncoder(w).Encode(data)
+	if err := json.NewEncoder(w).Encode(data); err != nil {
+		log.Error().Err(err).Msg("Failed to encode JSON response")
+	}
 }
 
 func (s *Server) errorResponse(w http.ResponseWriter, status int, message string) {
@@ -658,6 +680,7 @@ func (s *Server) errorResponse(w http.ResponseWriter, status int, message string
 
 // Response types
 
+// ResolutionResponse contains the result of an ANS resolution request
 type ResolutionResponse struct {
 	Status             string                 `json:"status"`
 	Agent              string                 `json:"agent,omitempty"`
@@ -670,20 +693,24 @@ type ResolutionResponse struct {
 	Error              string                 `json:"error,omitempty"`
 }
 
+// BatchResolveRequest contains a list of ANS names to resolve
 type BatchResolveRequest struct {
 	Names []string `json:"names"`
 }
 
+// BatchResolveResponse contains results for multiple ANS name resolutions
 type BatchResolveResponse struct {
 	Results map[string]*ResolutionResponse `json:"results"`
 }
 
+// VerifyResponse contains verification results for an ANS name
 type VerifyResponse struct {
 	Valid      bool                             `json:"valid"`
 	VerifiedAt string                           `json:"verifiedAt"`
 	Checks     map[string]*resolver.CheckResult `json:"checks"`
 }
 
+// ErrorResponse contains error details for failed requests
 type ErrorResponse struct {
 	Error   string `json:"error"`
 	Message string `json:"message"`

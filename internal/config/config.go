@@ -319,6 +319,7 @@ var envVarPattern = regexp.MustCompile(`\$\{([^}:]+)(?::([^}]*))?\}`)
 // Load reads and parses the configuration file with environment variable substitution
 func Load(path string) (*Config, error) {
 	// Read the config file
+	// #nosec G304 -- Config file path is provided by user/admin, not untrusted input
 	data, err := os.ReadFile(path)
 	if err != nil {
 		return nil, fmt.Errorf("failed to read config file: %w", err)
@@ -369,6 +370,8 @@ func substituteEnvVars(input string) string {
 }
 
 // setDefaults sets default values for unspecified configuration options
+//
+//nolint:gocyclo // High complexity acceptable for comprehensive configuration defaults
 func setDefaults(cfg *Config) {
 	// Server defaults
 	if cfg.Server.Host == "" {
@@ -393,9 +396,11 @@ func setDefaults(cfg *Config) {
 		cfg.Server.GracefulShutdownTimeout = 30 * time.Second
 	}
 
+	const defaultCacheProvider = "memory"
+
 	// Cache defaults
 	if cfg.Cache.Provider == "" {
-		cfg.Cache.Provider = "memory"
+		cfg.Cache.Provider = defaultCacheProvider
 	}
 	if cfg.Cache.TTL.Default == 0 {
 		cfg.Cache.TTL.Default = 5 * time.Minute
@@ -492,18 +497,6 @@ func validate(cfg *Config) error {
 	validTrustProviders := map[string]bool{"file": true, "vault": true, "k8s-secret": true, "mock": true}
 	if !validTrustProviders[cfg.Trust.Provider] {
 		errors = append(errors, fmt.Sprintf("invalid trust provider: %s", cfg.Trust.Provider))
-	}
-
-	// Validate at least one registry is configured
-	hasEnabledRegistry := false
-	for _, reg := range cfg.Registries {
-		if reg.Enabled {
-			hasEnabledRegistry = true
-			break
-		}
-	}
-	if !hasEnabledRegistry && len(cfg.Registries) > 0 {
-		// If registries are defined but none enabled, that's okay for testing
 	}
 
 	if len(errors) > 0 {

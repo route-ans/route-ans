@@ -6,23 +6,25 @@ run:
 linters:
   enable:
     - errcheck
-    - gosimple
     - govet
     - ineffassign
     - staticcheck
     - unused
-    - gofmt
-    - goimports
     - misspell
     - unparam
     - unconvert
     - goconst
     - gocyclo
-    - revive
     - gosec
     - nilerr
-    - stylecheck
     - prealloc
+  disable:
+    - revive  # Too noisy with unused-parameter warnings
+
+formatters:
+  enable:
+    - gofmt
+    - goimports
 
 linters-settings:
   gocyclo:
@@ -36,24 +38,31 @@ linters-settings:
     locale: US
   
   revive:
+    severity: warning
     rules:
       - name: exported
-        severity: warning
         disabled: false
       - name: error-return
-        severity: warning
         disabled: false
       - name: error-naming
-        severity: warning
         disabled: false
       - name: if-return
-        severity: warning
         disabled: false
+      # Disable noisy rules
+      - name: unused-parameter
+        disabled: true
+      - name: empty-block
+        disabled: true
+      - name: indent-error-flow
+        disabled: true
   
   gosec:
     excludes:
       - G104 # Audit errors not checked
       - G204 # Subprocess launched with variable
+
+  staticcheck:
+    checks: ["all", "-QF1003"]  # Exclude tagged switch suggestions
 
 issues:
   exclude-use-default: false
@@ -61,16 +70,35 @@ issues:
   max-same-issues: 0
   
   exclude-rules:
-    # Exclude some linters from running on tests files
+    # Exclude some linters from running on test files
     - path: _test\.go
       linters:
         - gocyclo
         - errcheck
         - gosec
+        - goconst
     
     # Exclude known linters from partially hard-vendored code
     - path: vendor/
       linters:
-        - stylecheck
+        - staticcheck
         - gosec
         - gocritic
+    
+    # Exclude noisy revive rules globally
+    - linters:
+        - revive
+      text: "unused-parameter"
+    
+    - linters:
+        - revive
+      text: "empty-block"
+    
+    - linters:
+        - revive
+      text: "indent-error-flow"
+    
+    # Exclude staticcheck tagged switch suggestion
+    - linters:
+        - staticcheck
+      text: "QF1003"
