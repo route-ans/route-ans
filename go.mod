@@ -7,7 +7,7 @@ require (
 	github.com/go-chi/httprate v0.7.4
 	github.com/prometheus/client_golang v1.19.1
 	github.com/redis/go-redis/v9 v9.3.0
-	github.com/rs/zerolog v1.31.0
+	github.com/rs/zerolog v1.35.0
 	github.com/swaggo/http-swagger/v2 v2.0.2
 	github.com/swaggo/swag v1.16.6
 	go.opentelemetry.io/otel v1.19.0
@@ -33,7 +33,7 @@ require (
 	github.com/grpc-ecosystem/grpc-gateway/v2 v2.16.0 // indirect
 	github.com/josharian/intern v1.0.0 // indirect
 	github.com/mailru/easyjson v0.7.6 // indirect
-	github.com/mattn/go-colorable v0.1.13 // indirect
+	github.com/mattn/go-colorable v0.1.14 // indirect
 	github.com/mattn/go-isatty v0.0.20 // indirect
 	github.com/prometheus/client_model v0.5.0 // indirect
 	github.com/prometheus/common v0.48.0 // indirect
