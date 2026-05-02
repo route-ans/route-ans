@@ -61,7 +61,11 @@ func newStructSpec(t reflect.Type, fieldTag string) *structSpec {
 		}
 
 		// Use the built-in decoder.
-		out.set(tag, &structField{index: i, fn: decoders[f.Type.Kind()]})
+		kind := f.Type.Kind()
+		if kind == reflect.Pointer {
+			kind = f.Type.Elem().Kind()
+		}
+		out.set(tag, &structField{index: i, fn: decoders[kind]})
 	}
 
 	return out
@@ -105,6 +109,8 @@ func (s StructValue) Scan(key string, value string) error {
 			return scan.ScanRedis(value)
 		case encoding.TextUnmarshaler:
 			return scan.UnmarshalText(util.StringToBytes(value))
+		case encoding.BinaryUnmarshaler:
+			return scan.UnmarshalBinary(util.StringToBytes(value))
 		}
 	}
 
